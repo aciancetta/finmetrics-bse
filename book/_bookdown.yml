@@ -1,0 +1,5 @@
+delete_merged_file: true
+rmd_files: ["index.Rmd", "01-session01.Rmd"]
+language:
+  ui:
+    chapter_name: "Session "
