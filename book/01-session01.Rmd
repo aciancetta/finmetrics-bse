@@ -152,7 +152,7 @@ lines(density(rnorm(1e6, mean = 0, sd = sqrt(x_theory_variance))), lwd = 4, col 
 For this example we use the ![https://fred.stlouisfed.org/series/GDP](U.S. GDP data).
 
 ```{r}
-x <- read.csv("../us-gdp.csv")[,2]
+x <- read.csv("../data/us-gdp.csv")[,2]
 x <- ts(x, start = c(1947, 1), frequency = 4)
 t_max <- length(x)
 plot.ts(x, main = "U.S. GDP", ylab = "Billions of dollars")
