@@ -1,12 +1,14 @@
 bookdown::gitbook:
   css: style.css
   config:
+    sharing: null
     toc:
       before: |
         <li><a href="./">Financial Econometrics at BSE</a></li>
       after: |
         <li><a href="https://github.com/aciancetta" target="blank">Alessandro Ciancetta</a></li>
-    edit: https://github.com/USERNAME/REPO/edit/BRANCH/%s
+    edit: https://github.com/aciancetta/finmetrics/edit/BRANCH/%s
+
     # download: ["pdf", "epub"]
 # bookdown::pdf_book:
 #   includes:
