@@ -23,7 +23,7 @@ TA materials for the Financial Econometrics course held by Prof. Christian Brown
 ```
 
 
-```{r echo=FALSE, fig.align='center'}
+```{r echo=FALSE, fig.align='center', out.width="100%"}
 knitr::include_graphics("pic_finmetrics.png")
 ```
 
