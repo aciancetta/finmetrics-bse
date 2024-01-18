@@ -53,16 +53,16 @@ We have:
 $$
 \begin{aligned}
 \mathbb{E}[y_t] &= \mathbb{E}[x_t] = 0 \\[1em]
-\text{cov}(y_t, y_{t-1}) &= 
+\text{cov}(y_t, y_{t-k}) &= 
 \begin{cases}
-10+0.25^2 & h = 0 \\
-10 & h \neq 0
+10+0.25^2 & k = 0 \\
+10 & k \neq 0
 \end{cases} \\[1ex]
-\text{cov}(x_t, x_{t-1}) &= 
+\text{cov}(x_t, x_{t-k}) &= 
 \begin{cases}
-2 & h = 0 \\
-1 & h = 1 \\
-0 & h \geq 2
+2 & k = 0 \\
+1 & k = 1 \\
+0 & k \geq 2
 \end{cases}
 \end{aligned}
 $$
@@ -152,7 +152,7 @@ lines(density(rnorm(1e6, mean = 0, sd = sqrt(x_theory_variance))), lwd = 4, col 
 
 ## Empirical moments and summary statistics
 
-For this example we use the ![U.S. GDP data](https://fred.stlouisfed.org/series/GDP.
+For this example we use the [U.S. GDP data](https://fred.stlouisfed.org/series/GDP).
 
 ```{r}
 x <- read.csv("../data/us-gdp.csv")[,2]
