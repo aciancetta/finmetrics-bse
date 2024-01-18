@@ -100,7 +100,8 @@ for (sim in 1:nsim) {
   x_list[,sim] <- z[2:(t_max+1)] + z[1:t_max]
 }
 # plot
-plot.ts(x_list[,1], ylim = c(min(x_list), max(x_list)), main = "Realizations of ergodic series", ylab = "y")
+plot.ts(x_list[,1], ylim = c(min(x_list), max(x_list)), 
+        main = "Realizations of ergodic series", ylab = "x")
 lines(x_list[,2], col = "steelblue")
 lines(x_list[,3], col = "tomato")
 abline(h = 0, col = "black", lwd = 2, lty = 2)
@@ -142,7 +143,7 @@ rbind(empirical_variance = x_empir_variance,
 ## Plot empirical distribution VS. theoretical distribution
 hist(x_means*sqrt(t_max), breaks = 20, freq = FALSE, 
      main = "Distribution of the simulated means", 
-     xlab = "Simulated means (rescaled by sqrt(T))")
+     xlab = expression(Simulated ~ means ~ rescaled ~ by ~ sqrt(T)))
 lines(density(x_means*sqrt(t_max)), lwd = 4, col = "tomato")
 lines(density(rnorm(1e6, mean = 0, sd = sqrt(x_theory_variance))), lwd = 4, col = "darkblue")
 ```

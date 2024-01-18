@@ -257,7 +257,8 @@ We have:
 \NormalTok{  x\_list[,sim] }\OtherTok{\textless{}{-}}\NormalTok{ z[}\DecValTok{2}\SpecialCharTok{:}\NormalTok{(t\_max}\SpecialCharTok{+}\DecValTok{1}\NormalTok{)] }\SpecialCharTok{+}\NormalTok{ z[}\DecValTok{1}\SpecialCharTok{:}\NormalTok{t\_max]}
 \NormalTok{\}}
 \CommentTok{\# plot}
-\FunctionTok{plot.ts}\NormalTok{(x\_list[,}\DecValTok{1}\NormalTok{], }\AttributeTok{ylim =} \FunctionTok{c}\NormalTok{(}\FunctionTok{min}\NormalTok{(x\_list), }\FunctionTok{max}\NormalTok{(x\_list)), }\AttributeTok{main =} \StringTok{"Realizations of ergodic series"}\NormalTok{, }\AttributeTok{ylab =} \StringTok{"y"}\NormalTok{)}
+\FunctionTok{plot.ts}\NormalTok{(x\_list[,}\DecValTok{1}\NormalTok{], }\AttributeTok{ylim =} \FunctionTok{c}\NormalTok{(}\FunctionTok{min}\NormalTok{(x\_list), }\FunctionTok{max}\NormalTok{(x\_list)), }
+        \AttributeTok{main =} \StringTok{"Realizations of ergodic series"}\NormalTok{, }\AttributeTok{ylab =} \StringTok{"x"}\NormalTok{)}
 \FunctionTok{lines}\NormalTok{(x\_list[,}\DecValTok{2}\NormalTok{], }\AttributeTok{col =} \StringTok{"steelblue"}\NormalTok{)}
 \FunctionTok{lines}\NormalTok{(x\_list[,}\DecValTok{3}\NormalTok{], }\AttributeTok{col =} \StringTok{"tomato"}\NormalTok{)}
 \FunctionTok{abline}\NormalTok{(}\AttributeTok{h =} \DecValTok{0}\NormalTok{, }\AttributeTok{col =} \StringTok{"black"}\NormalTok{, }\AttributeTok{lwd =} \DecValTok{2}\NormalTok{, }\AttributeTok{lty =} \DecValTok{2}\NormalTok{)}
@@ -311,7 +312,7 @@ with \(\sigma^2_{LR} = \sum_{k=-\infty}^\infty \gamma_k = \text{Var}(x_t) + 2\su
 \DocumentationTok{\#\# Plot empirical distribution VS. theoretical distribution}
 \FunctionTok{hist}\NormalTok{(x\_means}\SpecialCharTok{*}\FunctionTok{sqrt}\NormalTok{(t\_max), }\AttributeTok{breaks =} \DecValTok{20}\NormalTok{, }\AttributeTok{freq =} \ConstantTok{FALSE}\NormalTok{, }
      \AttributeTok{main =} \StringTok{"Distribution of the simulated means"}\NormalTok{, }
-     \AttributeTok{xlab =} \StringTok{"Simulated means (rescaled by sqrt(T))"}\NormalTok{)}
+     \AttributeTok{xlab =} \FunctionTok{expression}\NormalTok{(Simulated }\SpecialCharTok{\textasciitilde{}}\NormalTok{ means }\SpecialCharTok{\textasciitilde{}}\NormalTok{ rescaled }\SpecialCharTok{\textasciitilde{}}\NormalTok{ by }\SpecialCharTok{\textasciitilde{}} \FunctionTok{sqrt}\NormalTok{(T)))}
 \FunctionTok{lines}\NormalTok{(}\FunctionTok{density}\NormalTok{(x\_means}\SpecialCharTok{*}\FunctionTok{sqrt}\NormalTok{(t\_max)), }\AttributeTok{lwd =} \DecValTok{4}\NormalTok{, }\AttributeTok{col =} \StringTok{"tomato"}\NormalTok{)}
 \FunctionTok{lines}\NormalTok{(}\FunctionTok{density}\NormalTok{(}\FunctionTok{rnorm}\NormalTok{(}\FloatTok{1e6}\NormalTok{, }\AttributeTok{mean =} \DecValTok{0}\NormalTok{, }\AttributeTok{sd =} \FunctionTok{sqrt}\NormalTok{(x\_theory\_variance))), }\AttributeTok{lwd =} \DecValTok{4}\NormalTok{, }\AttributeTok{col =} \StringTok{"darkblue"}\NormalTok{)}
 \end{Highlighting}
