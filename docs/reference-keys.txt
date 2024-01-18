@@ -1,5 +1,0 @@
-session01
-stochastic-processes-and-dependence
-asymptotic-results
-empirical-moments-and-summary-statistics
-hypothesis-testing

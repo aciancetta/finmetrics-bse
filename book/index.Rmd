@@ -17,6 +17,15 @@ github-repo: rstudio/bookdown-demo
 
 TA materials for the Financial Econometrics course held by Prof. Christian Brownlees at the Barcelona School of Economics.
 
+```{r include = FALSE}
+## to render the PDF for teaching
+# knitr::opts_chunk$set(results = 'hide', eval = FALSE)
+```
+
+
+```{r echo=FALSE, fig.align='center'}
+knitr::include_graphics("pic_finmetrics.png")
+```
 
 
 <!-- # About -->
