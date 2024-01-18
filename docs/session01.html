@@ -205,7 +205,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 <div id="ergodicity" class="section level3 unnumbered hasAnchor">
 <h3>Ergodicity<a href="session01.html#ergodicity" class="anchor-section" aria-label="Anchor link to header"></a></h3>
-<p>Let <span class="math inline">\(\{z_t\}_{t = 1}^{T} \stackrel{iid}{\sim} \mathcal{N}(0, 1)\)</span></p>
+<p>Let <span class="math inline">\(\{z_t\}_{t = 1}^{T} \stackrel{iid}{\sim} \mathcal{N}(0, 1)\)</span>. Consider the two following data-generating processes:</p>
 <p><span class="math display">\[
 \begin{aligned}
 y_t &amp;= U_0 + 0.25z_t, \quad \text{with  } U_0 \sim \mathcal{N}(0, 10) \\[1ex]
@@ -282,10 +282,11 @@ We have:</p>
 <span id="cb4-2"><a href="session01.html#cb4-2" tabindex="-1"></a>x_empirical <span class="ot">&lt;-</span> x_list[,<span class="dv">9</span>]</span>
 <span id="cb4-3"><a href="session01.html#cb4-3" tabindex="-1"></a>x_means <span class="ot">&lt;-</span> <span class="fu">colMeans</span>(x_list)</span>
 <span id="cb4-4"><a href="session01.html#cb4-4" tabindex="-1"></a>x_theory_variance <span class="ot">&lt;-</span> <span class="dv">4</span>  <span class="co"># long run variance</span></span>
-<span id="cb4-5"><a href="session01.html#cb4-5" tabindex="-1"></a></span>
-<span id="cb4-6"><a href="session01.html#cb4-6" tabindex="-1"></a><span class="fu">rbind</span>(<span class="at">empirical_variance =</span> <span class="fu">var</span>(x_empirical) <span class="sc">+</span> <span class="dv">2</span><span class="sc">*</span>(<span class="fu">cov</span>(x_empirical[<span class="dv">1</span><span class="sc">:</span>(t_max<span class="dv">-1</span>)], x_empirical[<span class="dv">2</span><span class="sc">:</span>t_max])),</span>
-<span id="cb4-7"><a href="session01.html#cb4-7" tabindex="-1"></a>      <span class="at">simulated_variance =</span> <span class="fu">var</span>(x_means<span class="sc">*</span><span class="fu">sqrt</span>(t_max)),</span>
-<span id="cb4-8"><a href="session01.html#cb4-8" tabindex="-1"></a>      <span class="at">theoretical_variance =</span> x_theory_variance)</span></code></pre></div>
+<span id="cb4-5"><a href="session01.html#cb4-5" tabindex="-1"></a>x_empir_variance <span class="ot">&lt;-</span> <span class="fu">var</span>(x_empirical) <span class="sc">+</span> <span class="dv">2</span><span class="sc">*</span>(<span class="fu">cov</span>(x_empirical[<span class="dv">1</span><span class="sc">:</span>(t_max<span class="dv">-1</span>)], x_empirical[<span class="dv">2</span><span class="sc">:</span>t_max]))</span>
+<span id="cb4-6"><a href="session01.html#cb4-6" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="session01.html#cb4-7" tabindex="-1"></a><span class="fu">rbind</span>(<span class="at">empirical_variance =</span> x_empir_variance,</span>
+<span id="cb4-8"><a href="session01.html#cb4-8" tabindex="-1"></a>      <span class="at">simulated_variance =</span> <span class="fu">var</span>(x_means<span class="sc">*</span><span class="fu">sqrt</span>(t_max)),</span>
+<span id="cb4-9"><a href="session01.html#cb4-9" tabindex="-1"></a>      <span class="at">theoretical_variance =</span> x_theory_variance)</span></code></pre></div>
 <pre><code>##                          [,1]
 ## empirical_variance   4.174614
 ## simulated_variance   4.050667
@@ -399,42 +400,43 @@ We consider the annualized quarterly growth rates:</p>
 ## 
 ## data:  xgrowth
 ## X-squared = 2902.3, df = 2, p-value &lt; 2.2e-16</code></pre>
-<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="session01.html#cb23-1" tabindex="-1"></a><span class="do">## mean zero: z-test</span></span>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="session01.html#cb23-1" tabindex="-1"></a><span class="do">## mean zero: t-test</span></span>
 <span id="cb23-2"><a href="session01.html#cb23-2" tabindex="-1"></a>sigmaLR <span class="ot">&lt;-</span> <span class="fu">sum</span>(<span class="fu">sapply</span>(<span class="sc">-</span><span class="dv">100</span><span class="sc">:</span><span class="dv">100</span>, gamma, <span class="at">x =</span> xgrowth))</span>
 <span id="cb23-3"><a href="session01.html#cb23-3" tabindex="-1"></a>t_stat  <span class="ot">&lt;-</span> <span class="fu">mean</span>(xgrowth)<span class="sc">/</span>(<span class="fu">sqrt</span>(sigmaLR<span class="sc">/</span>t_max))</span>
 <span id="cb23-4"><a href="session01.html#cb23-4" tabindex="-1"></a>p_value <span class="ot">&lt;-</span> (<span class="dv">1</span><span class="sc">-</span><span class="fu">pnorm</span>(<span class="fu">abs</span>(t_stat)))<span class="sc">*</span><span class="dv">2</span></span>
 <span id="cb23-5"><a href="session01.html#cb23-5" tabindex="-1"></a><span class="co"># plot(density(rnorm(1e6)), xlim = c(-8, 8))</span></span>
 <span id="cb23-6"><a href="session01.html#cb23-6" tabindex="-1"></a><span class="co"># abline(v = t_stat, col = &quot;tomato&quot;, lwd = 2)</span></span>
 <span id="cb23-7"><a href="session01.html#cb23-7" tabindex="-1"></a></span>
-<span id="cb23-8"><a href="session01.html#cb23-8" tabindex="-1"></a><span class="co"># t.test(xgrowth, mu = 0)</span></span>
-<span id="cb23-9"><a href="session01.html#cb23-9" tabindex="-1"></a><span class="co"># mean(xgrowth)/(sqrt((t_max/(t_max-1))*var(xgrowth)/t_max)) # for compatibility with t-test()</span></span>
-<span id="cb23-10"><a href="session01.html#cb23-10" tabindex="-1"></a>t_stat_unadjasted <span class="ot">&lt;-</span> <span class="fu">mean</span>(xgrowth)<span class="sc">/</span>(<span class="fu">sqrt</span>(<span class="fu">var</span>(xgrowth)<span class="sc">/</span>t_max))</span>
-<span id="cb23-11"><a href="session01.html#cb23-11" tabindex="-1"></a>p_value_unadjasted <span class="ot">&lt;-</span> (<span class="dv">1</span><span class="sc">-</span><span class="fu">pnorm</span>(<span class="fu">abs</span>(t_stat_unadjasted)))<span class="sc">*</span><span class="dv">2</span></span>
-<span id="cb23-12"><a href="session01.html#cb23-12" tabindex="-1"></a></span>
+<span id="cb23-8"><a href="session01.html#cb23-8" tabindex="-1"></a><span class="co"># compare with unadjusted variance</span></span>
+<span id="cb23-9"><a href="session01.html#cb23-9" tabindex="-1"></a><span class="co"># t.test(xgrowth, mu = 0)</span></span>
+<span id="cb23-10"><a href="session01.html#cb23-10" tabindex="-1"></a><span class="co"># mean(xgrowth)/(sqrt((t_max/(t_max-1))*var(xgrowth)/t_max)) # for compatibility with t-test()</span></span>
+<span id="cb23-11"><a href="session01.html#cb23-11" tabindex="-1"></a>t_stat_unadjasted <span class="ot">&lt;-</span> <span class="fu">mean</span>(xgrowth)<span class="sc">/</span>(<span class="fu">sqrt</span>(<span class="fu">var</span>(xgrowth)<span class="sc">/</span>t_max))</span>
+<span id="cb23-12"><a href="session01.html#cb23-12" tabindex="-1"></a>p_value_unadjasted <span class="ot">&lt;-</span> (<span class="dv">1</span><span class="sc">-</span><span class="fu">pnorm</span>(<span class="fu">abs</span>(t_stat_unadjasted)))<span class="sc">*</span><span class="dv">2</span></span>
 <span id="cb23-13"><a href="session01.html#cb23-13" tabindex="-1"></a></span>
 <span id="cb23-14"><a href="session01.html#cb23-14" tabindex="-1"></a><span class="fu">rbind</span>(<span class="at">p_value_unadjasted =</span> p_value_unadjasted,</span>
 <span id="cb23-15"><a href="session01.html#cb23-15" tabindex="-1"></a>      <span class="at">p_value =</span> p_value)</span></code></pre></div>
 <pre><code>##                            [,1]
 ## p_value_unadjasted 0.000000e+00
 ## p_value            4.884981e-15</code></pre>
-<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="session01.html#cb25-1" tabindex="-1"></a><span class="co"># We can study when adjustment really matters using the results of the previous Monte Carlo simulation</span></span>
-<span id="cb25-2"><a href="session01.html#cb25-2" tabindex="-1"></a></span>
-<span id="cb25-3"><a href="session01.html#cb25-3" tabindex="-1"></a><span class="do">## Get variance and long-run variance</span></span>
-<span id="cb25-4"><a href="session01.html#cb25-4" tabindex="-1"></a>sigma <span class="ot">&lt;-</span> <span class="fu">apply</span>(x_list, <span class="dv">2</span>, <span class="cf">function</span>(x) <span class="fu">sqrt</span>(<span class="fu">gamma</span>(x, <span class="at">k =</span> <span class="dv">0</span>)<span class="sc">/</span><span class="fu">length</span>(x)))</span>
-<span id="cb25-5"><a href="session01.html#cb25-5" tabindex="-1"></a>sigmaLR <span class="ot">&lt;-</span> <span class="fu">apply</span>(x_list, <span class="dv">2</span>, <span class="cf">function</span>(x) <span class="fu">sqrt</span>(<span class="fu">sum</span>(<span class="fu">sapply</span>(<span class="sc">-</span><span class="dv">3</span><span class="sc">:</span><span class="dv">3</span>, gamma, <span class="at">x =</span> x))<span class="sc">/</span><span class="fu">length</span>(x)))</span>
-<span id="cb25-6"><a href="session01.html#cb25-6" tabindex="-1"></a></span>
-<span id="cb25-7"><a href="session01.html#cb25-7" tabindex="-1"></a><span class="do">## Get adjusted and unadjusted t-statistics</span></span>
-<span id="cb25-8"><a href="session01.html#cb25-8" tabindex="-1"></a>t_stat_unadjasted <span class="ot">&lt;-</span> x_means<span class="sc">/</span>sigma</span>
-<span id="cb25-9"><a href="session01.html#cb25-9" tabindex="-1"></a>t_stat <span class="ot">&lt;-</span> x_means<span class="sc">/</span>sigmaLR</span>
-<span id="cb25-10"><a href="session01.html#cb25-10" tabindex="-1"></a></span>
-<span id="cb25-11"><a href="session01.html#cb25-11" tabindex="-1"></a><span class="do">## Compute percentage of type-1 errors in the simulation</span></span>
-<span id="cb25-12"><a href="session01.html#cb25-12" tabindex="-1"></a>type1error <span class="ot">&lt;-</span> <span class="fu">mean</span>(<span class="fu">abs</span>(t_stat) <span class="sc">&gt;</span> <span class="fu">qnorm</span>(<span class="fl">0.975</span>))</span>
-<span id="cb25-13"><a href="session01.html#cb25-13" tabindex="-1"></a>type1error_unadjusted <span class="ot">&lt;-</span> <span class="fu">mean</span>(<span class="fu">abs</span>(t_stat_unadjasted) <span class="sc">&gt;</span> <span class="fu">qnorm</span>(<span class="fl">0.975</span>))</span>
-<span id="cb25-14"><a href="session01.html#cb25-14" tabindex="-1"></a></span>
-<span id="cb25-15"><a href="session01.html#cb25-15" tabindex="-1"></a><span class="fu">rbind</span>(</span>
-<span id="cb25-16"><a href="session01.html#cb25-16" tabindex="-1"></a>  <span class="at">type1error =</span> type1error,</span>
-<span id="cb25-17"><a href="session01.html#cb25-17" tabindex="-1"></a>  <span class="at">type1error_unadjusted =</span> type1error_unadjusted</span>
-<span id="cb25-18"><a href="session01.html#cb25-18" tabindex="-1"></a>)</span></code></pre></div>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="session01.html#cb25-1" tabindex="-1"></a><span class="co"># We can study when does the adjustment really matters </span></span>
+<span id="cb25-2"><a href="session01.html#cb25-2" tabindex="-1"></a><span class="co"># using the results of the previous Monte Carlo simulation</span></span>
+<span id="cb25-3"><a href="session01.html#cb25-3" tabindex="-1"></a></span>
+<span id="cb25-4"><a href="session01.html#cb25-4" tabindex="-1"></a><span class="do">## Get variance and long-run variance</span></span>
+<span id="cb25-5"><a href="session01.html#cb25-5" tabindex="-1"></a>sigma <span class="ot">&lt;-</span> <span class="fu">apply</span>(x_list, <span class="dv">2</span>, <span class="cf">function</span>(x) <span class="fu">sqrt</span>(<span class="fu">gamma</span>(x, <span class="at">k =</span> <span class="dv">0</span>)<span class="sc">/</span><span class="fu">length</span>(x)))</span>
+<span id="cb25-6"><a href="session01.html#cb25-6" tabindex="-1"></a>sigmaLR <span class="ot">&lt;-</span> <span class="fu">apply</span>(x_list, <span class="dv">2</span>, <span class="cf">function</span>(x) <span class="fu">sqrt</span>(<span class="fu">sum</span>(<span class="fu">sapply</span>(<span class="sc">-</span><span class="dv">3</span><span class="sc">:</span><span class="dv">3</span>, gamma, <span class="at">x =</span> x))<span class="sc">/</span><span class="fu">length</span>(x)))</span>
+<span id="cb25-7"><a href="session01.html#cb25-7" tabindex="-1"></a></span>
+<span id="cb25-8"><a href="session01.html#cb25-8" tabindex="-1"></a><span class="do">## Get adjusted and unadjusted t-statistics</span></span>
+<span id="cb25-9"><a href="session01.html#cb25-9" tabindex="-1"></a>t_stat_unadjasted <span class="ot">&lt;-</span> x_means<span class="sc">/</span>sigma</span>
+<span id="cb25-10"><a href="session01.html#cb25-10" tabindex="-1"></a>t_stat <span class="ot">&lt;-</span> x_means<span class="sc">/</span>sigmaLR</span>
+<span id="cb25-11"><a href="session01.html#cb25-11" tabindex="-1"></a></span>
+<span id="cb25-12"><a href="session01.html#cb25-12" tabindex="-1"></a><span class="do">## Compute percentage of type-1 errors in the simulation</span></span>
+<span id="cb25-13"><a href="session01.html#cb25-13" tabindex="-1"></a>type1error <span class="ot">&lt;-</span> <span class="fu">mean</span>(<span class="fu">abs</span>(t_stat) <span class="sc">&gt;</span> <span class="fu">qnorm</span>(<span class="fl">0.975</span>))</span>
+<span id="cb25-14"><a href="session01.html#cb25-14" tabindex="-1"></a>type1error_unadjusted <span class="ot">&lt;-</span> <span class="fu">mean</span>(<span class="fu">abs</span>(t_stat_unadjasted) <span class="sc">&gt;</span> <span class="fu">qnorm</span>(<span class="fl">0.975</span>))</span>
+<span id="cb25-15"><a href="session01.html#cb25-15" tabindex="-1"></a></span>
+<span id="cb25-16"><a href="session01.html#cb25-16" tabindex="-1"></a><span class="fu">rbind</span>(</span>
+<span id="cb25-17"><a href="session01.html#cb25-17" tabindex="-1"></a>  <span class="at">type1error =</span> type1error,</span>
+<span id="cb25-18"><a href="session01.html#cb25-18" tabindex="-1"></a>  <span class="at">type1error_unadjusted =</span> type1error_unadjusted</span>
+<span id="cb25-19"><a href="session01.html#cb25-19" tabindex="-1"></a>)</span></code></pre></div>
 <pre><code>##                         [,1]
 ## type1error            0.0569
 ## type1error_unadjusted 0.1716</code></pre>

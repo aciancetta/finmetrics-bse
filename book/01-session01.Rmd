@@ -40,7 +40,7 @@ plot.ts(y, main = "Non-stationary series (a pretty funny one)")
 
 ### Ergodicity {-}
 
-Let $\{z_t\}_{t = 1}^{T} \stackrel{iid}{\sim} \mathcal{N}(0, 1)$
+Let $\{z_t\}_{t = 1}^{T} \stackrel{iid}{\sim} \mathcal{N}(0, 1)$. Consider the two following data-generating processes:
 
 $$
 \begin{aligned}
@@ -130,8 +130,9 @@ with $\sigma^2_{LR} = \sum_{k=-\infty}^\infty \gamma_k = \text{Var}(x_t) + 2\sum
 x_empirical <- x_list[,9]
 x_means <- colMeans(x_list)
 x_theory_variance <- 4  # long run variance
+x_empir_variance <- var(x_empirical) + 2*(cov(x_empirical[1:(t_max-1)], x_empirical[2:t_max]))
 
-rbind(empirical_variance = var(x_empirical) + 2*(cov(x_empirical[1:(t_max-1)], x_empirical[2:t_max])),
+rbind(empirical_variance = x_empir_variance,
       simulated_variance = var(x_means*sqrt(t_max)),
       theoretical_variance = x_theory_variance)
 ```
@@ -260,18 +261,18 @@ jarque.bera.test(xgrowth)
 
 
 ```{r message=FALSE, warning=FALSE}
-## mean zero: z-test
+## mean zero: t-test
 sigmaLR <- sum(sapply(-100:100, gamma, x = xgrowth))
 t_stat  <- mean(xgrowth)/(sqrt(sigmaLR/t_max))
 p_value <- (1-pnorm(abs(t_stat)))*2
 # plot(density(rnorm(1e6)), xlim = c(-8, 8))
 # abline(v = t_stat, col = "tomato", lwd = 2)
 
+# compare with unadjusted variance
 # t.test(xgrowth, mu = 0)
 # mean(xgrowth)/(sqrt((t_max/(t_max-1))*var(xgrowth)/t_max)) # for compatibility with t-test()
 t_stat_unadjasted <- mean(xgrowth)/(sqrt(var(xgrowth)/t_max))
 p_value_unadjasted <- (1-pnorm(abs(t_stat_unadjasted)))*2
-
 
 rbind(p_value_unadjasted = p_value_unadjasted,
       p_value = p_value)
@@ -279,7 +280,8 @@ rbind(p_value_unadjasted = p_value_unadjasted,
 
 
 ```{r message=FALSE, warning=FALSE}
-# We can study when adjustment really matters using the results of the previous Monte Carlo simulation
+# We can study when does the adjustment really matters 
+# using the results of the previous Monte Carlo simulation
 
 ## Get variance and long-run variance
 sigma <- apply(x_list, 2, function(x) sqrt(gamma(x, k = 0)/length(x)))

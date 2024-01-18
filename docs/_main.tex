@@ -136,7 +136,7 @@
 
 TA materials for the Financial Econometrics course held by Prof.~Christian Brownlees at the Barcelona School of Economics.
 
-\begin{center}\includegraphics[width=2.4\linewidth]{pic_finmetrics} \end{center}
+\begin{center}\includegraphics[width=87.5in]{pic_finmetrics} \end{center}
 
 \hypertarget{session01}{%
 \chapter{Introduction to time series}\label{session01}}
@@ -192,7 +192,7 @@ Under these (or similar) assumptions, we can use the observations from a single 
 \subsection*{Ergodicity}\label{ergodicity}}
 \addcontentsline{toc}{subsection}{Ergodicity}
 
-Let \(\{z_t\}_{t = 1}^{T} \stackrel{iid}{\sim} \mathcal{N}(0, 1)\)
+Let \(\{z_t\}_{t = 1}^{T} \stackrel{iid}{\sim} \mathcal{N}(0, 1)\). Consider the two following data-generating processes:
 
 \[
 \begin{aligned}
@@ -291,8 +291,9 @@ with \(\sigma^2_{LR} = \sum_{k=-\infty}^\infty \gamma_k = \text{Var}(x_t) + 2\su
 \NormalTok{x\_empirical }\OtherTok{\textless{}{-}}\NormalTok{ x\_list[,}\DecValTok{9}\NormalTok{]}
 \NormalTok{x\_means }\OtherTok{\textless{}{-}} \FunctionTok{colMeans}\NormalTok{(x\_list)}
 \NormalTok{x\_theory\_variance }\OtherTok{\textless{}{-}} \DecValTok{4}  \CommentTok{\# long run variance}
+\NormalTok{x\_empir\_variance }\OtherTok{\textless{}{-}} \FunctionTok{var}\NormalTok{(x\_empirical) }\SpecialCharTok{+} \DecValTok{2}\SpecialCharTok{*}\NormalTok{(}\FunctionTok{cov}\NormalTok{(x\_empirical[}\DecValTok{1}\SpecialCharTok{:}\NormalTok{(t\_max}\DecValTok{{-}1}\NormalTok{)], x\_empirical[}\DecValTok{2}\SpecialCharTok{:}\NormalTok{t\_max]))}
 
-\FunctionTok{rbind}\NormalTok{(}\AttributeTok{empirical\_variance =} \FunctionTok{var}\NormalTok{(x\_empirical) }\SpecialCharTok{+} \DecValTok{2}\SpecialCharTok{*}\NormalTok{(}\FunctionTok{cov}\NormalTok{(x\_empirical[}\DecValTok{1}\SpecialCharTok{:}\NormalTok{(t\_max}\DecValTok{{-}1}\NormalTok{)], x\_empirical[}\DecValTok{2}\SpecialCharTok{:}\NormalTok{t\_max])),}
+\FunctionTok{rbind}\NormalTok{(}\AttributeTok{empirical\_variance =}\NormalTok{ x\_empir\_variance,}
       \AttributeTok{simulated\_variance =} \FunctionTok{var}\NormalTok{(x\_means}\SpecialCharTok{*}\FunctionTok{sqrt}\NormalTok{(t\_max)),}
       \AttributeTok{theoretical\_variance =}\NormalTok{ x\_theory\_variance)}
 \end{Highlighting}
@@ -491,18 +492,18 @@ In this section we use three testing procedures on the GDP growth data: the Augm
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\DocumentationTok{\#\# mean zero: z{-}test}
+\DocumentationTok{\#\# mean zero: t{-}test}
 \NormalTok{sigmaLR }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{(}\FunctionTok{sapply}\NormalTok{(}\SpecialCharTok{{-}}\DecValTok{100}\SpecialCharTok{:}\DecValTok{100}\NormalTok{, gamma, }\AttributeTok{x =}\NormalTok{ xgrowth))}
 \NormalTok{t\_stat  }\OtherTok{\textless{}{-}} \FunctionTok{mean}\NormalTok{(xgrowth)}\SpecialCharTok{/}\NormalTok{(}\FunctionTok{sqrt}\NormalTok{(sigmaLR}\SpecialCharTok{/}\NormalTok{t\_max))}
 \NormalTok{p\_value }\OtherTok{\textless{}{-}}\NormalTok{ (}\DecValTok{1}\SpecialCharTok{{-}}\FunctionTok{pnorm}\NormalTok{(}\FunctionTok{abs}\NormalTok{(t\_stat)))}\SpecialCharTok{*}\DecValTok{2}
 \CommentTok{\# plot(density(rnorm(1e6)), xlim = c({-}8, 8))}
 \CommentTok{\# abline(v = t\_stat, col = "tomato", lwd = 2)}
 
+\CommentTok{\# compare with unadjusted variance}
 \CommentTok{\# t.test(xgrowth, mu = 0)}
 \CommentTok{\# mean(xgrowth)/(sqrt((t\_max/(t\_max{-}1))*var(xgrowth)/t\_max)) \# for compatibility with t{-}test()}
 \NormalTok{t\_stat\_unadjasted }\OtherTok{\textless{}{-}} \FunctionTok{mean}\NormalTok{(xgrowth)}\SpecialCharTok{/}\NormalTok{(}\FunctionTok{sqrt}\NormalTok{(}\FunctionTok{var}\NormalTok{(xgrowth)}\SpecialCharTok{/}\NormalTok{t\_max))}
 \NormalTok{p\_value\_unadjasted }\OtherTok{\textless{}{-}}\NormalTok{ (}\DecValTok{1}\SpecialCharTok{{-}}\FunctionTok{pnorm}\NormalTok{(}\FunctionTok{abs}\NormalTok{(t\_stat\_unadjasted)))}\SpecialCharTok{*}\DecValTok{2}
-
 
 \FunctionTok{rbind}\NormalTok{(}\AttributeTok{p\_value\_unadjasted =}\NormalTok{ p\_value\_unadjasted,}
       \AttributeTok{p\_value =}\NormalTok{ p\_value)}
@@ -517,7 +518,8 @@ In this section we use three testing procedures on the GDP growth data: the Augm
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\CommentTok{\# We can study when adjustment really matters using the results of the previous Monte Carlo simulation}
+\CommentTok{\# We can study when does the adjustment really matters }
+\CommentTok{\# using the results of the previous Monte Carlo simulation}
 
 \DocumentationTok{\#\# Get variance and long{-}run variance}
 \NormalTok{sigma }\OtherTok{\textless{}{-}} \FunctionTok{apply}\NormalTok{(x\_list, }\DecValTok{2}\NormalTok{, }\ControlFlowTok{function}\NormalTok{(x) }\FunctionTok{sqrt}\NormalTok{(}\FunctionTok{gamma}\NormalTok{(x, }\AttributeTok{k =} \DecValTok{0}\NormalTok{)}\SpecialCharTok{/}\FunctionTok{length}\NormalTok{(x)))}
