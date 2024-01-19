@@ -15,6 +15,9 @@ Under these (or similar) assumptions, we can use the observations from a single 
 
 ### Stationarity {-}
 
+Consider the example in the plot below. If we had only observations laying between two changepoints we would not be able to retrieve the dynamics of the underlying process. For instance, if we observed a series ending before the first changepoint, we would have no information about the future realizations of the process. Indeed, future observations would come from different distributions that we could not learn from available information.
+
+
 ```{r}
 ## Example 1: non-stationary series
 # simulation
@@ -35,7 +38,10 @@ for (t in 1:t_max) {
   }
 }
 # plot
-plot.ts(y, main = "Non-stationary series (a pretty funny one)")
+plot.ts(y, main = "Non-stationary series", xaxt = "n")
+abline(v = c(100, 250, 400), lty = 2)
+axis(1, at=c(100, 250, 400),
+     labels = c("Changepoint 1", "Changepoint 2", "Changepoint 3"))
 ```
 
 ### Ergodicity {-}
@@ -44,10 +50,11 @@ Let $\{z_t\}_{t = 1}^{T} \stackrel{iid}{\sim} \mathcal{N}(0, 1)$. Consider the t
 
 $$
 \begin{aligned}
-y_t &= U_0 + 0.25z_t, \quad \text{with  } U_0 \sim \mathcal{N}(0, 10) \\[1ex]
+y_t &= U_0 + 0.25z_t, \quad \text{with  } U_0 \sim \mathcal{N}(0, 100) \\[1ex]
 x_t &= z_t + z_{t-1}
 \end{aligned}
 $$
+
 We have:
 
 $$
@@ -55,8 +62,8 @@ $$
 \mathbb{E}[y_t] &= \mathbb{E}[x_t] = 0 \\[1em]
 \text{cov}(y_t, y_{t-k}) &= 
 \begin{cases}
-10+0.25^2 & k = 0 \\
-10 & k \neq 0
+100+0.25^2 & k = 0 \\
+100 & k \neq 0
 \end{cases} \\[1ex]
 \text{cov}(x_t, x_{t-k}) &= 
 \begin{cases}
@@ -67,9 +74,14 @@ $$
 \end{aligned}
 $$
 
+We now simulate the two data generating processes in `R`. We want to draw many sequences $\{y_1, \dots, y_T\}^{(s)}, \{x_1, \dots, x_T\}^{(s)}$ for $s = 1, \dots, S$ simulations to assess whether observing a single time series is enough to estimate the mean of the processes. 
+
 ```{r}
 ## Example 2: weak dependence
-# initialize object to store result
+
+## Simulate process y_t
+# initialize TxS matrix to store result 
+# (each column is a simulated time series {y_1, ..., y_T}^(s) )
 nsim <- 3
 y_list <- matrix(rep(NA, nsim*t_max), nrow = t_max, ncol = nsim)
 # simulation
@@ -77,8 +89,13 @@ for (sim in 1:nsim) {
   set.seed(sim+123)
   U0 <- rnorm(1, sd = 10)
   z  <- rnorm(t_max)
-  y_list[,sim] <- U0 + z
+  y_list[,sim] <- U0 + 0.25*z
 }
+```
+
+As the plot below shows, if we observe a single simulated time series we cannot correctly estimate the mean of the process $\mathbb{E}[y_t]$ using the sample mean $\bar{y}_T$. What the sample mean is actually estimating in this case is the  *conditional* expctation of $y_t$ given the specific draw of the random intercept $U_0$ in simulation $s$: $\mathbb{E}\left[y_t | U_0 = U_0^{(s)}\right] = U_0^{(s)}$. Notice that in this case, if we observe a new point for stochastic process $y_t$ (green points in the plot) we are likely not able to forecast it correctly based on the previous observations of a single time series. 
+
+```{r}
 # plot
 plot.ts(y_list[,1], ylim = c(-25, 25), main = "Realizations of non-ergodic series", ylab = "y")
 lines(y_list[,2], col = "steelblue")
@@ -89,7 +106,10 @@ for (point in 1:100){
 abline(h = 0, col = "black", lwd = 2, lty = 2)
 ```
 
+We now turn to process $x_t$.
+
 ```{r}
+## Simulate process x_t
 # initialize object to store result
 nsim <- 10000
 x_list <- matrix(rep(NA, nsim*t_max), nrow = t_max, ncol = nsim)
@@ -99,6 +119,11 @@ for (sim in 1:nsim) {
   z  <- rnorm(t_max+1)
   x_list[,sim] <- z[2:(t_max+1)] + z[1:t_max]
 }
+```
+
+All the simulated time series have mean zero in this case. As a consequence, we can use the sample mean $\bar{x}_T$ obtained from a single time series to estimate the (unconditional) mean of the process $\mathbb{E}[x_t]$.
+
+```{r}
 # plot
 plot.ts(x_list[,1], ylim = c(min(x_list), max(x_list)), 
         main = "Realizations of ergodic series", ylab = "x")
@@ -110,7 +135,6 @@ abline(h = 0, col = "black", lwd = 2, lty = 2)
 ## Asymptotic results
 
 The problem with the series $\{y_t\}$ in the previous example is that the autocovariance function does not decay as the lag order increases. Loosely speaking, the series gets stuck in the trajectory given by the initial draw of $U_0$ and does not revert to the true mean of the stochastic process. The main consequence is that we cannot learn the mean of the process by taking the average of the observations in a single realized time series.
-
 
 It is true in general that some conditions on the rate of decay of the autocovariance are required to recover the mean of the process. For example, the Law of Large Numbers (LLN) guarantees that the sample mean converges in probability to the true mean under the assumption that the autocovariances are absolutely summable:
 
@@ -160,7 +184,8 @@ x <- ts(x, start = c(1947, 1), frequency = 4)
 t_max <- length(x)
 plot.ts(x, main = "U.S. GDP", ylab = "Billions of dollars")
 ```
-We consider the annualized quarterly growth rates:
+
+Consider the annualized quarterly growth rates:
 
 ```{r}
 # xgrowth <- ( (x[2:t_max]/x[1:(t_max-1)])^4 - 1 )*100
@@ -168,6 +193,8 @@ xgrowth <- 4*diff(log(x))*100
 xgrowth <- ts(xgrowth, start = c(1947, 2), frequency = 4)
 plot.ts(xgrowth, main = "Annualized GDP growth")
 ```
+
+Below we compute some summary statistics for the time series of the U.S. GDP growth rates.
 
 ```{r}
 ## Example 4: empirical moments and summary statistics of the GDP growth

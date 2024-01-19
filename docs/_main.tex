@@ -121,7 +121,7 @@
 
 \title{Financial Econometrics - Tutorials}
 \author{Alessandro Ciancetta}
-\date{2024-01-18}
+\date{Last update: January 18, 2024}
 
 \begin{document}
 \maketitle
@@ -161,6 +161,8 @@ Under these (or similar) assumptions, we can use the observations from a single 
 \subsection*{Stationarity}\label{stationarity}}
 \addcontentsline{toc}{subsection}{Stationarity}
 
+Consider the example in the plot below. If we had only observations laying between two changepoints we would not be able to retrieve the dynamics of the underlying process. For instance, if we observed a series ending before the first changepoint, we would have no information about the future realizations of the process. Indeed, future observations would come from different distributions that we could not learn from available information.
+
 \begin{Shaded}
 \begin{Highlighting}[]
 \DocumentationTok{\#\# Example 1: non{-}stationary series}
@@ -182,7 +184,10 @@ Under these (or similar) assumptions, we can use the observations from a single 
 \NormalTok{  \}}
 \NormalTok{\}}
 \CommentTok{\# plot}
-\FunctionTok{plot.ts}\NormalTok{(y, }\AttributeTok{main =} \StringTok{"Non{-}stationary series (a pretty funny one)"}\NormalTok{)}
+\FunctionTok{plot.ts}\NormalTok{(y, }\AttributeTok{main =} \StringTok{"Non{-}stationary series"}\NormalTok{, }\AttributeTok{xaxt =} \StringTok{"n"}\NormalTok{)}
+\FunctionTok{abline}\NormalTok{(}\AttributeTok{v =} \FunctionTok{c}\NormalTok{(}\DecValTok{100}\NormalTok{, }\DecValTok{250}\NormalTok{, }\DecValTok{400}\NormalTok{), }\AttributeTok{lty =} \DecValTok{2}\NormalTok{)}
+\FunctionTok{axis}\NormalTok{(}\DecValTok{1}\NormalTok{, }\AttributeTok{at=}\FunctionTok{c}\NormalTok{(}\DecValTok{100}\NormalTok{, }\DecValTok{250}\NormalTok{, }\DecValTok{400}\NormalTok{),}
+     \AttributeTok{labels =} \FunctionTok{c}\NormalTok{(}\StringTok{"Changepoint 1"}\NormalTok{, }\StringTok{"Changepoint 2"}\NormalTok{, }\StringTok{"Changepoint 3"}\NormalTok{))}
 \end{Highlighting}
 \end{Shaded}
 
@@ -196,10 +201,11 @@ Let \(\{z_t\}_{t = 1}^{T} \stackrel{iid}{\sim} \mathcal{N}(0, 1)\). Consider the
 
 \[
 \begin{aligned}
-y_t &= U_0 + 0.25z_t, \quad \text{with  } U_0 \sim \mathcal{N}(0, 10) \\[1ex]
+y_t &= U_0 + 0.25z_t, \quad \text{with  } U_0 \sim \mathcal{N}(0, 100) \\[1ex]
 x_t &= z_t + z_{t-1}
 \end{aligned}
 \]
+
 We have:
 
 \[
@@ -207,8 +213,8 @@ We have:
 \mathbb{E}[y_t] &= \mathbb{E}[x_t] = 0 \\[1em]
 \text{cov}(y_t, y_{t-k}) &= 
 \begin{cases}
-10+0.25^2 & k = 0 \\
-10 & k \neq 0
+100+0.25^2 & k = 0 \\
+100 & k \neq 0
 \end{cases} \\[1ex]
 \text{cov}(x_t, x_{t-k}) &= 
 \begin{cases}
@@ -219,10 +225,15 @@ We have:
 \end{aligned}
 \]
 
+We now simulate the two data generating processes in \texttt{R}. We want to draw many sequences \(\{y_1, \dots, y_T\}^{(s)}, \{x_1, \dots, x_T\}^{(s)}\) for \(s = 1, \dots, S\) simulations to assess whether observing a single time series is enough to estimate the mean of the processes.
+
 \begin{Shaded}
 \begin{Highlighting}[]
 \DocumentationTok{\#\# Example 2: weak dependence}
-\CommentTok{\# initialize object to store result}
+
+\DocumentationTok{\#\# Simulate process y\_t}
+\CommentTok{\# initialize TxS matrix to store result }
+\CommentTok{\# (each column is a simulated time series \{y\_1, ..., y\_T\}\^{}(s) )}
 \NormalTok{nsim }\OtherTok{\textless{}{-}} \DecValTok{3}
 \NormalTok{y\_list }\OtherTok{\textless{}{-}} \FunctionTok{matrix}\NormalTok{(}\FunctionTok{rep}\NormalTok{(}\ConstantTok{NA}\NormalTok{, nsim}\SpecialCharTok{*}\NormalTok{t\_max), }\AttributeTok{nrow =}\NormalTok{ t\_max, }\AttributeTok{ncol =}\NormalTok{ nsim)}
 \CommentTok{\# simulation}
@@ -230,8 +241,15 @@ We have:
   \FunctionTok{set.seed}\NormalTok{(sim}\SpecialCharTok{+}\DecValTok{123}\NormalTok{)}
 \NormalTok{  U0 }\OtherTok{\textless{}{-}} \FunctionTok{rnorm}\NormalTok{(}\DecValTok{1}\NormalTok{, }\AttributeTok{sd =} \DecValTok{10}\NormalTok{)}
 \NormalTok{  z  }\OtherTok{\textless{}{-}} \FunctionTok{rnorm}\NormalTok{(t\_max)}
-\NormalTok{  y\_list[,sim] }\OtherTok{\textless{}{-}}\NormalTok{ U0 }\SpecialCharTok{+}\NormalTok{ z}
+\NormalTok{  y\_list[,sim] }\OtherTok{\textless{}{-}}\NormalTok{ U0 }\SpecialCharTok{+} \FloatTok{0.25}\SpecialCharTok{*}\NormalTok{z}
 \NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+As the plot below shows, if we observe a single simulated time series we cannot correctly estimate the mean of the process \(\mathbb{E}[y_t]\) using the sample mean \(\bar{y}_T\). What the sample mean is actually estimating in this case is the \emph{conditional} expctation of \(y_t\) given the specific draw of the random intercept \(U_0\) in simulation \(s\): \(\mathbb{E}\left[y_t | U_0 = U_0^{(s)}\right] = U_0^{(s)}\). Notice that in this case, if we observe a new point for stochastic process \(y_t\) (green points in the plot) we are likely not able to forecast it correctly based on the previous observations of a single time series.
+
+\begin{Shaded}
+\begin{Highlighting}[]
 \CommentTok{\# plot}
 \FunctionTok{plot.ts}\NormalTok{(y\_list[,}\DecValTok{1}\NormalTok{], }\AttributeTok{ylim =} \FunctionTok{c}\NormalTok{(}\SpecialCharTok{{-}}\DecValTok{25}\NormalTok{, }\DecValTok{25}\NormalTok{), }\AttributeTok{main =} \StringTok{"Realizations of non{-}ergodic series"}\NormalTok{, }\AttributeTok{ylab =} \StringTok{"y"}\NormalTok{)}
 \FunctionTok{lines}\NormalTok{(y\_list[,}\DecValTok{2}\NormalTok{], }\AttributeTok{col =} \StringTok{"steelblue"}\NormalTok{)}
@@ -243,10 +261,13 @@ We have:
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{_main_files/figure-latex/unnamed-chunk-4-1.pdf}
+\includegraphics{_main_files/figure-latex/unnamed-chunk-5-1.pdf}
+
+We now turn to process \(x_t\).
 
 \begin{Shaded}
 \begin{Highlighting}[]
+\DocumentationTok{\#\# Simulate process x\_t}
 \CommentTok{\# initialize object to store result}
 \NormalTok{nsim }\OtherTok{\textless{}{-}} \DecValTok{10000}
 \NormalTok{x\_list }\OtherTok{\textless{}{-}} \FunctionTok{matrix}\NormalTok{(}\FunctionTok{rep}\NormalTok{(}\ConstantTok{NA}\NormalTok{, nsim}\SpecialCharTok{*}\NormalTok{t\_max), }\AttributeTok{nrow =}\NormalTok{ t\_max, }\AttributeTok{ncol =}\NormalTok{ nsim)}
@@ -256,6 +277,13 @@ We have:
 \NormalTok{  z  }\OtherTok{\textless{}{-}} \FunctionTok{rnorm}\NormalTok{(t\_max}\SpecialCharTok{+}\DecValTok{1}\NormalTok{)}
 \NormalTok{  x\_list[,sim] }\OtherTok{\textless{}{-}}\NormalTok{ z[}\DecValTok{2}\SpecialCharTok{:}\NormalTok{(t\_max}\SpecialCharTok{+}\DecValTok{1}\NormalTok{)] }\SpecialCharTok{+}\NormalTok{ z[}\DecValTok{1}\SpecialCharTok{:}\NormalTok{t\_max]}
 \NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+All the simulated time series have mean zero in this case. As a consequence, we can use the sample mean \(\bar{x}_T\) obtained from a single time series to estimate the (unconditional) mean of the process \(\mathbb{E}[x_t]\).
+
+\begin{Shaded}
+\begin{Highlighting}[]
 \CommentTok{\# plot}
 \FunctionTok{plot.ts}\NormalTok{(x\_list[,}\DecValTok{1}\NormalTok{], }\AttributeTok{ylim =} \FunctionTok{c}\NormalTok{(}\FunctionTok{min}\NormalTok{(x\_list), }\FunctionTok{max}\NormalTok{(x\_list)), }
         \AttributeTok{main =} \StringTok{"Realizations of ergodic series"}\NormalTok{, }\AttributeTok{ylab =} \StringTok{"x"}\NormalTok{)}
@@ -265,7 +293,7 @@ We have:
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{_main_files/figure-latex/unnamed-chunk-5-1.pdf}
+\includegraphics{_main_files/figure-latex/unnamed-chunk-7-1.pdf}
 
 \hypertarget{asymptotic-results}{%
 \section{Asymptotic results}\label{asymptotic-results}}
@@ -318,7 +346,7 @@ with \(\sigma^2_{LR} = \sum_{k=-\infty}^\infty \gamma_k = \text{Var}(x_t) + 2\su
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{_main_files/figure-latex/unnamed-chunk-7-1.pdf}
+\includegraphics{_main_files/figure-latex/unnamed-chunk-9-1.pdf}
 
 \hypertarget{empirical-moments-and-summary-statistics}{%
 \section{Empirical moments and summary statistics}\label{empirical-moments-and-summary-statistics}}
@@ -334,8 +362,9 @@ For this example we use the \href{https://fred.stlouisfed.org/series/GDP}{U.S. G
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{_main_files/figure-latex/unnamed-chunk-8-1.pdf}
-We consider the annualized quarterly growth rates:
+\includegraphics{_main_files/figure-latex/unnamed-chunk-10-1.pdf}
+
+Consider the annualized quarterly growth rates:
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -346,7 +375,9 @@ We consider the annualized quarterly growth rates:
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{_main_files/figure-latex/unnamed-chunk-9-1.pdf}
+\includegraphics{_main_files/figure-latex/unnamed-chunk-11-1.pdf}
+
+Below we compute some summary statistics for the time series of the U.S. GDP growth rates.
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -426,7 +457,7 @@ This means that the asymptotic variance of the estimator under the null is \(1/T
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{_main_files/figure-latex/unnamed-chunk-13-1.pdf}
+\includegraphics{_main_files/figure-latex/unnamed-chunk-15-1.pdf}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -435,7 +466,7 @@ This means that the asymptotic variance of the estimator under the null is \(1/T
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{_main_files/figure-latex/unnamed-chunk-14-1.pdf}
+\includegraphics{_main_files/figure-latex/unnamed-chunk-16-1.pdf}
 
 \hypertarget{hypothesis-testing}{%
 \section{Hypothesis testing}\label{hypothesis-testing}}
@@ -564,7 +595,7 @@ In this section we use three testing procedures on the GDP growth data: the Augm
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{_main_files/figure-latex/unnamed-chunk-17-1.pdf}
+\includegraphics{_main_files/figure-latex/unnamed-chunk-19-1.pdf}
 
   \bibliography{book.bib,packages.bib}
 
