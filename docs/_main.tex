@@ -165,7 +165,7 @@ Consider the example in the plot below. If we had only observations laying betwe
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\DocumentationTok{\#\# Example 1: non{-}stationary series}
+\DocumentationTok{\#\# Example 1: non{-}stationary process}
 \CommentTok{\# simulation}
 \NormalTok{t\_max }\OtherTok{\textless{}{-}} \DecValTok{500}
 \NormalTok{y }\OtherTok{\textless{}{-}} \FunctionTok{rep}\NormalTok{(}\ConstantTok{NA}\NormalTok{, t\_max)}
@@ -184,7 +184,7 @@ Consider the example in the plot below. If we had only observations laying betwe
 \NormalTok{  \}}
 \NormalTok{\}}
 \CommentTok{\# plot}
-\FunctionTok{plot.ts}\NormalTok{(y, }\AttributeTok{main =} \StringTok{"Non{-}stationary series"}\NormalTok{, }\AttributeTok{xaxt =} \StringTok{"n"}\NormalTok{)}
+\FunctionTok{plot.ts}\NormalTok{(y, }\AttributeTok{main =} \StringTok{"Non{-}stationary process"}\NormalTok{, }\AttributeTok{xaxt =} \StringTok{"n"}\NormalTok{)}
 \FunctionTok{abline}\NormalTok{(}\AttributeTok{v =} \FunctionTok{c}\NormalTok{(}\DecValTok{100}\NormalTok{, }\DecValTok{250}\NormalTok{, }\DecValTok{400}\NormalTok{), }\AttributeTok{lty =} \DecValTok{2}\NormalTok{)}
 \FunctionTok{axis}\NormalTok{(}\DecValTok{1}\NormalTok{, }\AttributeTok{at=}\FunctionTok{c}\NormalTok{(}\DecValTok{100}\NormalTok{, }\DecValTok{250}\NormalTok{, }\DecValTok{400}\NormalTok{),}
      \AttributeTok{labels =} \FunctionTok{c}\NormalTok{(}\StringTok{"Changepoint 1"}\NormalTok{, }\StringTok{"Changepoint 2"}\NormalTok{, }\StringTok{"Changepoint 3"}\NormalTok{))}

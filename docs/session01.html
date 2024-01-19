@@ -181,7 +181,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div id="stationarity" class="section level3 unnumbered hasAnchor">
 <h3>Stationarity<a href="session01.html#stationarity" class="anchor-section" aria-label="Anchor link to header"></a></h3>
 <p>Consider the example in the plot below. If we had only observations laying between two changepoints we would not be able to retrieve the dynamics of the underlying process. For instance, if we observed a series ending before the first changepoint, we would have no information about the future realizations of the process. Indeed, future observations would come from different distributions that we could not learn from available information.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="session01.html#cb1-1" tabindex="-1"></a><span class="do">## Example 1: non-stationary series</span></span>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="session01.html#cb1-1" tabindex="-1"></a><span class="do">## Example 1: non-stationary process</span></span>
 <span id="cb1-2"><a href="session01.html#cb1-2" tabindex="-1"></a><span class="co"># simulation</span></span>
 <span id="cb1-3"><a href="session01.html#cb1-3" tabindex="-1"></a>t_max <span class="ot">&lt;-</span> <span class="dv">500</span></span>
 <span id="cb1-4"><a href="session01.html#cb1-4" tabindex="-1"></a>y <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="cn">NA</span>, t_max)</span>
@@ -200,7 +200,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb1-17"><a href="session01.html#cb1-17" tabindex="-1"></a>  }</span>
 <span id="cb1-18"><a href="session01.html#cb1-18" tabindex="-1"></a>}</span>
 <span id="cb1-19"><a href="session01.html#cb1-19" tabindex="-1"></a><span class="co"># plot</span></span>
-<span id="cb1-20"><a href="session01.html#cb1-20" tabindex="-1"></a><span class="fu">plot.ts</span>(y, <span class="at">main =</span> <span class="st">&quot;Non-stationary series&quot;</span>, <span class="at">xaxt =</span> <span class="st">&quot;n&quot;</span>)</span>
+<span id="cb1-20"><a href="session01.html#cb1-20" tabindex="-1"></a><span class="fu">plot.ts</span>(y, <span class="at">main =</span> <span class="st">&quot;Non-stationary process&quot;</span>, <span class="at">xaxt =</span> <span class="st">&quot;n&quot;</span>)</span>
 <span id="cb1-21"><a href="session01.html#cb1-21" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">v =</span> <span class="fu">c</span>(<span class="dv">100</span>, <span class="dv">250</span>, <span class="dv">400</span>), <span class="at">lty =</span> <span class="dv">2</span>)</span>
 <span id="cb1-22"><a href="session01.html#cb1-22" tabindex="-1"></a><span class="fu">axis</span>(<span class="dv">1</span>, <span class="at">at=</span><span class="fu">c</span>(<span class="dv">100</span>, <span class="dv">250</span>, <span class="dv">400</span>),</span>
 <span id="cb1-23"><a href="session01.html#cb1-23" tabindex="-1"></a>     <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">&quot;Changepoint 1&quot;</span>, <span class="st">&quot;Changepoint 2&quot;</span>, <span class="st">&quot;Changepoint 3&quot;</span>))</span></code></pre></div>

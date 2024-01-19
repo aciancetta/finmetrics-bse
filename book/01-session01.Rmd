@@ -19,7 +19,7 @@ Consider the example in the plot below. If we had only observations laying betwe
 
 
 ```{r}
-## Example 1: non-stationary series
+## Example 1: non-stationary process
 # simulation
 t_max <- 500
 y <- rep(NA, t_max)
@@ -38,7 +38,7 @@ for (t in 1:t_max) {
   }
 }
 # plot
-plot.ts(y, main = "Non-stationary series", xaxt = "n")
+plot.ts(y, main = "Non-stationary process", xaxt = "n")
 abline(v = c(100, 250, 400), lty = 2)
 axis(1, at=c(100, 250, 400),
      labels = c("Changepoint 1", "Changepoint 2", "Changepoint 3"))
