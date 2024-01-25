@@ -121,7 +121,7 @@
 
 \title{Financial Econometrics - Tutorials}
 \author{Alessandro Ciancetta}
-\date{Last update: January 19, 2024}
+\date{Last update: January 25, 2024}
 
 \begin{document}
 \maketitle
@@ -596,6 +596,624 @@ In this section we use three testing procedures on the GDP growth data: the Augm
 \end{Shaded}
 
 \includegraphics{_main_files/figure-latex/unnamed-chunk-19-1.pdf}
+
+\hypertarget{session02}{%
+\chapter{Forecasting with time-series regression}\label{session02}}
+
+This session covers a first introduction to forecasting the conditional mean of a time series. A forecasting procedure involves three main objects:
+
+\begin{itemize}
+\tightlist
+\item
+  A set of predictors and a target variable that we want to forecast
+\item
+  A class of forecasting models that we consider
+\item
+  A loss function to evaluate the accuracy of the forecasts
+\end{itemize}
+
+In this session we focus on the class of linear regression models estimated via least-squares. The loss function that we consider throughout this chapter is the quadratic loss function estimated using the Mean Squared Error (MSE) defined in the \texttt{R} function below.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DocumentationTok{\#\# Function to compute the MSE. y = true value, f = forecast}
+\NormalTok{mse }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(y, f) \{}\FunctionTok{mean}\NormalTok{((y}\SpecialCharTok{{-}}\NormalTok{f)}\SpecialCharTok{\^{}}\DecValTok{2}\NormalTok{)\}}
+\end{Highlighting}
+\end{Shaded}
+
+The first section presents a simulation exercise to show the finite-sample properties of the linear regression model under mis-specification. The second section is an empirical application to the problem of forecasting the U.S. unemployment rate using some relevant macroeconomic indicators.
+
+\hypertarget{oracle-inequality}{%
+\section{Oracle inequality}\label{oracle-inequality}}
+
+\textbf{Optional section, not covered in class}
+
+Given a forecasting problem, the optimal prediction rule is defined as the one that minimizes the theoretical risk:
+\[
+f_{t+h|t}^* = \arg\min_{f \in \mathcal{F}} R(f_{t+h|t}) 
+\]
+
+and the associated optimal risk is denoted by \(R^*\). Under the square loss function, the optimal rule is the conditional expectation:
+
+\[
+f_{t+h|t}^* = \mathbb{E}[y_{t+h}| x_t]
+\]
+
+Notice that the exact functional form of the predictor is unknown: the conditional expected value could be of any linear or non-linear form. To make the theory of learning operational, we then have to restrict our attention to a class of prediction rules and pick the best rule from that class according to the limited amount of data available.
+
+A commonly used class of predictors is that of the linear predictors. Consider a linear regression model for predicting the target variable \(y_{t+h}\):
+\[
+f_{t+h|t} = x_t'\theta.
+\]
+
+where \(f_{t+h|t}\) denotes the \(h\)-periods-ahead forecast. Irrespective of what is the true d.g.p., \(\theta\) is the parameter that leads to the best forecasts \emph{within the class of linear regression models}
+
+\[
+\theta = \arg\min_{\tilde{\theta} \in \mathbb{R}^p} \mathbb{E}[L(y_{t+h}, f_{t+h|t}(\theta))] = R(\theta)
+\]
+
+However, in practice we can only use a finite sample to learn the parameters of the linear model via \emph{empirical} risk minimization:
+
+\[
+\hat{\theta} = \arg\min_{\theta \in \mathbb{R}^p} R_T(\theta)
+\]
+
+In our case, \(R_T(\theta) = \frac{1}{T-h-t_w+1}\sum_{t=t_w}^{T-h} (y_{t+h} - f_{t+h|t})^2 = MSE\), where \(t_w\) denotes the initial number of observations used to train the model.
+
+So far, we have introduced three different measures of risk:
+
+\begin{itemize}
+\tightlist
+\item
+  \(R^*\), the risk associated with the theoretical optimal predictor if the true d.g.p. were known
+\item
+  \(R(\theta)\), the risk associated with the optimal predictor within the parametric class considered for learning
+\item
+  \(R_T(\hat\theta)\), the empirical risk obtained by minimization of the loss function using the available data sample
+\end{itemize}
+
+The regret (i.e.~the difference between the optimal and the empirical risk) can be expressed in a way that links these three quantities:
+\[
+ R_T(\hat\theta) - R^*  = \underbrace{\left[ R(\theta) - R^* \right]}_{_{\text{Approximation error}}} + \underbrace{\left[R_T(\hat\theta) - R(\theta)\right]}_{\text{Estimation error}}
+ \]
+
+We mainly focus on the estimation error. In particular, we are usually interested in establishing finite-sample, probabilistic bounds to this quantity. These bounds are helpful in assessing, for instance, how many observations a model needs to perform well and how its performance relates to the number of predictors. For linear prediction, the following oracle inequality holds: there exists a constant \(c\) such that
+
+\[
+R(\hat\theta) \leq R(\theta) + c \frac{p}{T}, \quad \text{w.p. } 1-1/T 
+\]
+
+The example below shows that the inequality holds in a simulation setting. We generate \(10^6\) observations from the following process:
+
+\[
+y_t = 0.6\times y_{t-1} - \tanh(0.3 \times y_{t-1}) + 
+              0.8\times x_{1,t-1} + 0.2 \times x_{2,t-1} -
+              0.7\times x_{3,t-1} + \varepsilon_t, 
+\]
+
+where \(\varepsilon_t \sim \mathcal{N}(0, 0.5)\) and the variables \(x_{1,t}, x_{2,t}, x_{3,t}\) are drawn independently from a standard normal distribution. We then consider the class of linear regression models,
+
+\[
+y_t = \beta_0 + \beta_1 y_{t-1} + \beta_2 x_{1,t-1} + \beta_3 x_{2,t-1} + \beta_3 x_{3,t-1} + u_t
+\]
+
+Notice that the OLS estimator is the empirical risk minimizer in the case of a square loss. In the simulation setting, we can also obtain \(R(\theta)\) by estimating the parameters of the regression using the entire simulated population. We can then draw many estimates of \(R(\hat\theta)\) by considering different subsamples of the simulated population and estimating the parameters of the model using OLS on the subsample. By doing so, we can simulate the distribution of the empirical risk and compare it against the overall minimum risk within the class of linear estimators to assess the oracle inequality. We repeat the exercise considering different sizes of the subsamples to show that the bound gets tighter as the sample size increases, as it must be for the inequality to have the oracle property.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DocumentationTok{\#\# Example 1: simulation for oracle inequality}
+\CommentTok{\# build the simulated population dataset}
+\NormalTok{N }\OtherTok{\textless{}{-}} \DecValTok{3}
+\NormalTok{T\_pop }\OtherTok{\textless{}{-}} \FloatTok{1e5}
+
+\FunctionTok{set.seed}\NormalTok{(}\DecValTok{455}\NormalTok{)}
+\NormalTok{x\_pop }\OtherTok{\textless{}{-}} \FunctionTok{matrix}\NormalTok{(}\FunctionTok{rnorm}\NormalTok{((T\_pop}\SpecialCharTok{+}\DecValTok{1}\NormalTok{)}\SpecialCharTok{*}\NormalTok{N), }\AttributeTok{ncol =}\NormalTok{ N)}
+\NormalTok{y\_pop }\OtherTok{\textless{}{-}} \FunctionTok{rep}\NormalTok{(}\DecValTok{0}\NormalTok{, T\_pop)}
+\ControlFlowTok{for}\NormalTok{ (t }\ControlFlowTok{in} \DecValTok{2}\SpecialCharTok{:}\NormalTok{(T\_pop}\SpecialCharTok{+}\DecValTok{1}\NormalTok{)) \{}
+  \FunctionTok{set.seed}\NormalTok{(}\DecValTok{456}\SpecialCharTok{*}\NormalTok{t)}
+  \CommentTok{\# non{-}linear d.g.p.}
+\NormalTok{  y\_pop[t] }\OtherTok{\textless{}{-}} \FloatTok{0.6}\SpecialCharTok{*}\NormalTok{y\_pop[t}\DecValTok{{-}1}\NormalTok{] }\SpecialCharTok{{-}} \FunctionTok{tanh}\NormalTok{(}\FloatTok{0.3}\SpecialCharTok{*}\NormalTok{y\_pop[t}\DecValTok{{-}1}\NormalTok{]) }\SpecialCharTok{+} 
+              \FloatTok{0.8}\SpecialCharTok{*}\NormalTok{x\_pop[t}\DecValTok{{-}1}\NormalTok{, }\DecValTok{1}\NormalTok{] }\SpecialCharTok{+} \FloatTok{0.2}\SpecialCharTok{*}\NormalTok{x\_pop[t}\DecValTok{{-}1}\NormalTok{, }\DecValTok{2}\NormalTok{] }\SpecialCharTok{{-}}
+              \FloatTok{0.7}\SpecialCharTok{*}\NormalTok{x\_pop[t}\DecValTok{{-}1}\NormalTok{, }\DecValTok{3}\NormalTok{] }\SpecialCharTok{+} \FunctionTok{rnorm}\NormalTok{(}\DecValTok{1}\NormalTok{, }\AttributeTok{sd =} \FloatTok{0.5}\NormalTok{)}
+\NormalTok{\}}
+\FunctionTok{colnames}\NormalTok{(x\_pop) }\OtherTok{\textless{}{-}} \FunctionTok{paste0}\NormalTok{(}\StringTok{"x"}\NormalTok{, }\DecValTok{1}\SpecialCharTok{:}\NormalTok{N)}
+
+\CommentTok{\# target is y(t+1). predictor is x(t)}
+\NormalTok{d\_pop }\OtherTok{\textless{}{-}} \FunctionTok{as.data.frame}\NormalTok{(}\FunctionTok{cbind}\NormalTok{(}\AttributeTok{y =}\NormalTok{ y\_pop[}\DecValTok{2}\SpecialCharTok{:}\NormalTok{(T\_pop}\SpecialCharTok{+}\DecValTok{1}\NormalTok{)] , x\_pop[}\DecValTok{1}\SpecialCharTok{:}\NormalTok{T\_pop,] ))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# estimate the linear predictor y(t) = x(t{-}1)\textquotesingle{}b via OLS}
+\NormalTok{model\_pop }\OtherTok{\textless{}{-}} \FunctionTok{lm}\NormalTok{(y }\SpecialCharTok{\textasciitilde{}}\NormalTok{ x1 }\SpecialCharTok{+}\NormalTok{ x2 }\SpecialCharTok{+}\NormalTok{ x3, }\AttributeTok{data =}\NormalTok{ d\_pop)}
+\FunctionTok{summary}\NormalTok{(model\_pop)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DocumentationTok{\#\# estimate the optimal risk and the population risk within the linear family}
+\CommentTok{\# optimal}
+\NormalTok{f\_optimal }\OtherTok{\textless{}{-}} \FunctionTok{rep}\NormalTok{(}\ConstantTok{NA}\NormalTok{, T\_pop}\SpecialCharTok{+}\DecValTok{1}\NormalTok{)}
+\ControlFlowTok{for}\NormalTok{ (t }\ControlFlowTok{in} \DecValTok{1}\SpecialCharTok{:}\NormalTok{T\_pop) \{}
+\NormalTok{  f\_optimal[t}\SpecialCharTok{+}\DecValTok{1}\NormalTok{] }\OtherTok{\textless{}{-}} \FloatTok{0.6}\SpecialCharTok{*}\NormalTok{y\_pop[t] }\SpecialCharTok{{-}} \FunctionTok{tanh}\NormalTok{(}\FloatTok{0.3}\SpecialCharTok{*}\NormalTok{y\_pop[t]) }\SpecialCharTok{+} 
+                    \FloatTok{0.8}\SpecialCharTok{*}\NormalTok{x\_pop[t, }\DecValTok{1}\NormalTok{] }\SpecialCharTok{+} \FloatTok{0.2}\SpecialCharTok{*}\NormalTok{x\_pop[t, }\DecValTok{2}\NormalTok{] }\SpecialCharTok{{-}}
+                    \FloatTok{0.7}\SpecialCharTok{*}\NormalTok{x\_pop[t, }\DecValTok{3}\NormalTok{] }
+\NormalTok{\}}
+\NormalTok{f\_optimal }\OtherTok{\textless{}{-}}\NormalTok{ f\_optimal[}\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{]}
+\NormalTok{risk\_star }\OtherTok{\textless{}{-}} \FunctionTok{mse}\NormalTok{(d\_pop[,}\DecValTok{1}\NormalTok{], f\_optimal)}
+
+\CommentTok{\# linear family}
+\NormalTok{risk\_pop  }\OtherTok{\textless{}{-}} \FunctionTok{mse}\NormalTok{(d\_pop[,}\DecValTok{1}\NormalTok{], }\FunctionTok{predict}\NormalTok{(model\_pop))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DocumentationTok{\#\# Run the simulations to estimate a small{-}sample model many times}
+\NormalTok{t\_small  }\OtherTok{\textless{}{-}} \DecValTok{30}
+\NormalTok{t\_medium }\OtherTok{\textless{}{-}} \DecValTok{300}
+\NormalTok{t\_large  }\OtherTok{\textless{}{-}} \DecValTok{3000}
+\NormalTok{nsim }\OtherTok{\textless{}{-}} \DecValTok{1000}
+
+\NormalTok{empirical\_risk }\OtherTok{\textless{}{-}} \FunctionTok{list}\NormalTok{(}
+  \AttributeTok{model\_small =} \FunctionTok{rep}\NormalTok{(}\ConstantTok{NA}\NormalTok{, nsim),}
+  \AttributeTok{model\_medium =} \FunctionTok{rep}\NormalTok{(}\ConstantTok{NA}\NormalTok{, nsim),}
+  \AttributeTok{model\_large =} \FunctionTok{rep}\NormalTok{(}\ConstantTok{NA}\NormalTok{, nsim)}
+\NormalTok{)}
+
+\ControlFlowTok{for}\NormalTok{ (s }\ControlFlowTok{in} \DecValTok{1}\SpecialCharTok{:}\NormalTok{nsim) \{}
+  \FunctionTok{set.seed}\NormalTok{(}\DecValTok{456}\SpecialCharTok{*}\NormalTok{s)}
+  \CommentTok{\# pick index at random between 1e5 and 9e5}
+\NormalTok{  idx }\OtherTok{\textless{}{-}} \FunctionTok{sample}\NormalTok{(}\DecValTok{1}\SpecialCharTok{:}\NormalTok{(T\_pop}\SpecialCharTok{{-}}\NormalTok{t\_large), }\DecValTok{1}\NormalTok{)}
+  \CommentTok{\# consider the t subsequent observations}
+\NormalTok{  d\_small  }\OtherTok{\textless{}{-}}\NormalTok{ d\_pop[idx}\SpecialCharTok{:}\NormalTok{(idx}\SpecialCharTok{+}\NormalTok{t\_small), ]}
+\NormalTok{  d\_medium }\OtherTok{\textless{}{-}}\NormalTok{ d\_pop[idx}\SpecialCharTok{:}\NormalTok{(idx}\SpecialCharTok{+}\NormalTok{t\_medium),]}
+\NormalTok{  d\_large  }\OtherTok{\textless{}{-}}\NormalTok{ d\_pop[idx}\SpecialCharTok{:}\NormalTok{(idx}\SpecialCharTok{+}\NormalTok{t\_large), ]}
+  \CommentTok{\# estimate the model}
+\NormalTok{  model\_small }\OtherTok{\textless{}{-}} \FunctionTok{lm}\NormalTok{(y }\SpecialCharTok{\textasciitilde{}}\NormalTok{ x1 }\SpecialCharTok{+}\NormalTok{ x2 }\SpecialCharTok{+}\NormalTok{ x3, }\AttributeTok{data =}\NormalTok{ d\_small)}
+\NormalTok{  model\_medium }\OtherTok{\textless{}{-}} \FunctionTok{lm}\NormalTok{(y }\SpecialCharTok{\textasciitilde{}}\NormalTok{ x1 }\SpecialCharTok{+}\NormalTok{ x2 }\SpecialCharTok{+}\NormalTok{ x3, }\AttributeTok{data =}\NormalTok{ d\_medium)}
+\NormalTok{  model\_large }\OtherTok{\textless{}{-}} \FunctionTok{lm}\NormalTok{(y }\SpecialCharTok{\textasciitilde{}}\NormalTok{ x1 }\SpecialCharTok{+}\NormalTok{ x2 }\SpecialCharTok{+}\NormalTok{ x3, }\AttributeTok{data =}\NormalTok{ d\_large)}
+  \CommentTok{\# compute the MSE and store the results}
+\NormalTok{  empirical\_risk}\SpecialCharTok{$}\NormalTok{model\_small[s] }\OtherTok{\textless{}{-}} \FunctionTok{mse}\NormalTok{(d\_small[,}\DecValTok{1}\NormalTok{], }\FunctionTok{predict}\NormalTok{(model\_small))}
+\NormalTok{  empirical\_risk}\SpecialCharTok{$}\NormalTok{model\_medium[s] }\OtherTok{\textless{}{-}} \FunctionTok{mse}\NormalTok{(d\_medium[,}\DecValTok{1}\NormalTok{], }\FunctionTok{predict}\NormalTok{(model\_medium))}
+\NormalTok{  empirical\_risk}\SpecialCharTok{$}\NormalTok{model\_large[s] }\OtherTok{\textless{}{-}} \FunctionTok{mse}\NormalTok{(d\_large[,}\DecValTok{1}\NormalTok{], }\FunctionTok{predict}\NormalTok{(model\_large))}
+\NormalTok{\}}
+
+\CommentTok{\# compute the constant C s.t. the bound risk\_pop + C(P/t) is satisfied}
+\CommentTok{\# 1{-}1/t fraction of times}
+\NormalTok{c\_small }\OtherTok{\textless{}{-}} \FunctionTok{quantile}\NormalTok{(empirical\_risk}\SpecialCharTok{$}\NormalTok{model\_small, }\DecValTok{1{-}1}\SpecialCharTok{/}\NormalTok{t\_small)}
+\NormalTok{c\_medium }\OtherTok{\textless{}{-}} \FunctionTok{quantile}\NormalTok{(empirical\_risk}\SpecialCharTok{$}\NormalTok{model\_medium, }\DecValTok{1{-}1}\SpecialCharTok{/}\NormalTok{t\_medium)}
+\NormalTok{c\_large }\OtherTok{\textless{}{-}} \FunctionTok{quantile}\NormalTok{(empirical\_risk}\SpecialCharTok{$}\NormalTok{model\_large, }\DecValTok{1{-}1}\SpecialCharTok{/}\NormalTok{t\_large)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DocumentationTok{\#\# report the distribution of the simulated empirical risks }
+\FunctionTok{par}\NormalTok{(}\AttributeTok{mfrow =} \FunctionTok{c}\NormalTok{(}\DecValTok{2}\NormalTok{,}\DecValTok{2}\NormalTok{))}
+\CommentTok{\# small}
+\FunctionTok{hist}\NormalTok{(empirical\_risk}\SpecialCharTok{$}\NormalTok{model\_small, }\AttributeTok{xlab =} \StringTok{"Empirical risk"}\NormalTok{, }\AttributeTok{main =} \StringTok{"Small model"}\NormalTok{)}
+\FunctionTok{abline}\NormalTok{(}\AttributeTok{v =}\NormalTok{ c\_small, }\AttributeTok{lwd =} \DecValTok{2}\NormalTok{, }\AttributeTok{lty =} \DecValTok{2}\NormalTok{)}
+\FunctionTok{abline}\NormalTok{(}\AttributeTok{v =}\NormalTok{ risk\_pop, }\AttributeTok{lwd =} \DecValTok{3}\NormalTok{, }\AttributeTok{lty =} \DecValTok{1}\NormalTok{, }\AttributeTok{col =} \StringTok{"darkred"}\NormalTok{)}
+\FunctionTok{text}\NormalTok{(}\AttributeTok{x =}\NormalTok{ c\_small}\SpecialCharTok{*}\FloatTok{1.2}\NormalTok{, }\AttributeTok{y =} \DecValTok{250}\NormalTok{, }\AttributeTok{labels =} \FunctionTok{paste0}\NormalTok{(}\StringTok{"Estimation error}\SpecialCharTok{\textbackslash{}n}\StringTok{bound: "}\NormalTok{, }
+                                               \FunctionTok{round}\NormalTok{(c\_small}\SpecialCharTok{*}\NormalTok{N}\SpecialCharTok{/}\NormalTok{t\_small,}\DecValTok{3}\NormalTok{)))}
+\CommentTok{\# medium}
+\FunctionTok{hist}\NormalTok{(empirical\_risk}\SpecialCharTok{$}\NormalTok{model\_medium, }\AttributeTok{xlab =} \StringTok{"Empirical risk"}\NormalTok{, }\AttributeTok{main =} \StringTok{"Medium model"}\NormalTok{)}
+\FunctionTok{abline}\NormalTok{(}\AttributeTok{v =}\NormalTok{ c\_medium, }\AttributeTok{lwd =} \DecValTok{2}\NormalTok{, }\AttributeTok{lty =} \DecValTok{2}\NormalTok{)}
+\FunctionTok{abline}\NormalTok{(}\AttributeTok{v =}\NormalTok{ risk\_pop, }\AttributeTok{lwd =} \DecValTok{3}\NormalTok{, }\AttributeTok{lty =} \DecValTok{1}\NormalTok{, }\AttributeTok{col =} \StringTok{"darkred"}\NormalTok{)}
+\FunctionTok{text}\NormalTok{(}\AttributeTok{x =}\NormalTok{ c\_medium}\SpecialCharTok{*}\FloatTok{0.98}\NormalTok{, }\AttributeTok{y =} \DecValTok{150}\NormalTok{, }\AttributeTok{labels =} \FunctionTok{paste0}\NormalTok{(}\StringTok{"Estimation error}\SpecialCharTok{\textbackslash{}n}\StringTok{bound: "}\NormalTok{, }
+                                                \FunctionTok{round}\NormalTok{(c\_medium}\SpecialCharTok{*}\NormalTok{N}\SpecialCharTok{/}\NormalTok{t\_medium,}\DecValTok{3}\NormalTok{)))}
+\CommentTok{\# large}
+\FunctionTok{hist}\NormalTok{(empirical\_risk}\SpecialCharTok{$}\NormalTok{model\_large, }\AttributeTok{xlab =} \StringTok{"Empirical risk"}\NormalTok{, }\AttributeTok{main =} \StringTok{"Large model"}\NormalTok{)}
+\FunctionTok{abline}\NormalTok{(}\AttributeTok{v =}\NormalTok{ c\_large, }\AttributeTok{lwd =} \DecValTok{2}\NormalTok{, }\AttributeTok{lty =} \DecValTok{2}\NormalTok{)}
+\FunctionTok{abline}\NormalTok{(}\AttributeTok{v =}\NormalTok{ risk\_pop, }\AttributeTok{lwd =} \DecValTok{3}\NormalTok{, }\AttributeTok{lty =} \DecValTok{1}\NormalTok{, }\AttributeTok{col =} \StringTok{"darkred"}\NormalTok{)}
+\FunctionTok{text}\NormalTok{(}\AttributeTok{x =}\NormalTok{ c\_large}\SpecialCharTok{*}\FloatTok{0.98}\NormalTok{, }\AttributeTok{y =} \DecValTok{120}\NormalTok{, }\AttributeTok{labels =} \FunctionTok{paste0}\NormalTok{(}\StringTok{"Estimation error}\SpecialCharTok{\textbackslash{}n}\StringTok{bound: "}\NormalTok{,}
+                                               \FunctionTok{round}\NormalTok{(c\_large}\SpecialCharTok{*}\NormalTok{N}\SpecialCharTok{/}\NormalTok{t\_large,}\DecValTok{3}\NormalTok{)))}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{_main_files/figure-latex/unnamed-chunk-26-1.pdf}
+
+\hypertarget{application-forecasting-unemployment}{%
+\section{Application: forecasting unemployment}\label{application-forecasting-unemployment}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{library}\NormalTok{(sandwich) }\CommentTok{\# for estimation of robust standard errors}
+\FunctionTok{library}\NormalTok{(lmtest)   }\CommentTok{\# for coeftest}
+\FunctionTok{library}\NormalTok{(forecast) }\CommentTok{\# for dm.test}
+\end{Highlighting}
+\end{Shaded}
+
+We now consider an empirical application using the U.S. data from the \href{https://research.stlouisfed.org/econ/mccracken/fred-databases/}{FRED-MD dataset}, a collection of 127 macroeconomic time series observed at a monthly frequency.
+To make sure that the series in the model are stationary, we transform the variables according to the recommendation of the authors, as summarised in the transformation code \texttt{tcode} in the first row of the dataset:
+
+\begin{longtable}[]{@{}ll@{}}
+\toprule\noalign{}
+\texttt{tcode} & Transformation \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+1 & No \\
+2 & \(\Delta x_t\) \\
+3 & \(\Delta^2 x_t\) \\
+4 & \(\log(x_t)\) \\
+5 & \(\Delta\log(x_t)\) \\
+6 & \(\Delta^2\log(x_t)\) \\
+7 & \(\Delta\left(\frac{x_t}{x_{t-1}} -1 \right)\) \\
+\end{longtable}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DocumentationTok{\#\# load FRED{-}MD data }
+\NormalTok{fredmd }\OtherTok{\textless{}{-}} \FunctionTok{read.csv}\NormalTok{(}\StringTok{"../data/current.csv"}\NormalTok{)}
+\NormalTok{dates  }\OtherTok{\textless{}{-}} \FunctionTok{as.Date}\NormalTok{(fredmd}\SpecialCharTok{$}\NormalTok{sasdate[}\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{],}\StringTok{\textquotesingle{}\%m/\%d/\%Y\textquotesingle{}}\NormalTok{)}
+\NormalTok{tcodes }\OtherTok{\textless{}{-}}\NormalTok{ fredmd[}\DecValTok{1}\NormalTok{,}\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{]}
+\NormalTok{d      }\OtherTok{\textless{}{-}}\NormalTok{ fredmd[}\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{,}\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{] }
+
+\CommentTok{\# subset 1980{-}2024 period}
+\NormalTok{data  }\OtherTok{\textless{}{-}}\NormalTok{ d[dates }\SpecialCharTok{\textgreater{}=} \StringTok{\textquotesingle{}1980{-}01{-}01\textquotesingle{}}\NormalTok{, ]}
+\NormalTok{dates }\OtherTok{\textless{}{-}}\NormalTok{ dates[dates }\SpecialCharTok{\textgreater{}=} \StringTok{\textquotesingle{}1980{-}01{-}01\textquotesingle{}}\NormalTok{]}
+\NormalTok{t\_max     }\OtherTok{\textless{}{-}} \FunctionTok{length}\NormalTok{(dates)}
+
+\CommentTok{\# choose variables}
+\NormalTok{target }\OtherTok{\textless{}{-}} \StringTok{"UNRATE"}
+\NormalTok{predictors }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{\textquotesingle{}S.P.500\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}HOUST\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}UMCSENTx\textquotesingle{}}\NormalTok{)}
+\NormalTok{vars }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(target, predictors)}
+\NormalTok{data }\OtherTok{\textless{}{-}}\NormalTok{ data[, vars]}
+\NormalTok{tcodes }\OtherTok{\textless{}{-}}\NormalTok{ tcodes[, vars]}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DocumentationTok{\#\# list of functions for transformation}
+\NormalTok{transform\_fredmd }\OtherTok{\textless{}{-}} \FunctionTok{list}\NormalTok{(}
+  \ControlFlowTok{function}\NormalTok{(x) x,}
+  \ControlFlowTok{function}\NormalTok{(x) }\FunctionTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{, }\FunctionTok{diff}\NormalTok{(x)),}
+  \ControlFlowTok{function}\NormalTok{(x) }\FunctionTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{0}\NormalTok{, }\FunctionTok{diff}\NormalTok{(x, }\AttributeTok{differences =} \DecValTok{2}\NormalTok{)),}
+  \ControlFlowTok{function}\NormalTok{(x) }\FunctionTok{log}\NormalTok{(x),}
+  \ControlFlowTok{function}\NormalTok{(x) }\FunctionTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{, }\FunctionTok{diff}\NormalTok{(}\FunctionTok{log}\NormalTok{(x))),}
+  \ControlFlowTok{function}\NormalTok{(x) }\FunctionTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{0}\NormalTok{, }\FunctionTok{diff}\NormalTok{(}\FunctionTok{log}\NormalTok{(x), }\AttributeTok{differences =} \DecValTok{2}\NormalTok{)),}
+  \ControlFlowTok{function}\NormalTok{(x) }\FunctionTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{, }\FunctionTok{diff}\NormalTok{( x[}\DecValTok{2}\SpecialCharTok{:}\FunctionTok{length}\NormalTok{(x)]}\SpecialCharTok{/}\NormalTok{x[}\DecValTok{1}\SpecialCharTok{:}\NormalTok{(}\FunctionTok{length}\NormalTok{(x)}\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{)] }\SpecialCharTok{{-}} \DecValTok{1}\NormalTok{))}
+\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DocumentationTok{\#\# save the transformed series separately}
+\NormalTok{unrate }\OtherTok{\textless{}{-}}\NormalTok{ transform\_fredmd[[tcodes}\SpecialCharTok{$}\NormalTok{UNRATE]](data}\SpecialCharTok{$}\NormalTok{UNRATE)}
+\NormalTok{sp500  }\OtherTok{\textless{}{-}}\NormalTok{ transform\_fredmd[[tcodes}\SpecialCharTok{$}\NormalTok{S.P}\FloatTok{.500}\NormalTok{]](data}\SpecialCharTok{$}\NormalTok{S.P}\FloatTok{.500}\NormalTok{)}
+\NormalTok{house  }\OtherTok{\textless{}{-}}\NormalTok{ transform\_fredmd[[tcodes}\SpecialCharTok{$}\NormalTok{HOUST]](data}\SpecialCharTok{$}\NormalTok{HOUST)}
+\NormalTok{sent   }\OtherTok{\textless{}{-}}\NormalTok{ transform\_fredmd[[tcodes}\SpecialCharTok{$}\NormalTok{UMCSENTx]](data}\SpecialCharTok{$}\NormalTok{UMCSENTx)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# plot}
+\FunctionTok{par}\NormalTok{(}\AttributeTok{mfrow =} \FunctionTok{c}\NormalTok{(}\DecValTok{2}\NormalTok{,}\DecValTok{2}\NormalTok{))}
+\FunctionTok{plot.ts}\NormalTok{(}\FunctionTok{ts}\NormalTok{(unrate, }\AttributeTok{start =} \FunctionTok{c}\NormalTok{(}\DecValTok{1980}\NormalTok{, }\DecValTok{1}\NormalTok{), }\AttributeTok{freq =} \DecValTok{12}\NormalTok{), }\AttributeTok{main =} \StringTok{"UNRATE"}\NormalTok{, }\AttributeTok{ylab =} \StringTok{"Month{-}on{-}month change"}\NormalTok{)}
+\FunctionTok{plot.ts}\NormalTok{(}\FunctionTok{ts}\NormalTok{(sp500, }\AttributeTok{start =} \FunctionTok{c}\NormalTok{(}\DecValTok{1980}\NormalTok{, }\DecValTok{1}\NormalTok{), }\AttributeTok{freq =} \DecValTok{12}\NormalTok{), }\AttributeTok{main =} \StringTok{"S.P.500"}\NormalTok{, }\AttributeTok{ylab =} \StringTok{"Monthly \% variation"}\NormalTok{)}
+\FunctionTok{plot.ts}\NormalTok{(}\FunctionTok{ts}\NormalTok{(house, }\AttributeTok{start =} \FunctionTok{c}\NormalTok{(}\DecValTok{1980}\NormalTok{, }\DecValTok{1}\NormalTok{), }\AttributeTok{freq =} \DecValTok{12}\NormalTok{), }\AttributeTok{main =} \StringTok{"HOUST"}\NormalTok{, }\AttributeTok{ylab =} \StringTok{"log(housing starts)"}\NormalTok{)}
+\FunctionTok{plot.ts}\NormalTok{(}\FunctionTok{ts}\NormalTok{(sent, }\AttributeTok{start =} \FunctionTok{c}\NormalTok{(}\DecValTok{1980}\NormalTok{, }\DecValTok{1}\NormalTok{), }\AttributeTok{freq =} \DecValTok{12}\NormalTok{), }\AttributeTok{main =} \StringTok{"UMCSENTx"}\NormalTok{, }\AttributeTok{ylab =} \StringTok{"Month{-}on{-}month change"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{_main_files/figure-latex/unnamed-chunk-31-1.pdf}
+
+We can have a look to the autocorrelation properties of the series.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DocumentationTok{\#\# ACF plot}
+\FunctionTok{par}\NormalTok{(}\AttributeTok{mfrow =} \FunctionTok{c}\NormalTok{(}\DecValTok{2}\NormalTok{,}\DecValTok{2}\NormalTok{))}
+\FunctionTok{acf}\NormalTok{(unrate, }\AttributeTok{ylim=}\FunctionTok{c}\NormalTok{(}\SpecialCharTok{{-}}\FloatTok{0.1}\NormalTok{,}\DecValTok{1}\NormalTok{), }\AttributeTok{lwd=}\DecValTok{5}\NormalTok{, }\AttributeTok{xlim=}\FunctionTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{25}\NormalTok{), }\AttributeTok{main=}\StringTok{\textquotesingle{}UNRATE\textquotesingle{}}\NormalTok{)}
+\FunctionTok{acf}\NormalTok{(sp500,  }\AttributeTok{ylim=}\FunctionTok{c}\NormalTok{(}\SpecialCharTok{{-}}\FloatTok{0.1}\NormalTok{,}\DecValTok{1}\NormalTok{), }\AttributeTok{lwd=}\DecValTok{5}\NormalTok{, }\AttributeTok{xlim=}\FunctionTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{25}\NormalTok{), }\AttributeTok{main=}\StringTok{\textquotesingle{}S.P.500\textquotesingle{}}\NormalTok{)}
+\FunctionTok{acf}\NormalTok{(house,  }\AttributeTok{ylim=}\FunctionTok{c}\NormalTok{(}\SpecialCharTok{{-}}\FloatTok{0.1}\NormalTok{,}\DecValTok{1}\NormalTok{), }\AttributeTok{lwd=}\DecValTok{5}\NormalTok{, }\AttributeTok{xlim=}\FunctionTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{25}\NormalTok{), }\AttributeTok{main=}\StringTok{\textquotesingle{}HOUST\textquotesingle{}}\NormalTok{)}
+\FunctionTok{acf}\NormalTok{(sent,   }\AttributeTok{ylim=}\FunctionTok{c}\NormalTok{(}\SpecialCharTok{{-}}\FloatTok{0.1}\NormalTok{,}\DecValTok{1}\NormalTok{), }\AttributeTok{lwd=}\DecValTok{5}\NormalTok{, }\AttributeTok{xlim=}\FunctionTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{25}\NormalTok{), }\AttributeTok{main=}\StringTok{\textquotesingle{}UMCSENTx\textquotesingle{}}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{_main_files/figure-latex/unnamed-chunk-32-1.pdf}
+
+We now study some in-sample properties of the predictive regression:
+
+\[
+\begin{aligned}
+\text{UNRATE}_t &= \beta_0 + \beta_1 \ \text{UNRATE}_{t-1} + \beta_2 \ \text{HOUST}_{t-1} \ + \beta_3 \ \text{SP500}_{t-1} \ + \beta_4 \ \text{SENT}_{t-1} \ +\\
+ &+ \ \text{dummies} \ + \varepsilon_t.
+\end{aligned}
+\]
+
+In particular, we compute the in-sample predictive fit of the model and we study the properties of the residuals.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DocumentationTok{\#\# Fit predictive regression}
+\CommentTok{\# Create the dataframe for regression }
+\NormalTok{data\_regression }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{(}
+  \AttributeTok{unrate     =}\NormalTok{ unrate[}\DecValTok{2}\SpecialCharTok{:}\NormalTok{t\_max],}
+  \AttributeTok{unrate\_lag =}\NormalTok{ unrate[}\DecValTok{1}\SpecialCharTok{:}\NormalTok{(t\_max}\DecValTok{{-}1}\NormalTok{)],}
+  \AttributeTok{house      =}\NormalTok{ house[}\DecValTok{1}\SpecialCharTok{:}\NormalTok{(t\_max}\DecValTok{{-}1}\NormalTok{)],}
+  \AttributeTok{sp500      =}\NormalTok{ sp500[}\DecValTok{1}\SpecialCharTok{:}\NormalTok{(t\_max}\DecValTok{{-}1}\NormalTok{)],}
+  \AttributeTok{sent       =}\NormalTok{ sent[}\DecValTok{1}\SpecialCharTok{:}\NormalTok{(t\_max}\DecValTok{{-}1}\NormalTok{)],}
+  \AttributeTok{d1 =}\NormalTok{ (dates[}\DecValTok{2}\SpecialCharTok{:}\NormalTok{t\_max]}\SpecialCharTok{==}\StringTok{"2020{-}04{-}01"}\NormalTok{)}\SpecialCharTok{*}\DecValTok{1}\NormalTok{, }\CommentTok{\# covid dummy variable}
+  \AttributeTok{d2 =}\NormalTok{ (dates[}\DecValTok{2}\SpecialCharTok{:}\NormalTok{t\_max]}\SpecialCharTok{==}\StringTok{"2020{-}05{-}01"}\NormalTok{)}\SpecialCharTok{*}\DecValTok{1}\NormalTok{, }
+  \AttributeTok{d3 =}\NormalTok{ (dates[}\DecValTok{2}\SpecialCharTok{:}\NormalTok{t\_max]}\SpecialCharTok{==}\StringTok{"2020{-}06{-}01"}\NormalTok{)}\SpecialCharTok{*}\DecValTok{1}\NormalTok{, }
+  \AttributeTok{d4 =}\NormalTok{ (dates[}\DecValTok{2}\SpecialCharTok{:}\NormalTok{t\_max]}\SpecialCharTok{==}\StringTok{"2020{-}07{-}01"}\NormalTok{)}\SpecialCharTok{*}\DecValTok{1}\NormalTok{, }
+  \AttributeTok{d5 =}\NormalTok{ (dates[}\DecValTok{2}\SpecialCharTok{:}\NormalTok{t\_max]}\SpecialCharTok{==}\StringTok{"2020{-}08{-}01"}\NormalTok{)}\SpecialCharTok{*}\DecValTok{1}\NormalTok{, }
+  \AttributeTok{d6 =}\NormalTok{ (dates[}\DecValTok{2}\SpecialCharTok{:}\NormalTok{t\_max]}\SpecialCharTok{==}\StringTok{"2020{-}09{-}01"}\NormalTok{)}\SpecialCharTok{*}\DecValTok{1} 
+\NormalTok{)}
+
+\CommentTok{\# Fit OLS}
+\NormalTok{pred\_model }\OtherTok{\textless{}{-}} \FunctionTok{lm}\NormalTok{(unrate }\SpecialCharTok{\textasciitilde{}}\NormalTok{ ., }\AttributeTok{data =}\NormalTok{ data\_regression)}
+\NormalTok{vcov\_nw }\OtherTok{\textless{}{-}} \FunctionTok{NeweyWest}\NormalTok{(pred\_model, }\AttributeTok{prewhite=}\NormalTok{F)}
+
+\CommentTok{\# BAD inference (unadjusted asymptotic variance)}
+\FunctionTok{coeftest}\NormalTok{(pred\_model)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+## t test of coefficients:
+## 
+##               Estimate Std. Error  t value  Pr(>|t|)    
+## (Intercept)  0.6066299  0.1752768   3.4610 0.0005829 ***
+## unrate_lag   0.1241838  0.0445711   2.7862 0.0055298 ** 
+## house       -0.0854805  0.0244385  -3.4978 0.0005097 ***
+## sp500       -0.4989494  0.2318030  -2.1525 0.0318242 *  
+## sent        -0.0021749  0.0020826  -1.0443 0.2968167    
+## d1          10.0608718  0.1859894  54.0938 < 2.2e-16 ***
+## d2          -2.8193347  0.4924891  -5.7247 1.762e-08 ***
+## d3          -1.9965983  0.1882808 -10.6044 < 2.2e-16 ***
+## d4          -0.4795102  0.2010676  -2.3848 0.0174483 *  
+## d5          -1.6764097  0.1795464  -9.3369 < 2.2e-16 ***
+## d6          -0.2339512  0.1927566  -1.2137 0.2254137    
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Inference using the Newey West estimator}
+\FunctionTok{coeftest}\NormalTok{(pred\_model, vcov\_nw)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+## t test of coefficients:
+## 
+##               Estimate Std. Error  t value  Pr(>|t|)    
+## (Intercept)  0.6066299  0.3400340   1.7840   0.07501 .  
+## unrate_lag   0.1241838  0.0686069   1.8101   0.07087 .  
+## house       -0.0854805  0.0464922  -1.8386   0.06655 .  
+## sp500       -0.4989494  0.2553605  -1.9539   0.05125 .  
+## sent        -0.0021749  0.0024861  -0.8748   0.38207    
+## d1          10.0608718  0.0970859 103.6286 < 2.2e-16 ***
+## d2          -2.8193347  0.7159484  -3.9379 9.351e-05 ***
+## d3          -1.9965983  0.1022064 -19.5350 < 2.2e-16 ***
+## d4          -0.4795102  0.1528230  -3.1377   0.00180 ** 
+## d5          -1.6764097  0.0584554 -28.6785 < 2.2e-16 ***
+## d6          -0.2339512  0.1251049  -1.8700   0.06205 .  
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# True VS. predicted values}
+\FunctionTok{plot.ts}\NormalTok{(data\_regression}\SpecialCharTok{$}\NormalTok{unrate, }\AttributeTok{ylim =} \FunctionTok{c}\NormalTok{(}\SpecialCharTok{{-}}\FloatTok{0.8}\NormalTok{, }\FloatTok{0.8}\NormalTok{), }\AttributeTok{col =} \StringTok{"darkgrey"}\NormalTok{)}
+\FunctionTok{lines}\NormalTok{(}\FunctionTok{predict}\NormalTok{(pred\_model), }\AttributeTok{col =} \StringTok{"darkred"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{_main_files/figure-latex/unnamed-chunk-33-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Analysis of residuals}
+\FunctionTok{acf}\NormalTok{(pred\_model}\SpecialCharTok{$}\NormalTok{residuals, }\AttributeTok{lwd =} \DecValTok{5}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{_main_files/figure-latex/unnamed-chunk-34-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Test for autocorrelation}
+\FunctionTok{Box.test}\NormalTok{(pred\_model}\SpecialCharTok{$}\NormalTok{residuals, }\AttributeTok{lag=}\DecValTok{12}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##  Box-Pierce test
+## 
+## data:  pred_model$residuals
+## X-squared = 76.202, df = 12, p-value = 2.176e-11
+\end{verbatim}
+
+We can assess the effect of an exogenous change in the predictors on the target variable over time by using the method of local projections. Here we show the effect of a positive shock in the S.P.500 index.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DocumentationTok{\#\# Local projections for assessing the impact of a shock}
+\CommentTok{\# set number of horizons and initialize objects}
+\NormalTok{H          }\OtherTok{\textless{}{-}} \DecValTok{12}
+\NormalTok{lp         }\OtherTok{\textless{}{-}} \FunctionTok{rep}\NormalTok{(}\DecValTok{0}\NormalTok{,H)      }\CommentTok{\# local projection}
+\NormalTok{lp\_confint }\OtherTok{\textless{}{-}} \FunctionTok{matrix}\NormalTok{(}\DecValTok{0}\NormalTok{,H,}\DecValTok{2}\NormalTok{) }\CommentTok{\# confidence intervals}
+
+\CommentTok{\# compute the impact after h = 1,...,H horizons}
+\ControlFlowTok{for}\NormalTok{(h }\ControlFlowTok{in} \DecValTok{1}\SpecialCharTok{:}\NormalTok{H)\{}
+  \CommentTok{\# prepare dataset for forecasting h periods ahead}
+\NormalTok{  data\_h  }\OtherTok{\textless{}{-}} \FunctionTok{cbind}\NormalTok{( }
+\NormalTok{    data\_regression[h}\SpecialCharTok{:}\NormalTok{t\_max, }\FunctionTok{c}\NormalTok{(}\StringTok{"unrate"}\NormalTok{, }\FunctionTok{paste0}\NormalTok{(}\StringTok{"d"}\NormalTok{, }\DecValTok{1}\SpecialCharTok{:}\DecValTok{6}\NormalTok{))],}
+\NormalTok{    data\_regression[}\DecValTok{1}\SpecialCharTok{:}\NormalTok{(t\_max}\SpecialCharTok{{-}}\NormalTok{h}\SpecialCharTok{+}\DecValTok{1}\NormalTok{), }\FunctionTok{c}\NormalTok{(}\StringTok{"unrate\_lag"}\NormalTok{, }\StringTok{"house"}\NormalTok{, }\StringTok{"sp500"}\NormalTok{, }\StringTok{"sent"}\NormalTok{)]}
+\NormalTok{    )}
+
+  \CommentTok{\# predict}
+\NormalTok{  pred\_model\_h }\OtherTok{\textless{}{-}} \FunctionTok{lm}\NormalTok{(unrate }\SpecialCharTok{\textasciitilde{}}\NormalTok{ ., }\AttributeTok{data =}\NormalTok{ data\_h)}
+
+  \CommentTok{\# compute Newey{-}West estimate}
+\NormalTok{  vcov\_nw\_h }\OtherTok{\textless{}{-}} \FunctionTok{NeweyWest}\NormalTok{(pred\_model\_h, }\AttributeTok{prewhite =}\NormalTok{ F)}
+
+  \CommentTok{\# compute standard errors for the estimated coefficients}
+\NormalTok{  confint\_h }\OtherTok{\textless{}{-}} \FunctionTok{coeftest}\NormalTok{(pred\_model\_h, vcov\_nw\_h)}
+
+  \CommentTok{\# store the estimates and the 90\% confidence intervals}
+\NormalTok{  lp[h]           }\OtherTok{\textless{}{-}}\NormalTok{ confint\_h[}\StringTok{\textquotesingle{}sp500\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}Estimate\textquotesingle{}}\NormalTok{]}
+\NormalTok{  lp\_confint[h, ] }\OtherTok{\textless{}{-}}\NormalTok{ lp[h] }\SpecialCharTok{+}\NormalTok{ confint\_h[}\StringTok{\textquotesingle{}sp500\textquotesingle{}}\NormalTok{,}\StringTok{\textquotesingle{}Std. Error\textquotesingle{}}\NormalTok{]}\SpecialCharTok{*}\FunctionTok{c}\NormalTok{(}\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{)}\SpecialCharTok{*}\FunctionTok{qnorm}\NormalTok{(}\FloatTok{0.05}\NormalTok{)}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DocumentationTok{\#\# Plot the impulse response function}
+\FunctionTok{plot}\NormalTok{(}\DecValTok{1}\SpecialCharTok{:}\NormalTok{H, lp,         }\AttributeTok{lwd =} \DecValTok{3}\NormalTok{, }\AttributeTok{col =} \StringTok{\textquotesingle{}darkred\textquotesingle{}}\NormalTok{, }\AttributeTok{t =} \StringTok{"b"}\NormalTok{, }\AttributeTok{ylim =} \FunctionTok{c}\NormalTok{(}\SpecialCharTok{{-}}\DecValTok{2}\NormalTok{,}\DecValTok{1}\NormalTok{),}
+     \AttributeTok{main =} \StringTok{"Response of unemployment after a positive shock on the S.P.500"}\NormalTok{,}
+     \AttributeTok{xlab =} \StringTok{""}\NormalTok{, }\AttributeTok{ylab =} \StringTok{""}\NormalTok{)}
+\FunctionTok{lines}\NormalTok{(lp\_confint[,}\DecValTok{1}\NormalTok{], }\AttributeTok{lwd =} \DecValTok{1}\NormalTok{, }\AttributeTok{col =} \StringTok{\textquotesingle{}darkred\textquotesingle{}}\NormalTok{, }\AttributeTok{t =} \StringTok{"b"}\NormalTok{, }\AttributeTok{pch  =} \DecValTok{25}\NormalTok{)}
+\FunctionTok{lines}\NormalTok{(lp\_confint[,}\DecValTok{2}\NormalTok{], }\AttributeTok{lwd =} \DecValTok{1}\NormalTok{, }\AttributeTok{col =} \StringTok{\textquotesingle{}darkred\textquotesingle{}}\NormalTok{, }\AttributeTok{t =} \StringTok{"b"}\NormalTok{, }\AttributeTok{pch  =} \DecValTok{24}\NormalTok{)}
+\FunctionTok{grid}\NormalTok{()}
+\FunctionTok{box}\NormalTok{()}
+\FunctionTok{abline}\NormalTok{(}\AttributeTok{h=}\DecValTok{0}\NormalTok{,}\AttributeTok{lwd=}\DecValTok{3}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{_main_files/figure-latex/unnamed-chunk-37-1.pdf}
+
+We now proceed to evaluate the forecasts of the model. To do so, we split the data into a training set (observations up to 1999:12) and a testing set (starting in 2000:01). We estimate the parameters of the model on the training data and then make predictions based on the value of the predictors and the estimated coefficients. We compare the forecasts against the sample mean using the MSE. The Diebold-Mariano test suggests that the regression method has a superior forecasting performance than the sample mean. However, this result depends on the specification of the regression model and the predictive ability of the model is still pretty poor.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DocumentationTok{\#\# Forecast evaluation}
+\CommentTok{\# split training set (1980{-}2000) and testing set (2000{-}2024)}
+\NormalTok{in\_sample  }\OtherTok{\textless{}{-}}\NormalTok{ (dates[}\DecValTok{2}\SpecialCharTok{:}\NormalTok{t\_max] }\SpecialCharTok{\textless{}} \FunctionTok{as.Date}\NormalTok{(}\StringTok{\textquotesingle{}2000{-}01{-}01\textquotesingle{}}\NormalTok{))}
+\NormalTok{out\_sample }\OtherTok{\textless{}{-}}\NormalTok{ (dates[}\DecValTok{2}\SpecialCharTok{:}\NormalTok{t\_max] }\SpecialCharTok{\textgreater{}=} \FunctionTok{as.Date}\NormalTok{(}\StringTok{\textquotesingle{}2000{-}01{-}01\textquotesingle{}}\NormalTok{) }\SpecialCharTok{\&} 
+\NormalTok{                 ( dates[}\DecValTok{2}\SpecialCharTok{:}\NormalTok{t\_max] }\SpecialCharTok{\textless{}} \FunctionTok{as.Date}\NormalTok{(}\StringTok{\textquotesingle{}2020{-}03{-}01\textquotesingle{}}\NormalTok{) }\SpecialCharTok{|} 
+\NormalTok{                     dates[}\DecValTok{2}\SpecialCharTok{:}\NormalTok{t\_max] }\SpecialCharTok{\textgreater{}=} \FunctionTok{as.Date}\NormalTok{(}\StringTok{\textquotesingle{}2020{-}09{-}01\textquotesingle{}}\NormalTok{) ))}
+\NormalTok{data\_train }\OtherTok{\textless{}{-}}\NormalTok{ data\_regression[in\_sample,]}
+\NormalTok{data\_test }\OtherTok{\textless{}{-}}\NormalTok{ data\_regression[out\_sample,]}
+\NormalTok{dates\_test }\OtherTok{\textless{}{-}}\NormalTok{ (dates[}\DecValTok{2}\SpecialCharTok{:}\NormalTok{t\_max])[out\_sample]}
+
+\CommentTok{\# fit predictive models}
+\NormalTok{model1 }\OtherTok{\textless{}{-}} \FunctionTok{lm}\NormalTok{(unrate }\SpecialCharTok{\textasciitilde{}}\NormalTok{ unrate\_lag }\SpecialCharTok{+}\NormalTok{ sp500 }\SpecialCharTok{+}\NormalTok{ sent }\SpecialCharTok{+}\NormalTok{ house, }\AttributeTok{data =}\NormalTok{ data\_train)}
+\NormalTok{model2 }\OtherTok{\textless{}{-}} \FunctionTok{lm}\NormalTok{(unrate }\SpecialCharTok{\textasciitilde{}}\NormalTok{ unrate\_lag }\SpecialCharTok{+}\NormalTok{ sp500 }\SpecialCharTok{+}\NormalTok{ sent,         }\AttributeTok{data =}\NormalTok{ data\_train)}
+\NormalTok{model3 }\OtherTok{\textless{}{-}} \FunctionTok{lm}\NormalTok{(unrate }\SpecialCharTok{\textasciitilde{}}\NormalTok{ unrate\_lag }\SpecialCharTok{+}\NormalTok{ sp500,                }\AttributeTok{data =}\NormalTok{ data\_train)}
+
+\CommentTok{\# get predictions}
+\NormalTok{y\_hat1 }\OtherTok{\textless{}{-}} \FunctionTok{predict}\NormalTok{(model1, }\AttributeTok{newdata =}\NormalTok{ data\_test)}
+\NormalTok{y\_hat2 }\OtherTok{\textless{}{-}} \FunctionTok{predict}\NormalTok{(model2, }\AttributeTok{newdata =}\NormalTok{ data\_test)}
+\NormalTok{y\_hat3 }\OtherTok{\textless{}{-}} \FunctionTok{predict}\NormalTok{(model3, }\AttributeTok{newdata =}\NormalTok{ data\_test)}
+
+\CommentTok{\# compute benchmark prediction (sample mean)}
+\NormalTok{y\_benchmark  }\OtherTok{\textless{}{-}} \FunctionTok{rep}\NormalTok{(}\FunctionTok{mean}\NormalTok{(data\_train}\SpecialCharTok{$}\NormalTok{unrate), }\FunctionTok{sum}\NormalTok{(out\_sample))}
+
+\CommentTok{\# compute MSE}
+\NormalTok{mse\_model1     }\OtherTok{\textless{}{-}} \FunctionTok{mse}\NormalTok{(data\_test}\SpecialCharTok{$}\NormalTok{unrate, y\_hat1)}
+\NormalTok{mse\_model2     }\OtherTok{\textless{}{-}} \FunctionTok{mse}\NormalTok{(data\_test}\SpecialCharTok{$}\NormalTok{unrate, y\_hat2)}
+\NormalTok{mse\_model3     }\OtherTok{\textless{}{-}} \FunctionTok{mse}\NormalTok{(data\_test}\SpecialCharTok{$}\NormalTok{unrate, y\_hat3)}
+\NormalTok{mse\_benchmark  }\OtherTok{\textless{}{-}} \FunctionTok{mse}\NormalTok{(data\_test}\SpecialCharTok{$}\NormalTok{unrate, y\_benchmark)}
+
+\CommentTok{\# results}
+\FunctionTok{round}\NormalTok{(}\FunctionTok{rbind}\NormalTok{(}
+  \AttributeTok{mse\_4vars =}\NormalTok{ mse\_model1,}
+  \AttributeTok{mse\_3vars =}\NormalTok{ mse\_model2,}
+  \AttributeTok{mse\_2vars =}\NormalTok{ mse\_model3,}
+  \AttributeTok{mse\_mean  =}\NormalTok{ mse\_benchmark,}
+  \AttributeTok{R2\_2vars  =} \DecValTok{1} \SpecialCharTok{{-}}\NormalTok{ mse\_model3}\SpecialCharTok{/}\NormalTok{mse\_benchmark        }
+\NormalTok{), }\DecValTok{4}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##             [,1]
+## mse_4vars 0.0536
+## mse_3vars 0.0302
+## mse_2vars 0.0296
+## mse_mean  0.0318
+## R2_2vars  0.0677
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# convert to ts object to have dates in plot}
+\NormalTok{y\_true }\OtherTok{\textless{}{-}} \FunctionTok{ts}\NormalTok{(data\_test}\SpecialCharTok{$}\NormalTok{unrate, }\AttributeTok{start =} \FunctionTok{c}\NormalTok{(}\DecValTok{2000}\NormalTok{, }\DecValTok{1}\NormalTok{), }\AttributeTok{frequency =} \DecValTok{12}\NormalTok{)}
+\NormalTok{y\_hat3 }\OtherTok{\textless{}{-}} \FunctionTok{ts}\NormalTok{(y\_hat3, }\AttributeTok{start =} \FunctionTok{c}\NormalTok{(}\DecValTok{2000}\NormalTok{, }\DecValTok{1}\NormalTok{), }\AttributeTok{frequency =} \DecValTok{12}\NormalTok{)}
+\NormalTok{y\_benchmark }\OtherTok{\textless{}{-}} \FunctionTok{ts}\NormalTok{(y\_benchmark, }\AttributeTok{start =} \FunctionTok{c}\NormalTok{(}\DecValTok{2000}\NormalTok{, }\DecValTok{1}\NormalTok{), }\AttributeTok{frequency =} \DecValTok{12}\NormalTok{)}
+
+\CommentTok{\# plot}
+\FunctionTok{plot.ts}\NormalTok{(y\_true, }\AttributeTok{col =} \StringTok{"darkgrey"}\NormalTok{, }\AttributeTok{ylim =} \FunctionTok{c}\NormalTok{(}\SpecialCharTok{{-}}\FloatTok{0.4}\NormalTok{, }\FloatTok{0.2}\NormalTok{), }
+        \AttributeTok{main =} \StringTok{"Forecasted values of unemployment change"}\NormalTok{,}
+        \AttributeTok{ylab =} \StringTok{"Change in unemployment rate"}\NormalTok{, }
+        \AttributeTok{xlab =} \StringTok{""}\NormalTok{)}
+\FunctionTok{lines}\NormalTok{(y\_hat3, }\AttributeTok{col =} \StringTok{"darkred"}\NormalTok{, }\AttributeTok{lwd =} \DecValTok{2}\NormalTok{)}
+\FunctionTok{lines}\NormalTok{(y\_benchmark)}
+\FunctionTok{rect}\NormalTok{(}\FloatTok{2020.25}\NormalTok{,}\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{,}\FloatTok{2020.75}\NormalTok{,}\DecValTok{1}\NormalTok{,}\AttributeTok{col =} \FunctionTok{rgb}\NormalTok{(}\FloatTok{0.6}\NormalTok{,}\FloatTok{0.1}\NormalTok{,}\FloatTok{0.1}\NormalTok{,}\DecValTok{1}\SpecialCharTok{/}\DecValTok{4}\NormalTok{))}
+\FunctionTok{legend}\NormalTok{(}\StringTok{"bottomleft"}\NormalTok{, }\FunctionTok{c}\NormalTok{(}\StringTok{"Forecast"}\NormalTok{, }\StringTok{"True"}\NormalTok{), }\AttributeTok{col=}\FunctionTok{c}\NormalTok{(}\StringTok{"darkred"}\NormalTok{, }\StringTok{"darkgrey"}\NormalTok{), }\AttributeTok{lwd=}\DecValTok{6}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{_main_files/figure-latex/unnamed-chunk-39-1.pdf}
+
+It is common to report the plot of the normalized cumulated squared errors to assess if one model has a superior forecasting ability over all the testing period:
+
+\[
+\text{Cumulated error}_t =  \frac{\sum_{\tau = t_w + 1}^t e_\tau^2}{\sum_{\tau = t_w + 1}^T \bar{e}_{\tau}^2}
+\]
+
+where \(e_\tau, \bar{e}_\tau\) denote respectively the forecast error of the model and the benchmark at time \(\tau\), and \(t_w\) is the number of periods in the training set.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DocumentationTok{\#\# Plot the forecast errors over time}
+\CommentTok{\# compute the forecast errors}
+\NormalTok{err\_model }\OtherTok{\textless{}{-}}\NormalTok{ y\_true}\SpecialCharTok{{-}}\NormalTok{y\_hat3}
+\NormalTok{err\_benchmark }\OtherTok{\textless{}{-}}\NormalTok{ y\_true}\SpecialCharTok{{-}}\NormalTok{y\_benchmark}
+\CommentTok{\# compute the (normalized) cumulated squared errors and convert to ts object}
+\NormalTok{err2\_model     }\OtherTok{\textless{}{-}} \FunctionTok{ts}\NormalTok{(}\FunctionTok{cumsum}\NormalTok{((err\_model)}\SpecialCharTok{\^{}}\DecValTok{2}\NormalTok{), }\AttributeTok{start =} \FunctionTok{c}\NormalTok{(}\DecValTok{2000}\NormalTok{, }\DecValTok{1}\NormalTok{), }\AttributeTok{frequency =} \DecValTok{12}\NormalTok{)}
+\NormalTok{err2\_benchmark }\OtherTok{\textless{}{-}} \FunctionTok{ts}\NormalTok{(}\FunctionTok{cumsum}\NormalTok{((err\_benchmark)}\SpecialCharTok{\^{}}\DecValTok{2}\NormalTok{), }\AttributeTok{start =} \FunctionTok{c}\NormalTok{(}\DecValTok{2000}\NormalTok{, }\DecValTok{1}\NormalTok{), }\AttributeTok{frequency =} \DecValTok{12}\NormalTok{)}
+\NormalTok{err2\_constant  }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{((y\_true}\SpecialCharTok{{-}}\NormalTok{y\_benchmark)}\SpecialCharTok{\^{}}\DecValTok{2}\NormalTok{)}
+\CommentTok{\# plot the cumulated squared errors over time}
+\FunctionTok{plot.ts}\NormalTok{(err2\_benchmark}\SpecialCharTok{/}\NormalTok{err2\_constant, }\AttributeTok{lwd =} \DecValTok{2}\NormalTok{,}
+        \AttributeTok{ylab =} \StringTok{"Cumulated squared errors"}\NormalTok{,}
+        \AttributeTok{main =} \StringTok{"Forecast errors over time"}\NormalTok{,}
+        \AttributeTok{xlab =} \StringTok{""}\NormalTok{)}
+\FunctionTok{lines}\NormalTok{(err2\_model}\SpecialCharTok{/}\NormalTok{err2\_constant, }\AttributeTok{col =} \StringTok{"darkred"}\NormalTok{, }\AttributeTok{lwd =} \DecValTok{2}\NormalTok{)}
+\FunctionTok{rect}\NormalTok{(}\FloatTok{2020.25}\NormalTok{,}\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{,}\FloatTok{2020.75}\NormalTok{,}\FloatTok{1.5}\NormalTok{,}\AttributeTok{col =} \FunctionTok{rgb}\NormalTok{(}\FloatTok{0.6}\NormalTok{,}\FloatTok{0.1}\NormalTok{,}\FloatTok{0.1}\NormalTok{,}\DecValTok{1}\SpecialCharTok{/}\DecValTok{4}\NormalTok{))}
+\FunctionTok{legend}\NormalTok{(}\StringTok{"topleft"}\NormalTok{, }\FunctionTok{c}\NormalTok{(}\StringTok{"Regression model"}\NormalTok{, }\StringTok{"Sample mean"}\NormalTok{), }\AttributeTok{col=}\FunctionTok{c}\NormalTok{(}\StringTok{"darkred"}\NormalTok{, }\StringTok{"black"}\NormalTok{), }\AttributeTok{lwd=}\DecValTok{6}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{_main_files/figure-latex/unnamed-chunk-40-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DocumentationTok{\#\# Diebold{-}Mariano test for predictive performance}
+\CommentTok{\# one{-}sided test: }
+\CommentTok{\# {-} H0: err\_benchmark = err\_model}
+\CommentTok{\# {-} H1: err\_benchmark \textgreater{} err\_model}
+\FunctionTok{dm.test}\NormalTok{(err\_benchmark, err\_model, }\AttributeTok{alternative =} \StringTok{"greater"}\NormalTok{) }
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##  Diebold-Mariano Test
+## 
+## data:  err_benchmarkerr_model
+## DM = 2.4995, Forecast horizon = 1, Loss function power = 2, p-value =
+## 0.006504
+## alternative hypothesis: greater
+\end{verbatim}
 
   \bibliography{book.bib,packages.bib}
 

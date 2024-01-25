@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>Session 2 Forecasting with time-series regression | Financial Econometrics - Tutorials</title>
+  <meta name="description" content="TA materials for the Financial Econometrics course held by Prof. Christian Brownlees at the Barcelona School of Economics." />
+  <meta name="generator" content="bookdown 0.33 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="Session 2 Forecasting with time-series regression | Financial Econometrics - Tutorials" />
+  <meta property="og:type" content="book" />
+  
+  <meta property="og:description" content="TA materials for the Financial Econometrics course held by Prof. Christian Brownlees at the Barcelona School of Economics." />
+  <meta name="github-repo" content="rstudio/bookdown-demo" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Session 2 Forecasting with time-series regression | Financial Econometrics - Tutorials" />
+  
+  <meta name="twitter:description" content="TA materials for the Financial Econometrics course held by Prof. Christian Brownlees at the Barcelona School of Economics." />
+  
+
+<meta name="author" content="Alessandro Ciancetta" />
+
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="session01.html"/>
+
+<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
+
+
+<style type="text/css">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">Financial Econometrics at BSE</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>About</a></li>
+<li class="chapter" data-level="1" data-path="session01.html"><a href="session01.html"><i class="fa fa-check"></i><b>1</b> Introduction to time series</a>
+<ul>
+<li class="chapter" data-level="1.1" data-path="session01.html"><a href="session01.html#stochastic-processes-and-dependence"><i class="fa fa-check"></i><b>1.1</b> Stochastic processes and dependence</a>
+<ul>
+<li class="chapter" data-level="" data-path="session01.html"><a href="session01.html#stationarity"><i class="fa fa-check"></i>Stationarity</a></li>
+<li class="chapter" data-level="" data-path="session01.html"><a href="session01.html#ergodicity"><i class="fa fa-check"></i>Ergodicity</a></li>
+</ul></li>
+<li class="chapter" data-level="1.2" data-path="session01.html"><a href="session01.html#asymptotic-results"><i class="fa fa-check"></i><b>1.2</b> Asymptotic results</a></li>
+<li class="chapter" data-level="1.3" data-path="session01.html"><a href="session01.html#empirical-moments-and-summary-statistics"><i class="fa fa-check"></i><b>1.3</b> Empirical moments and summary statistics</a></li>
+<li class="chapter" data-level="1.4" data-path="session01.html"><a href="session01.html#hypothesis-testing"><i class="fa fa-check"></i><b>1.4</b> Hypothesis testing</a></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="session02.html"><a href="session02.html"><i class="fa fa-check"></i><b>2</b> Forecasting with time-series regression</a>
+<ul>
+<li class="chapter" data-level="2.1" data-path="session02.html"><a href="session02.html#oracle-inequality"><i class="fa fa-check"></i><b>2.1</b> Oracle inequality</a></li>
+<li class="chapter" data-level="2.2" data-path="session02.html"><a href="session02.html#application-forecasting-unemployment"><i class="fa fa-check"></i><b>2.2</b> Application: forecasting unemployment</a></li>
+</ul></li>
+<li class="divider"></li>
+<li><a href="https://github.com/aciancetta" target="blank">Alessandro Ciancetta</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Financial Econometrics - Tutorials</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="session02" class="section level1 hasAnchor" number="2">
+<h1><span class="header-section-number">Session 2</span> Forecasting with time-series regression<a href="session02.html#session02" class="anchor-section" aria-label="Anchor link to header"></a></h1>
+<p>This session covers a first introduction to forecasting the conditional mean of a time series. A forecasting procedure involves three main objects:</p>
+<ul>
+<li>A set of predictors and a target variable that we want to forecast</li>
+<li>A class of forecasting models that we consider</li>
+<li>A loss function to evaluate the accuracy of the forecasts</li>
+</ul>
+<p>In this session we focus on the class of linear regression models estimated via least-squares. The loss function that we consider throughout this chapter is the quadratic loss function estimated using the Mean Squared Error (MSE) defined in the <code>R</code> function below.</p>
+<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="session02.html#cb30-1" tabindex="-1"></a><span class="do">## Function to compute the MSE. y = true value, f = forecast</span></span>
+<span id="cb30-2"><a href="session02.html#cb30-2" tabindex="-1"></a>mse <span class="ot">&lt;-</span> <span class="cf">function</span>(y, f) {<span class="fu">mean</span>((y<span class="sc">-</span>f)<span class="sc">^</span><span class="dv">2</span>)}</span></code></pre></div>
+<p>The first section presents a simulation exercise to show the finite-sample properties of the linear regression model under mis-specification. The second section is an empirical application to the problem of forecasting the U.S. unemployment rate using some relevant macroeconomic indicators.</p>
+<div id="oracle-inequality" class="section level2 hasAnchor" number="2.1">
+<h2><span class="header-section-number">2.1</span> Oracle inequality<a href="session02.html#oracle-inequality" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p><strong>Optional section, not covered in class</strong></p>
+<p>Given a forecasting problem, the optimal prediction rule is defined as the one that minimizes the theoretical risk:
+<span class="math display">\[
+f_{t+h|t}^* = \arg\min_{f \in \mathcal{F}} R(f_{t+h|t})
+\]</span></p>
+<p>and the associated optimal risk is denoted by <span class="math inline">\(R^*\)</span>. Under the square loss function, the optimal rule is the conditional expectation:</p>
+<p><span class="math display">\[
+f_{t+h|t}^* = \mathbb{E}[y_{t+h}| x_t]
+\]</span></p>
+<p>Notice that the exact functional form of the predictor is unknown: the conditional expected value could be of any linear or non-linear form. To make the theory of learning operational, we then have to restrict our attention to a class of prediction rules and pick the best rule from that class according to the limited amount of data available.</p>
+<p>A commonly used class of predictors is that of the linear predictors. Consider a linear regression model for predicting the target variable <span class="math inline">\(y_{t+h}\)</span>:
+<span class="math display">\[
+f_{t+h|t} = x_t&#39;\theta.
+\]</span></p>
+<p>where <span class="math inline">\(f_{t+h|t}\)</span> denotes the <span class="math inline">\(h\)</span>-periods-ahead forecast. Irrespective of what is the true d.g.p., <span class="math inline">\(\theta\)</span> is the parameter that leads to the best forecasts <em>within the class of linear regression models</em></p>
+<p><span class="math display">\[
+\theta = \arg\min_{\tilde{\theta} \in \mathbb{R}^p} \mathbb{E}[L(y_{t+h}, f_{t+h|t}(\theta))] = R(\theta)
+\]</span></p>
+<p>However, in practice we can only use a finite sample to learn the parameters of the linear model via <em>empirical</em> risk minimization:</p>
+<p><span class="math display">\[
+\hat{\theta} = \arg\min_{\theta \in \mathbb{R}^p} R_T(\theta)
+\]</span></p>
+<p>In our case, <span class="math inline">\(R_T(\theta) = \frac{1}{T-h-t_w+1}\sum_{t=t_w}^{T-h} (y_{t+h} - f_{t+h|t})^2 = MSE\)</span>, where <span class="math inline">\(t_w\)</span> denotes the initial number of observations used to train the model.</p>
+<p>So far, we have introduced three different measures of risk:</p>
+<ul>
+<li><span class="math inline">\(R^*\)</span>, the risk associated with the theoretical optimal predictor if the true d.g.p. were known</li>
+<li><span class="math inline">\(R(\theta)\)</span>, the risk associated with the optimal predictor within the parametric class considered for learning</li>
+<li><span class="math inline">\(R_T(\hat\theta)\)</span>, the empirical risk obtained by minimization of the loss function using the available data sample</li>
+</ul>
+<p>The regret (i.e. the difference between the optimal and the empirical risk) can be expressed in a way that links these three quantities:
+<span class="math display">\[
+R_T(\hat\theta) - R^*  = \underbrace{\left[ R(\theta) - R^* \right]}_{_{\text{Approximation error}}} + \underbrace{\left[R_T(\hat\theta) - R(\theta)\right]}_{\text{Estimation error}}
+\]</span></p>
+<p>We mainly focus on the estimation error. In particular, we are usually interested in establishing finite-sample, probabilistic bounds to this quantity. These bounds are helpful in assessing, for instance, how many observations a model needs to perform well and how its performance relates to the number of predictors. For linear prediction, the following oracle inequality holds: there exists a constant <span class="math inline">\(c\)</span> such that</p>
+<p><span class="math display">\[
+R(\hat\theta) \leq R(\theta) + c \frac{p}{T}, \quad \text{w.p. } 1-1/T
+\]</span></p>
+<p>The example below shows that the inequality holds in a simulation setting. We generate <span class="math inline">\(10^6\)</span> observations from the following process:</p>
+<p><span class="math display">\[
+y_t = 0.6\times y_{t-1} - \tanh(0.3 \times y_{t-1}) +
+              0.8\times x_{1,t-1} + 0.2 \times x_{2,t-1} -
+              0.7\times x_{3,t-1} + \varepsilon_t,
+\]</span></p>
+<p>where <span class="math inline">\(\varepsilon_t \sim \mathcal{N}(0, 0.5)\)</span> and the variables <span class="math inline">\(x_{1,t}, x_{2,t}, x_{3,t}\)</span> are drawn independently from a standard normal distribution. We then consider the class of linear regression models,</p>
+<p><span class="math display">\[
+y_t = \beta_0 + \beta_1 y_{t-1} + \beta_2 x_{1,t-1} + \beta_3 x_{2,t-1} + \beta_3 x_{3,t-1} + u_t
+\]</span></p>
+<p>Notice that the OLS estimator is the empirical risk minimizer in the case of a square loss. In the simulation setting, we can also obtain <span class="math inline">\(R(\theta)\)</span> by estimating the parameters of the regression using the entire simulated population. We can then draw many estimates of <span class="math inline">\(R(\hat\theta)\)</span> by considering different subsamples of the simulated population and estimating the parameters of the model using OLS on the subsample. By doing so, we can simulate the distribution of the empirical risk and compare it against the overall minimum risk within the class of linear estimators to assess the oracle inequality. We repeat the exercise considering different sizes of the subsamples to show that the bound gets tighter as the sample size increases, as it must be for the inequality to have the oracle property.</p>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="session02.html#cb31-1" tabindex="-1"></a><span class="do">## Example 1: simulation for oracle inequality</span></span>
+<span id="cb31-2"><a href="session02.html#cb31-2" tabindex="-1"></a><span class="co"># build the simulated population dataset</span></span>
+<span id="cb31-3"><a href="session02.html#cb31-3" tabindex="-1"></a>N <span class="ot">&lt;-</span> <span class="dv">3</span></span>
+<span id="cb31-4"><a href="session02.html#cb31-4" tabindex="-1"></a>T_pop <span class="ot">&lt;-</span> <span class="fl">1e5</span></span>
+<span id="cb31-5"><a href="session02.html#cb31-5" tabindex="-1"></a></span>
+<span id="cb31-6"><a href="session02.html#cb31-6" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">455</span>)</span>
+<span id="cb31-7"><a href="session02.html#cb31-7" tabindex="-1"></a>x_pop <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">rnorm</span>((T_pop<span class="sc">+</span><span class="dv">1</span>)<span class="sc">*</span>N), <span class="at">ncol =</span> N)</span>
+<span id="cb31-8"><a href="session02.html#cb31-8" tabindex="-1"></a>y_pop <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">0</span>, T_pop)</span>
+<span id="cb31-9"><a href="session02.html#cb31-9" tabindex="-1"></a><span class="cf">for</span> (t <span class="cf">in</span> <span class="dv">2</span><span class="sc">:</span>(T_pop<span class="sc">+</span><span class="dv">1</span>)) {</span>
+<span id="cb31-10"><a href="session02.html#cb31-10" tabindex="-1"></a>  <span class="fu">set.seed</span>(<span class="dv">456</span><span class="sc">*</span>t)</span>
+<span id="cb31-11"><a href="session02.html#cb31-11" tabindex="-1"></a>  <span class="co"># non-linear d.g.p.</span></span>
+<span id="cb31-12"><a href="session02.html#cb31-12" tabindex="-1"></a>  y_pop[t] <span class="ot">&lt;-</span> <span class="fl">0.6</span><span class="sc">*</span>y_pop[t<span class="dv">-1</span>] <span class="sc">-</span> <span class="fu">tanh</span>(<span class="fl">0.3</span><span class="sc">*</span>y_pop[t<span class="dv">-1</span>]) <span class="sc">+</span> </span>
+<span id="cb31-13"><a href="session02.html#cb31-13" tabindex="-1"></a>              <span class="fl">0.8</span><span class="sc">*</span>x_pop[t<span class="dv">-1</span>, <span class="dv">1</span>] <span class="sc">+</span> <span class="fl">0.2</span><span class="sc">*</span>x_pop[t<span class="dv">-1</span>, <span class="dv">2</span>] <span class="sc">-</span></span>
+<span id="cb31-14"><a href="session02.html#cb31-14" tabindex="-1"></a>              <span class="fl">0.7</span><span class="sc">*</span>x_pop[t<span class="dv">-1</span>, <span class="dv">3</span>] <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="dv">1</span>, <span class="at">sd =</span> <span class="fl">0.5</span>)</span>
+<span id="cb31-15"><a href="session02.html#cb31-15" tabindex="-1"></a>}</span>
+<span id="cb31-16"><a href="session02.html#cb31-16" tabindex="-1"></a><span class="fu">colnames</span>(x_pop) <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">&quot;x&quot;</span>, <span class="dv">1</span><span class="sc">:</span>N)</span>
+<span id="cb31-17"><a href="session02.html#cb31-17" tabindex="-1"></a></span>
+<span id="cb31-18"><a href="session02.html#cb31-18" tabindex="-1"></a><span class="co"># target is y(t+1). predictor is x(t)</span></span>
+<span id="cb31-19"><a href="session02.html#cb31-19" tabindex="-1"></a>d_pop <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">cbind</span>(<span class="at">y =</span> y_pop[<span class="dv">2</span><span class="sc">:</span>(T_pop<span class="sc">+</span><span class="dv">1</span>)] , x_pop[<span class="dv">1</span><span class="sc">:</span>T_pop,] ))</span></code></pre></div>
+<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb32-1"><a href="session02.html#cb32-1" tabindex="-1"></a><span class="co"># estimate the linear predictor y(t) = x(t-1)&#39;b via OLS</span></span>
+<span id="cb32-2"><a href="session02.html#cb32-2" tabindex="-1"></a>model_pop <span class="ot">&lt;-</span> <span class="fu">lm</span>(y <span class="sc">~</span> x1 <span class="sc">+</span> x2 <span class="sc">+</span> x3, <span class="at">data =</span> d_pop)</span>
+<span id="cb32-3"><a href="session02.html#cb32-3" tabindex="-1"></a><span class="fu">summary</span>(model_pop)</span></code></pre></div>
+<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb33-1"><a href="session02.html#cb33-1" tabindex="-1"></a><span class="do">## estimate the optimal risk and the population risk within the linear family</span></span>
+<span id="cb33-2"><a href="session02.html#cb33-2" tabindex="-1"></a><span class="co"># optimal</span></span>
+<span id="cb33-3"><a href="session02.html#cb33-3" tabindex="-1"></a>f_optimal <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="cn">NA</span>, T_pop<span class="sc">+</span><span class="dv">1</span>)</span>
+<span id="cb33-4"><a href="session02.html#cb33-4" tabindex="-1"></a><span class="cf">for</span> (t <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>T_pop) {</span>
+<span id="cb33-5"><a href="session02.html#cb33-5" tabindex="-1"></a>  f_optimal[t<span class="sc">+</span><span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="fl">0.6</span><span class="sc">*</span>y_pop[t] <span class="sc">-</span> <span class="fu">tanh</span>(<span class="fl">0.3</span><span class="sc">*</span>y_pop[t]) <span class="sc">+</span> </span>
+<span id="cb33-6"><a href="session02.html#cb33-6" tabindex="-1"></a>                    <span class="fl">0.8</span><span class="sc">*</span>x_pop[t, <span class="dv">1</span>] <span class="sc">+</span> <span class="fl">0.2</span><span class="sc">*</span>x_pop[t, <span class="dv">2</span>] <span class="sc">-</span></span>
+<span id="cb33-7"><a href="session02.html#cb33-7" tabindex="-1"></a>                    <span class="fl">0.7</span><span class="sc">*</span>x_pop[t, <span class="dv">3</span>] </span>
+<span id="cb33-8"><a href="session02.html#cb33-8" tabindex="-1"></a>}</span>
+<span id="cb33-9"><a href="session02.html#cb33-9" tabindex="-1"></a>f_optimal <span class="ot">&lt;-</span> f_optimal[<span class="sc">-</span><span class="dv">1</span>]</span>
+<span id="cb33-10"><a href="session02.html#cb33-10" tabindex="-1"></a>risk_star <span class="ot">&lt;-</span> <span class="fu">mse</span>(d_pop[,<span class="dv">1</span>], f_optimal)</span>
+<span id="cb33-11"><a href="session02.html#cb33-11" tabindex="-1"></a></span>
+<span id="cb33-12"><a href="session02.html#cb33-12" tabindex="-1"></a><span class="co"># linear family</span></span>
+<span id="cb33-13"><a href="session02.html#cb33-13" tabindex="-1"></a>risk_pop  <span class="ot">&lt;-</span> <span class="fu">mse</span>(d_pop[,<span class="dv">1</span>], <span class="fu">predict</span>(model_pop))</span></code></pre></div>
+<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="session02.html#cb34-1" tabindex="-1"></a><span class="do">## Run the simulations to estimate a small-sample model many times</span></span>
+<span id="cb34-2"><a href="session02.html#cb34-2" tabindex="-1"></a>t_small  <span class="ot">&lt;-</span> <span class="dv">30</span></span>
+<span id="cb34-3"><a href="session02.html#cb34-3" tabindex="-1"></a>t_medium <span class="ot">&lt;-</span> <span class="dv">300</span></span>
+<span id="cb34-4"><a href="session02.html#cb34-4" tabindex="-1"></a>t_large  <span class="ot">&lt;-</span> <span class="dv">3000</span></span>
+<span id="cb34-5"><a href="session02.html#cb34-5" tabindex="-1"></a>nsim <span class="ot">&lt;-</span> <span class="dv">1000</span></span>
+<span id="cb34-6"><a href="session02.html#cb34-6" tabindex="-1"></a></span>
+<span id="cb34-7"><a href="session02.html#cb34-7" tabindex="-1"></a>empirical_risk <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb34-8"><a href="session02.html#cb34-8" tabindex="-1"></a>  <span class="at">model_small =</span> <span class="fu">rep</span>(<span class="cn">NA</span>, nsim),</span>
+<span id="cb34-9"><a href="session02.html#cb34-9" tabindex="-1"></a>  <span class="at">model_medium =</span> <span class="fu">rep</span>(<span class="cn">NA</span>, nsim),</span>
+<span id="cb34-10"><a href="session02.html#cb34-10" tabindex="-1"></a>  <span class="at">model_large =</span> <span class="fu">rep</span>(<span class="cn">NA</span>, nsim)</span>
+<span id="cb34-11"><a href="session02.html#cb34-11" tabindex="-1"></a>)</span>
+<span id="cb34-12"><a href="session02.html#cb34-12" tabindex="-1"></a></span>
+<span id="cb34-13"><a href="session02.html#cb34-13" tabindex="-1"></a><span class="cf">for</span> (s <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>nsim) {</span>
+<span id="cb34-14"><a href="session02.html#cb34-14" tabindex="-1"></a>  <span class="fu">set.seed</span>(<span class="dv">456</span><span class="sc">*</span>s)</span>
+<span id="cb34-15"><a href="session02.html#cb34-15" tabindex="-1"></a>  <span class="co"># pick index at random between 1e5 and 9e5</span></span>
+<span id="cb34-16"><a href="session02.html#cb34-16" tabindex="-1"></a>  idx <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="dv">1</span><span class="sc">:</span>(T_pop<span class="sc">-</span>t_large), <span class="dv">1</span>)</span>
+<span id="cb34-17"><a href="session02.html#cb34-17" tabindex="-1"></a>  <span class="co"># consider the t subsequent observations</span></span>
+<span id="cb34-18"><a href="session02.html#cb34-18" tabindex="-1"></a>  d_small  <span class="ot">&lt;-</span> d_pop[idx<span class="sc">:</span>(idx<span class="sc">+</span>t_small), ]</span>
+<span id="cb34-19"><a href="session02.html#cb34-19" tabindex="-1"></a>  d_medium <span class="ot">&lt;-</span> d_pop[idx<span class="sc">:</span>(idx<span class="sc">+</span>t_medium),]</span>
+<span id="cb34-20"><a href="session02.html#cb34-20" tabindex="-1"></a>  d_large  <span class="ot">&lt;-</span> d_pop[idx<span class="sc">:</span>(idx<span class="sc">+</span>t_large), ]</span>
+<span id="cb34-21"><a href="session02.html#cb34-21" tabindex="-1"></a>  <span class="co"># estimate the model</span></span>
+<span id="cb34-22"><a href="session02.html#cb34-22" tabindex="-1"></a>  model_small <span class="ot">&lt;-</span> <span class="fu">lm</span>(y <span class="sc">~</span> x1 <span class="sc">+</span> x2 <span class="sc">+</span> x3, <span class="at">data =</span> d_small)</span>
+<span id="cb34-23"><a href="session02.html#cb34-23" tabindex="-1"></a>  model_medium <span class="ot">&lt;-</span> <span class="fu">lm</span>(y <span class="sc">~</span> x1 <span class="sc">+</span> x2 <span class="sc">+</span> x3, <span class="at">data =</span> d_medium)</span>
+<span id="cb34-24"><a href="session02.html#cb34-24" tabindex="-1"></a>  model_large <span class="ot">&lt;-</span> <span class="fu">lm</span>(y <span class="sc">~</span> x1 <span class="sc">+</span> x2 <span class="sc">+</span> x3, <span class="at">data =</span> d_large)</span>
+<span id="cb34-25"><a href="session02.html#cb34-25" tabindex="-1"></a>  <span class="co"># compute the MSE and store the results</span></span>
+<span id="cb34-26"><a href="session02.html#cb34-26" tabindex="-1"></a>  empirical_risk<span class="sc">$</span>model_small[s] <span class="ot">&lt;-</span> <span class="fu">mse</span>(d_small[,<span class="dv">1</span>], <span class="fu">predict</span>(model_small))</span>
+<span id="cb34-27"><a href="session02.html#cb34-27" tabindex="-1"></a>  empirical_risk<span class="sc">$</span>model_medium[s] <span class="ot">&lt;-</span> <span class="fu">mse</span>(d_medium[,<span class="dv">1</span>], <span class="fu">predict</span>(model_medium))</span>
+<span id="cb34-28"><a href="session02.html#cb34-28" tabindex="-1"></a>  empirical_risk<span class="sc">$</span>model_large[s] <span class="ot">&lt;-</span> <span class="fu">mse</span>(d_large[,<span class="dv">1</span>], <span class="fu">predict</span>(model_large))</span>
+<span id="cb34-29"><a href="session02.html#cb34-29" tabindex="-1"></a>}</span>
+<span id="cb34-30"><a href="session02.html#cb34-30" tabindex="-1"></a></span>
+<span id="cb34-31"><a href="session02.html#cb34-31" tabindex="-1"></a><span class="co"># compute the constant C s.t. the bound risk_pop + C(P/t) is satisfied</span></span>
+<span id="cb34-32"><a href="session02.html#cb34-32" tabindex="-1"></a><span class="co"># 1-1/t fraction of times</span></span>
+<span id="cb34-33"><a href="session02.html#cb34-33" tabindex="-1"></a>c_small <span class="ot">&lt;-</span> <span class="fu">quantile</span>(empirical_risk<span class="sc">$</span>model_small, <span class="dv">1-1</span><span class="sc">/</span>t_small)</span>
+<span id="cb34-34"><a href="session02.html#cb34-34" tabindex="-1"></a>c_medium <span class="ot">&lt;-</span> <span class="fu">quantile</span>(empirical_risk<span class="sc">$</span>model_medium, <span class="dv">1-1</span><span class="sc">/</span>t_medium)</span>
+<span id="cb34-35"><a href="session02.html#cb34-35" tabindex="-1"></a>c_large <span class="ot">&lt;-</span> <span class="fu">quantile</span>(empirical_risk<span class="sc">$</span>model_large, <span class="dv">1-1</span><span class="sc">/</span>t_large)</span></code></pre></div>
+<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb35-1"><a href="session02.html#cb35-1" tabindex="-1"></a><span class="do">## report the distribution of the simulated empirical risks </span></span>
+<span id="cb35-2"><a href="session02.html#cb35-2" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">2</span>))</span>
+<span id="cb35-3"><a href="session02.html#cb35-3" tabindex="-1"></a><span class="co"># small</span></span>
+<span id="cb35-4"><a href="session02.html#cb35-4" tabindex="-1"></a><span class="fu">hist</span>(empirical_risk<span class="sc">$</span>model_small, <span class="at">xlab =</span> <span class="st">&quot;Empirical risk&quot;</span>, <span class="at">main =</span> <span class="st">&quot;Small model&quot;</span>)</span>
+<span id="cb35-5"><a href="session02.html#cb35-5" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">v =</span> c_small, <span class="at">lwd =</span> <span class="dv">2</span>, <span class="at">lty =</span> <span class="dv">2</span>)</span>
+<span id="cb35-6"><a href="session02.html#cb35-6" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">v =</span> risk_pop, <span class="at">lwd =</span> <span class="dv">3</span>, <span class="at">lty =</span> <span class="dv">1</span>, <span class="at">col =</span> <span class="st">&quot;darkred&quot;</span>)</span>
+<span id="cb35-7"><a href="session02.html#cb35-7" tabindex="-1"></a><span class="fu">text</span>(<span class="at">x =</span> c_small<span class="sc">*</span><span class="fl">1.2</span>, <span class="at">y =</span> <span class="dv">250</span>, <span class="at">labels =</span> <span class="fu">paste0</span>(<span class="st">&quot;Estimation error</span><span class="sc">\n</span><span class="st">bound: &quot;</span>, </span>
+<span id="cb35-8"><a href="session02.html#cb35-8" tabindex="-1"></a>                                               <span class="fu">round</span>(c_small<span class="sc">*</span>N<span class="sc">/</span>t_small,<span class="dv">3</span>)))</span>
+<span id="cb35-9"><a href="session02.html#cb35-9" tabindex="-1"></a><span class="co"># medium</span></span>
+<span id="cb35-10"><a href="session02.html#cb35-10" tabindex="-1"></a><span class="fu">hist</span>(empirical_risk<span class="sc">$</span>model_medium, <span class="at">xlab =</span> <span class="st">&quot;Empirical risk&quot;</span>, <span class="at">main =</span> <span class="st">&quot;Medium model&quot;</span>)</span>
+<span id="cb35-11"><a href="session02.html#cb35-11" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">v =</span> c_medium, <span class="at">lwd =</span> <span class="dv">2</span>, <span class="at">lty =</span> <span class="dv">2</span>)</span>
+<span id="cb35-12"><a href="session02.html#cb35-12" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">v =</span> risk_pop, <span class="at">lwd =</span> <span class="dv">3</span>, <span class="at">lty =</span> <span class="dv">1</span>, <span class="at">col =</span> <span class="st">&quot;darkred&quot;</span>)</span>
+<span id="cb35-13"><a href="session02.html#cb35-13" tabindex="-1"></a><span class="fu">text</span>(<span class="at">x =</span> c_medium<span class="sc">*</span><span class="fl">0.98</span>, <span class="at">y =</span> <span class="dv">150</span>, <span class="at">labels =</span> <span class="fu">paste0</span>(<span class="st">&quot;Estimation error</span><span class="sc">\n</span><span class="st">bound: &quot;</span>, </span>
+<span id="cb35-14"><a href="session02.html#cb35-14" tabindex="-1"></a>                                                <span class="fu">round</span>(c_medium<span class="sc">*</span>N<span class="sc">/</span>t_medium,<span class="dv">3</span>)))</span>
+<span id="cb35-15"><a href="session02.html#cb35-15" tabindex="-1"></a><span class="co"># large</span></span>
+<span id="cb35-16"><a href="session02.html#cb35-16" tabindex="-1"></a><span class="fu">hist</span>(empirical_risk<span class="sc">$</span>model_large, <span class="at">xlab =</span> <span class="st">&quot;Empirical risk&quot;</span>, <span class="at">main =</span> <span class="st">&quot;Large model&quot;</span>)</span>
+<span id="cb35-17"><a href="session02.html#cb35-17" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">v =</span> c_large, <span class="at">lwd =</span> <span class="dv">2</span>, <span class="at">lty =</span> <span class="dv">2</span>)</span>
+<span id="cb35-18"><a href="session02.html#cb35-18" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">v =</span> risk_pop, <span class="at">lwd =</span> <span class="dv">3</span>, <span class="at">lty =</span> <span class="dv">1</span>, <span class="at">col =</span> <span class="st">&quot;darkred&quot;</span>)</span>
+<span id="cb35-19"><a href="session02.html#cb35-19" tabindex="-1"></a><span class="fu">text</span>(<span class="at">x =</span> c_large<span class="sc">*</span><span class="fl">0.98</span>, <span class="at">y =</span> <span class="dv">120</span>, <span class="at">labels =</span> <span class="fu">paste0</span>(<span class="st">&quot;Estimation error</span><span class="sc">\n</span><span class="st">bound: &quot;</span>,</span>
+<span id="cb35-20"><a href="session02.html#cb35-20" tabindex="-1"></a>                                               <span class="fu">round</span>(c_large<span class="sc">*</span>N<span class="sc">/</span>t_large,<span class="dv">3</span>)))</span></code></pre></div>
+<p><img src="_main_files/figure-html/unnamed-chunk-26-1.png" width="672" /></p>
+</div>
+<div id="application-forecasting-unemployment" class="section level2 hasAnchor" number="2.2">
+<h2><span class="header-section-number">2.2</span> Application: forecasting unemployment<a href="session02.html#application-forecasting-unemployment" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb36-1"><a href="session02.html#cb36-1" tabindex="-1"></a><span class="fu">library</span>(sandwich) <span class="co"># for estimation of robust standard errors</span></span>
+<span id="cb36-2"><a href="session02.html#cb36-2" tabindex="-1"></a><span class="fu">library</span>(lmtest)   <span class="co"># for coeftest</span></span>
+<span id="cb36-3"><a href="session02.html#cb36-3" tabindex="-1"></a><span class="fu">library</span>(forecast) <span class="co"># for dm.test</span></span></code></pre></div>
+<p>We now consider an empirical application using the U.S. data from the <a href="https://research.stlouisfed.org/econ/mccracken/fred-databases/">FRED-MD dataset</a>, a collection of 127 macroeconomic time series observed at a monthly frequency.
+To make sure that the series in the model are stationary, we transform the variables according to the recommendation of the authors, as summarised in the transformation code <code>tcode</code> in the first row of the dataset:</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left"><code>tcode</code></th>
+<th align="left">Transformation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">1</td>
+<td align="left">No</td>
+</tr>
+<tr class="even">
+<td align="left">2</td>
+<td align="left"><span class="math inline">\(\Delta x_t\)</span></td>
+</tr>
+<tr class="odd">
+<td align="left">3</td>
+<td align="left"><span class="math inline">\(\Delta^2 x_t\)</span></td>
+</tr>
+<tr class="even">
+<td align="left">4</td>
+<td align="left"><span class="math inline">\(\log(x_t)\)</span></td>
+</tr>
+<tr class="odd">
+<td align="left">5</td>
+<td align="left"><span class="math inline">\(\Delta\log(x_t)\)</span></td>
+</tr>
+<tr class="even">
+<td align="left">6</td>
+<td align="left"><span class="math inline">\(\Delta^2\log(x_t)\)</span></td>
+</tr>
+<tr class="odd">
+<td align="left">7</td>
+<td align="left"><span class="math inline">\(\Delta\left(\frac{x_t}{x_{t-1}} -1 \right)\)</span></td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb37-1"><a href="session02.html#cb37-1" tabindex="-1"></a><span class="do">## load FRED-MD data </span></span>
+<span id="cb37-2"><a href="session02.html#cb37-2" tabindex="-1"></a>fredmd <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">&quot;../data/current.csv&quot;</span>)</span>
+<span id="cb37-3"><a href="session02.html#cb37-3" tabindex="-1"></a>dates  <span class="ot">&lt;-</span> <span class="fu">as.Date</span>(fredmd<span class="sc">$</span>sasdate[<span class="sc">-</span><span class="dv">1</span>],<span class="st">&#39;%m/%d/%Y&#39;</span>)</span>
+<span id="cb37-4"><a href="session02.html#cb37-4" tabindex="-1"></a>tcodes <span class="ot">&lt;-</span> fredmd[<span class="dv">1</span>,<span class="sc">-</span><span class="dv">1</span>]</span>
+<span id="cb37-5"><a href="session02.html#cb37-5" tabindex="-1"></a>d      <span class="ot">&lt;-</span> fredmd[<span class="sc">-</span><span class="dv">1</span>,<span class="sc">-</span><span class="dv">1</span>] </span>
+<span id="cb37-6"><a href="session02.html#cb37-6" tabindex="-1"></a></span>
+<span id="cb37-7"><a href="session02.html#cb37-7" tabindex="-1"></a><span class="co"># subset 1980-2024 period</span></span>
+<span id="cb37-8"><a href="session02.html#cb37-8" tabindex="-1"></a>data  <span class="ot">&lt;-</span> d[dates <span class="sc">&gt;=</span> <span class="st">&#39;1980-01-01&#39;</span>, ]</span>
+<span id="cb37-9"><a href="session02.html#cb37-9" tabindex="-1"></a>dates <span class="ot">&lt;-</span> dates[dates <span class="sc">&gt;=</span> <span class="st">&#39;1980-01-01&#39;</span>]</span>
+<span id="cb37-10"><a href="session02.html#cb37-10" tabindex="-1"></a>t_max     <span class="ot">&lt;-</span> <span class="fu">length</span>(dates)</span>
+<span id="cb37-11"><a href="session02.html#cb37-11" tabindex="-1"></a></span>
+<span id="cb37-12"><a href="session02.html#cb37-12" tabindex="-1"></a><span class="co"># choose variables</span></span>
+<span id="cb37-13"><a href="session02.html#cb37-13" tabindex="-1"></a>target <span class="ot">&lt;-</span> <span class="st">&quot;UNRATE&quot;</span></span>
+<span id="cb37-14"><a href="session02.html#cb37-14" tabindex="-1"></a>predictors <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&#39;S.P.500&#39;</span>,<span class="st">&#39;HOUST&#39;</span>,<span class="st">&#39;UMCSENTx&#39;</span>)</span>
+<span id="cb37-15"><a href="session02.html#cb37-15" tabindex="-1"></a>vars <span class="ot">&lt;-</span> <span class="fu">c</span>(target, predictors)</span>
+<span id="cb37-16"><a href="session02.html#cb37-16" tabindex="-1"></a>data <span class="ot">&lt;-</span> data[, vars]</span>
+<span id="cb37-17"><a href="session02.html#cb37-17" tabindex="-1"></a>tcodes <span class="ot">&lt;-</span> tcodes[, vars]</span></code></pre></div>
+<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb38-1"><a href="session02.html#cb38-1" tabindex="-1"></a><span class="do">## list of functions for transformation</span></span>
+<span id="cb38-2"><a href="session02.html#cb38-2" tabindex="-1"></a>transform_fredmd <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb38-3"><a href="session02.html#cb38-3" tabindex="-1"></a>  <span class="cf">function</span>(x) x,</span>
+<span id="cb38-4"><a href="session02.html#cb38-4" tabindex="-1"></a>  <span class="cf">function</span>(x) <span class="fu">c</span>(<span class="dv">0</span>, <span class="fu">diff</span>(x)),</span>
+<span id="cb38-5"><a href="session02.html#cb38-5" tabindex="-1"></a>  <span class="cf">function</span>(x) <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="fu">diff</span>(x, <span class="at">differences =</span> <span class="dv">2</span>)),</span>
+<span id="cb38-6"><a href="session02.html#cb38-6" tabindex="-1"></a>  <span class="cf">function</span>(x) <span class="fu">log</span>(x),</span>
+<span id="cb38-7"><a href="session02.html#cb38-7" tabindex="-1"></a>  <span class="cf">function</span>(x) <span class="fu">c</span>(<span class="dv">0</span>, <span class="fu">diff</span>(<span class="fu">log</span>(x))),</span>
+<span id="cb38-8"><a href="session02.html#cb38-8" tabindex="-1"></a>  <span class="cf">function</span>(x) <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="fu">diff</span>(<span class="fu">log</span>(x), <span class="at">differences =</span> <span class="dv">2</span>)),</span>
+<span id="cb38-9"><a href="session02.html#cb38-9" tabindex="-1"></a>  <span class="cf">function</span>(x) <span class="fu">c</span>(<span class="dv">0</span>, <span class="fu">diff</span>( x[<span class="dv">2</span><span class="sc">:</span><span class="fu">length</span>(x)]<span class="sc">/</span>x[<span class="dv">1</span><span class="sc">:</span>(<span class="fu">length</span>(x)<span class="sc">-</span><span class="dv">1</span>)] <span class="sc">-</span> <span class="dv">1</span>))</span>
+<span id="cb38-10"><a href="session02.html#cb38-10" tabindex="-1"></a>)</span></code></pre></div>
+<div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb39-1"><a href="session02.html#cb39-1" tabindex="-1"></a><span class="do">## save the transformed series separately</span></span>
+<span id="cb39-2"><a href="session02.html#cb39-2" tabindex="-1"></a>unrate <span class="ot">&lt;-</span> transform_fredmd[[tcodes<span class="sc">$</span>UNRATE]](data<span class="sc">$</span>UNRATE)</span>
+<span id="cb39-3"><a href="session02.html#cb39-3" tabindex="-1"></a>sp500  <span class="ot">&lt;-</span> transform_fredmd[[tcodes<span class="sc">$</span>S.P<span class="fl">.500</span>]](data<span class="sc">$</span>S.P<span class="fl">.500</span>)</span>
+<span id="cb39-4"><a href="session02.html#cb39-4" tabindex="-1"></a>house  <span class="ot">&lt;-</span> transform_fredmd[[tcodes<span class="sc">$</span>HOUST]](data<span class="sc">$</span>HOUST)</span>
+<span id="cb39-5"><a href="session02.html#cb39-5" tabindex="-1"></a>sent   <span class="ot">&lt;-</span> transform_fredmd[[tcodes<span class="sc">$</span>UMCSENTx]](data<span class="sc">$</span>UMCSENTx)</span></code></pre></div>
+<div class="sourceCode" id="cb40"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb40-1"><a href="session02.html#cb40-1" tabindex="-1"></a><span class="co"># plot</span></span>
+<span id="cb40-2"><a href="session02.html#cb40-2" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">2</span>))</span>
+<span id="cb40-3"><a href="session02.html#cb40-3" tabindex="-1"></a><span class="fu">plot.ts</span>(<span class="fu">ts</span>(unrate, <span class="at">start =</span> <span class="fu">c</span>(<span class="dv">1980</span>, <span class="dv">1</span>), <span class="at">freq =</span> <span class="dv">12</span>), <span class="at">main =</span> <span class="st">&quot;UNRATE&quot;</span>, <span class="at">ylab =</span> <span class="st">&quot;Month-on-month change&quot;</span>)</span>
+<span id="cb40-4"><a href="session02.html#cb40-4" tabindex="-1"></a><span class="fu">plot.ts</span>(<span class="fu">ts</span>(sp500, <span class="at">start =</span> <span class="fu">c</span>(<span class="dv">1980</span>, <span class="dv">1</span>), <span class="at">freq =</span> <span class="dv">12</span>), <span class="at">main =</span> <span class="st">&quot;S.P.500&quot;</span>, <span class="at">ylab =</span> <span class="st">&quot;Monthly % variation&quot;</span>)</span>
+<span id="cb40-5"><a href="session02.html#cb40-5" tabindex="-1"></a><span class="fu">plot.ts</span>(<span class="fu">ts</span>(house, <span class="at">start =</span> <span class="fu">c</span>(<span class="dv">1980</span>, <span class="dv">1</span>), <span class="at">freq =</span> <span class="dv">12</span>), <span class="at">main =</span> <span class="st">&quot;HOUST&quot;</span>, <span class="at">ylab =</span> <span class="st">&quot;log(housing starts)&quot;</span>)</span>
+<span id="cb40-6"><a href="session02.html#cb40-6" tabindex="-1"></a><span class="fu">plot.ts</span>(<span class="fu">ts</span>(sent, <span class="at">start =</span> <span class="fu">c</span>(<span class="dv">1980</span>, <span class="dv">1</span>), <span class="at">freq =</span> <span class="dv">12</span>), <span class="at">main =</span> <span class="st">&quot;UMCSENTx&quot;</span>, <span class="at">ylab =</span> <span class="st">&quot;Month-on-month change&quot;</span>)</span></code></pre></div>
+<p><img src="_main_files/figure-html/unnamed-chunk-31-1.png" width="672" /></p>
+<p>We can have a look to the autocorrelation properties of the series.</p>
+<div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb41-1"><a href="session02.html#cb41-1" tabindex="-1"></a><span class="do">## ACF plot</span></span>
+<span id="cb41-2"><a href="session02.html#cb41-2" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">2</span>))</span>
+<span id="cb41-3"><a href="session02.html#cb41-3" tabindex="-1"></a><span class="fu">acf</span>(unrate, <span class="at">ylim=</span><span class="fu">c</span>(<span class="sc">-</span><span class="fl">0.1</span>,<span class="dv">1</span>), <span class="at">lwd=</span><span class="dv">5</span>, <span class="at">xlim=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">25</span>), <span class="at">main=</span><span class="st">&#39;UNRATE&#39;</span>)</span>
+<span id="cb41-4"><a href="session02.html#cb41-4" tabindex="-1"></a><span class="fu">acf</span>(sp500,  <span class="at">ylim=</span><span class="fu">c</span>(<span class="sc">-</span><span class="fl">0.1</span>,<span class="dv">1</span>), <span class="at">lwd=</span><span class="dv">5</span>, <span class="at">xlim=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">25</span>), <span class="at">main=</span><span class="st">&#39;S.P.500&#39;</span>)</span>
+<span id="cb41-5"><a href="session02.html#cb41-5" tabindex="-1"></a><span class="fu">acf</span>(house,  <span class="at">ylim=</span><span class="fu">c</span>(<span class="sc">-</span><span class="fl">0.1</span>,<span class="dv">1</span>), <span class="at">lwd=</span><span class="dv">5</span>, <span class="at">xlim=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">25</span>), <span class="at">main=</span><span class="st">&#39;HOUST&#39;</span>)</span>
+<span id="cb41-6"><a href="session02.html#cb41-6" tabindex="-1"></a><span class="fu">acf</span>(sent,   <span class="at">ylim=</span><span class="fu">c</span>(<span class="sc">-</span><span class="fl">0.1</span>,<span class="dv">1</span>), <span class="at">lwd=</span><span class="dv">5</span>, <span class="at">xlim=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">25</span>), <span class="at">main=</span><span class="st">&#39;UMCSENTx&#39;</span>)</span></code></pre></div>
+<p><img src="_main_files/figure-html/unnamed-chunk-32-1.png" width="672" /></p>
+<p>We now study some in-sample properties of the predictive regression:</p>
+<p><span class="math display">\[
+\begin{aligned}
+\text{UNRATE}_t &amp;= \beta_0 + \beta_1 \ \text{UNRATE}_{t-1} + \beta_2 \ \text{HOUST}_{t-1} \ + \beta_3 \ \text{SP500}_{t-1} \ + \beta_4 \ \text{SENT}_{t-1} \ +\\
+&amp;+ \ \text{dummies} \ + \varepsilon_t.
+\end{aligned}
+\]</span></p>
+<p>In particular, we compute the in-sample predictive fit of the model and we study the properties of the residuals.</p>
+<div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb42-1"><a href="session02.html#cb42-1" tabindex="-1"></a><span class="do">## Fit predictive regression</span></span>
+<span id="cb42-2"><a href="session02.html#cb42-2" tabindex="-1"></a><span class="co"># Create the dataframe for regression </span></span>
+<span id="cb42-3"><a href="session02.html#cb42-3" tabindex="-1"></a>data_regression <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb42-4"><a href="session02.html#cb42-4" tabindex="-1"></a>  <span class="at">unrate     =</span> unrate[<span class="dv">2</span><span class="sc">:</span>t_max],</span>
+<span id="cb42-5"><a href="session02.html#cb42-5" tabindex="-1"></a>  <span class="at">unrate_lag =</span> unrate[<span class="dv">1</span><span class="sc">:</span>(t_max<span class="dv">-1</span>)],</span>
+<span id="cb42-6"><a href="session02.html#cb42-6" tabindex="-1"></a>  <span class="at">house      =</span> house[<span class="dv">1</span><span class="sc">:</span>(t_max<span class="dv">-1</span>)],</span>
+<span id="cb42-7"><a href="session02.html#cb42-7" tabindex="-1"></a>  <span class="at">sp500      =</span> sp500[<span class="dv">1</span><span class="sc">:</span>(t_max<span class="dv">-1</span>)],</span>
+<span id="cb42-8"><a href="session02.html#cb42-8" tabindex="-1"></a>  <span class="at">sent       =</span> sent[<span class="dv">1</span><span class="sc">:</span>(t_max<span class="dv">-1</span>)],</span>
+<span id="cb42-9"><a href="session02.html#cb42-9" tabindex="-1"></a>  <span class="at">d1 =</span> (dates[<span class="dv">2</span><span class="sc">:</span>t_max]<span class="sc">==</span><span class="st">&quot;2020-04-01&quot;</span>)<span class="sc">*</span><span class="dv">1</span>, <span class="co"># covid dummy variable</span></span>
+<span id="cb42-10"><a href="session02.html#cb42-10" tabindex="-1"></a>  <span class="at">d2 =</span> (dates[<span class="dv">2</span><span class="sc">:</span>t_max]<span class="sc">==</span><span class="st">&quot;2020-05-01&quot;</span>)<span class="sc">*</span><span class="dv">1</span>, </span>
+<span id="cb42-11"><a href="session02.html#cb42-11" tabindex="-1"></a>  <span class="at">d3 =</span> (dates[<span class="dv">2</span><span class="sc">:</span>t_max]<span class="sc">==</span><span class="st">&quot;2020-06-01&quot;</span>)<span class="sc">*</span><span class="dv">1</span>, </span>
+<span id="cb42-12"><a href="session02.html#cb42-12" tabindex="-1"></a>  <span class="at">d4 =</span> (dates[<span class="dv">2</span><span class="sc">:</span>t_max]<span class="sc">==</span><span class="st">&quot;2020-07-01&quot;</span>)<span class="sc">*</span><span class="dv">1</span>, </span>
+<span id="cb42-13"><a href="session02.html#cb42-13" tabindex="-1"></a>  <span class="at">d5 =</span> (dates[<span class="dv">2</span><span class="sc">:</span>t_max]<span class="sc">==</span><span class="st">&quot;2020-08-01&quot;</span>)<span class="sc">*</span><span class="dv">1</span>, </span>
+<span id="cb42-14"><a href="session02.html#cb42-14" tabindex="-1"></a>  <span class="at">d6 =</span> (dates[<span class="dv">2</span><span class="sc">:</span>t_max]<span class="sc">==</span><span class="st">&quot;2020-09-01&quot;</span>)<span class="sc">*</span><span class="dv">1</span> </span>
+<span id="cb42-15"><a href="session02.html#cb42-15" tabindex="-1"></a>)</span>
+<span id="cb42-16"><a href="session02.html#cb42-16" tabindex="-1"></a></span>
+<span id="cb42-17"><a href="session02.html#cb42-17" tabindex="-1"></a><span class="co"># Fit OLS</span></span>
+<span id="cb42-18"><a href="session02.html#cb42-18" tabindex="-1"></a>pred_model <span class="ot">&lt;-</span> <span class="fu">lm</span>(unrate <span class="sc">~</span> ., <span class="at">data =</span> data_regression)</span>
+<span id="cb42-19"><a href="session02.html#cb42-19" tabindex="-1"></a>vcov_nw <span class="ot">&lt;-</span> <span class="fu">NeweyWest</span>(pred_model, <span class="at">prewhite=</span>F)</span>
+<span id="cb42-20"><a href="session02.html#cb42-20" tabindex="-1"></a></span>
+<span id="cb42-21"><a href="session02.html#cb42-21" tabindex="-1"></a><span class="co"># BAD inference (unadjusted asymptotic variance)</span></span>
+<span id="cb42-22"><a href="session02.html#cb42-22" tabindex="-1"></a><span class="fu">coeftest</span>(pred_model)</span></code></pre></div>
+<pre><code>## 
+## t test of coefficients:
+## 
+##               Estimate Std. Error  t value  Pr(&gt;|t|)    
+## (Intercept)  0.6066299  0.1752768   3.4610 0.0005829 ***
+## unrate_lag   0.1241838  0.0445711   2.7862 0.0055298 ** 
+## house       -0.0854805  0.0244385  -3.4978 0.0005097 ***
+## sp500       -0.4989494  0.2318030  -2.1525 0.0318242 *  
+## sent        -0.0021749  0.0020826  -1.0443 0.2968167    
+## d1          10.0608718  0.1859894  54.0938 &lt; 2.2e-16 ***
+## d2          -2.8193347  0.4924891  -5.7247 1.762e-08 ***
+## d3          -1.9965983  0.1882808 -10.6044 &lt; 2.2e-16 ***
+## d4          -0.4795102  0.2010676  -2.3848 0.0174483 *  
+## d5          -1.6764097  0.1795464  -9.3369 &lt; 2.2e-16 ***
+## d6          -0.2339512  0.1927566  -1.2137 0.2254137    
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<div class="sourceCode" id="cb44"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb44-1"><a href="session02.html#cb44-1" tabindex="-1"></a><span class="co"># Inference using the Newey West estimator</span></span>
+<span id="cb44-2"><a href="session02.html#cb44-2" tabindex="-1"></a><span class="fu">coeftest</span>(pred_model, vcov_nw)</span></code></pre></div>
+<pre><code>## 
+## t test of coefficients:
+## 
+##               Estimate Std. Error  t value  Pr(&gt;|t|)    
+## (Intercept)  0.6066299  0.3400340   1.7840   0.07501 .  
+## unrate_lag   0.1241838  0.0686069   1.8101   0.07087 .  
+## house       -0.0854805  0.0464922  -1.8386   0.06655 .  
+## sp500       -0.4989494  0.2553605  -1.9539   0.05125 .  
+## sent        -0.0021749  0.0024861  -0.8748   0.38207    
+## d1          10.0608718  0.0970859 103.6286 &lt; 2.2e-16 ***
+## d2          -2.8193347  0.7159484  -3.9379 9.351e-05 ***
+## d3          -1.9965983  0.1022064 -19.5350 &lt; 2.2e-16 ***
+## d4          -0.4795102  0.1528230  -3.1377   0.00180 ** 
+## d5          -1.6764097  0.0584554 -28.6785 &lt; 2.2e-16 ***
+## d6          -0.2339512  0.1251049  -1.8700   0.06205 .  
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<div class="sourceCode" id="cb46"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb46-1"><a href="session02.html#cb46-1" tabindex="-1"></a><span class="co"># True VS. predicted values</span></span>
+<span id="cb46-2"><a href="session02.html#cb46-2" tabindex="-1"></a><span class="fu">plot.ts</span>(data_regression<span class="sc">$</span>unrate, <span class="at">ylim =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="fl">0.8</span>, <span class="fl">0.8</span>), <span class="at">col =</span> <span class="st">&quot;darkgrey&quot;</span>)</span>
+<span id="cb46-3"><a href="session02.html#cb46-3" tabindex="-1"></a><span class="fu">lines</span>(<span class="fu">predict</span>(pred_model), <span class="at">col =</span> <span class="st">&quot;darkred&quot;</span>)</span></code></pre></div>
+<p><img src="_main_files/figure-html/unnamed-chunk-33-1.png" width="672" /></p>
+<div class="sourceCode" id="cb47"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb47-1"><a href="session02.html#cb47-1" tabindex="-1"></a><span class="co"># Analysis of residuals</span></span>
+<span id="cb47-2"><a href="session02.html#cb47-2" tabindex="-1"></a><span class="fu">acf</span>(pred_model<span class="sc">$</span>residuals, <span class="at">lwd =</span> <span class="dv">5</span>)</span></code></pre></div>
+<p><img src="_main_files/figure-html/unnamed-chunk-34-1.png" width="672" /></p>
+<div class="sourceCode" id="cb48"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb48-1"><a href="session02.html#cb48-1" tabindex="-1"></a><span class="co"># Test for autocorrelation</span></span>
+<span id="cb48-2"><a href="session02.html#cb48-2" tabindex="-1"></a><span class="fu">Box.test</span>(pred_model<span class="sc">$</span>residuals, <span class="at">lag=</span><span class="dv">12</span>)</span></code></pre></div>
+<pre><code>## 
+##  Box-Pierce test
+## 
+## data:  pred_model$residuals
+## X-squared = 76.202, df = 12, p-value = 2.176e-11</code></pre>
+<p>We can assess the effect of an exogenous change in the predictors on the target variable over time by using the method of local projections. Here we show the effect of a positive shock in the S.P.500 index.</p>
+<div class="sourceCode" id="cb50"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb50-1"><a href="session02.html#cb50-1" tabindex="-1"></a><span class="do">## Local projections for assessing the impact of a shock</span></span>
+<span id="cb50-2"><a href="session02.html#cb50-2" tabindex="-1"></a><span class="co"># set number of horizons and initialize objects</span></span>
+<span id="cb50-3"><a href="session02.html#cb50-3" tabindex="-1"></a>H          <span class="ot">&lt;-</span> <span class="dv">12</span></span>
+<span id="cb50-4"><a href="session02.html#cb50-4" tabindex="-1"></a>lp         <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">0</span>,H)      <span class="co"># local projection</span></span>
+<span id="cb50-5"><a href="session02.html#cb50-5" tabindex="-1"></a>lp_confint <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="dv">0</span>,H,<span class="dv">2</span>) <span class="co"># confidence intervals</span></span>
+<span id="cb50-6"><a href="session02.html#cb50-6" tabindex="-1"></a></span>
+<span id="cb50-7"><a href="session02.html#cb50-7" tabindex="-1"></a><span class="co"># compute the impact after h = 1,...,H horizons</span></span>
+<span id="cb50-8"><a href="session02.html#cb50-8" tabindex="-1"></a><span class="cf">for</span>(h <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>H){</span>
+<span id="cb50-9"><a href="session02.html#cb50-9" tabindex="-1"></a>  <span class="co"># prepare dataset for forecasting h periods ahead</span></span>
+<span id="cb50-10"><a href="session02.html#cb50-10" tabindex="-1"></a>  data_h  <span class="ot">&lt;-</span> <span class="fu">cbind</span>( </span>
+<span id="cb50-11"><a href="session02.html#cb50-11" tabindex="-1"></a>    data_regression[h<span class="sc">:</span>t_max, <span class="fu">c</span>(<span class="st">&quot;unrate&quot;</span>, <span class="fu">paste0</span>(<span class="st">&quot;d&quot;</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">6</span>))],</span>
+<span id="cb50-12"><a href="session02.html#cb50-12" tabindex="-1"></a>    data_regression[<span class="dv">1</span><span class="sc">:</span>(t_max<span class="sc">-</span>h<span class="sc">+</span><span class="dv">1</span>), <span class="fu">c</span>(<span class="st">&quot;unrate_lag&quot;</span>, <span class="st">&quot;house&quot;</span>, <span class="st">&quot;sp500&quot;</span>, <span class="st">&quot;sent&quot;</span>)]</span>
+<span id="cb50-13"><a href="session02.html#cb50-13" tabindex="-1"></a>    )</span>
+<span id="cb50-14"><a href="session02.html#cb50-14" tabindex="-1"></a></span>
+<span id="cb50-15"><a href="session02.html#cb50-15" tabindex="-1"></a>  <span class="co"># predict</span></span>
+<span id="cb50-16"><a href="session02.html#cb50-16" tabindex="-1"></a>  pred_model_h <span class="ot">&lt;-</span> <span class="fu">lm</span>(unrate <span class="sc">~</span> ., <span class="at">data =</span> data_h)</span>
+<span id="cb50-17"><a href="session02.html#cb50-17" tabindex="-1"></a></span>
+<span id="cb50-18"><a href="session02.html#cb50-18" tabindex="-1"></a>  <span class="co"># compute Newey-West estimate</span></span>
+<span id="cb50-19"><a href="session02.html#cb50-19" tabindex="-1"></a>  vcov_nw_h <span class="ot">&lt;-</span> <span class="fu">NeweyWest</span>(pred_model_h, <span class="at">prewhite =</span> F)</span>
+<span id="cb50-20"><a href="session02.html#cb50-20" tabindex="-1"></a></span>
+<span id="cb50-21"><a href="session02.html#cb50-21" tabindex="-1"></a>  <span class="co"># compute standard errors for the estimated coefficients</span></span>
+<span id="cb50-22"><a href="session02.html#cb50-22" tabindex="-1"></a>  confint_h <span class="ot">&lt;-</span> <span class="fu">coeftest</span>(pred_model_h, vcov_nw_h)</span>
+<span id="cb50-23"><a href="session02.html#cb50-23" tabindex="-1"></a></span>
+<span id="cb50-24"><a href="session02.html#cb50-24" tabindex="-1"></a>  <span class="co"># store the estimates and the 90% confidence intervals</span></span>
+<span id="cb50-25"><a href="session02.html#cb50-25" tabindex="-1"></a>  lp[h]           <span class="ot">&lt;-</span> confint_h[<span class="st">&#39;sp500&#39;</span>,<span class="st">&#39;Estimate&#39;</span>]</span>
+<span id="cb50-26"><a href="session02.html#cb50-26" tabindex="-1"></a>  lp_confint[h, ] <span class="ot">&lt;-</span> lp[h] <span class="sc">+</span> confint_h[<span class="st">&#39;sp500&#39;</span>,<span class="st">&#39;Std. Error&#39;</span>]<span class="sc">*</span><span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>,<span class="dv">1</span>)<span class="sc">*</span><span class="fu">qnorm</span>(<span class="fl">0.05</span>)</span>
+<span id="cb50-27"><a href="session02.html#cb50-27" tabindex="-1"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb51"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb51-1"><a href="session02.html#cb51-1" tabindex="-1"></a><span class="do">## Plot the impulse response function</span></span>
+<span id="cb51-2"><a href="session02.html#cb51-2" tabindex="-1"></a><span class="fu">plot</span>(<span class="dv">1</span><span class="sc">:</span>H, lp,         <span class="at">lwd =</span> <span class="dv">3</span>, <span class="at">col =</span> <span class="st">&#39;darkred&#39;</span>, <span class="at">t =</span> <span class="st">&quot;b&quot;</span>, <span class="at">ylim =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">2</span>,<span class="dv">1</span>),</span>
+<span id="cb51-3"><a href="session02.html#cb51-3" tabindex="-1"></a>     <span class="at">main =</span> <span class="st">&quot;Response of unemployment after a positive shock on the S.P.500&quot;</span>,</span>
+<span id="cb51-4"><a href="session02.html#cb51-4" tabindex="-1"></a>     <span class="at">xlab =</span> <span class="st">&quot;&quot;</span>, <span class="at">ylab =</span> <span class="st">&quot;&quot;</span>)</span>
+<span id="cb51-5"><a href="session02.html#cb51-5" tabindex="-1"></a><span class="fu">lines</span>(lp_confint[,<span class="dv">1</span>], <span class="at">lwd =</span> <span class="dv">1</span>, <span class="at">col =</span> <span class="st">&#39;darkred&#39;</span>, <span class="at">t =</span> <span class="st">&quot;b&quot;</span>, <span class="at">pch  =</span> <span class="dv">25</span>)</span>
+<span id="cb51-6"><a href="session02.html#cb51-6" tabindex="-1"></a><span class="fu">lines</span>(lp_confint[,<span class="dv">2</span>], <span class="at">lwd =</span> <span class="dv">1</span>, <span class="at">col =</span> <span class="st">&#39;darkred&#39;</span>, <span class="at">t =</span> <span class="st">&quot;b&quot;</span>, <span class="at">pch  =</span> <span class="dv">24</span>)</span>
+<span id="cb51-7"><a href="session02.html#cb51-7" tabindex="-1"></a><span class="fu">grid</span>()</span>
+<span id="cb51-8"><a href="session02.html#cb51-8" tabindex="-1"></a><span class="fu">box</span>()</span>
+<span id="cb51-9"><a href="session02.html#cb51-9" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">h=</span><span class="dv">0</span>,<span class="at">lwd=</span><span class="dv">3</span>)</span></code></pre></div>
+<p><img src="_main_files/figure-html/unnamed-chunk-37-1.png" width="672" /></p>
+<p>We now proceed to evaluate the forecasts of the model. To do so, we split the data into a training set (observations up to 1999:12) and a testing set (starting in 2000:01). We estimate the parameters of the model on the training data and then make predictions based on the value of the predictors and the estimated coefficients. We compare the forecasts against the sample mean using the MSE. The Diebold-Mariano test suggests that the regression method has a superior forecasting performance than the sample mean. However, this result depends on the specification of the regression model and the predictive ability of the model is still pretty poor.</p>
+<div class="sourceCode" id="cb52"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb52-1"><a href="session02.html#cb52-1" tabindex="-1"></a><span class="do">## Forecast evaluation</span></span>
+<span id="cb52-2"><a href="session02.html#cb52-2" tabindex="-1"></a><span class="co"># split training set (1980-2000) and testing set (2000-2024)</span></span>
+<span id="cb52-3"><a href="session02.html#cb52-3" tabindex="-1"></a>in_sample  <span class="ot">&lt;-</span> (dates[<span class="dv">2</span><span class="sc">:</span>t_max] <span class="sc">&lt;</span> <span class="fu">as.Date</span>(<span class="st">&#39;2000-01-01&#39;</span>))</span>
+<span id="cb52-4"><a href="session02.html#cb52-4" tabindex="-1"></a>out_sample <span class="ot">&lt;-</span> (dates[<span class="dv">2</span><span class="sc">:</span>t_max] <span class="sc">&gt;=</span> <span class="fu">as.Date</span>(<span class="st">&#39;2000-01-01&#39;</span>) <span class="sc">&amp;</span> </span>
+<span id="cb52-5"><a href="session02.html#cb52-5" tabindex="-1"></a>                 ( dates[<span class="dv">2</span><span class="sc">:</span>t_max] <span class="sc">&lt;</span> <span class="fu">as.Date</span>(<span class="st">&#39;2020-03-01&#39;</span>) <span class="sc">|</span> </span>
+<span id="cb52-6"><a href="session02.html#cb52-6" tabindex="-1"></a>                     dates[<span class="dv">2</span><span class="sc">:</span>t_max] <span class="sc">&gt;=</span> <span class="fu">as.Date</span>(<span class="st">&#39;2020-09-01&#39;</span>) ))</span>
+<span id="cb52-7"><a href="session02.html#cb52-7" tabindex="-1"></a>data_train <span class="ot">&lt;-</span> data_regression[in_sample,]</span>
+<span id="cb52-8"><a href="session02.html#cb52-8" tabindex="-1"></a>data_test <span class="ot">&lt;-</span> data_regression[out_sample,]</span>
+<span id="cb52-9"><a href="session02.html#cb52-9" tabindex="-1"></a>dates_test <span class="ot">&lt;-</span> (dates[<span class="dv">2</span><span class="sc">:</span>t_max])[out_sample]</span>
+<span id="cb52-10"><a href="session02.html#cb52-10" tabindex="-1"></a></span>
+<span id="cb52-11"><a href="session02.html#cb52-11" tabindex="-1"></a><span class="co"># fit predictive models</span></span>
+<span id="cb52-12"><a href="session02.html#cb52-12" tabindex="-1"></a>model1 <span class="ot">&lt;-</span> <span class="fu">lm</span>(unrate <span class="sc">~</span> unrate_lag <span class="sc">+</span> sp500 <span class="sc">+</span> sent <span class="sc">+</span> house, <span class="at">data =</span> data_train)</span>
+<span id="cb52-13"><a href="session02.html#cb52-13" tabindex="-1"></a>model2 <span class="ot">&lt;-</span> <span class="fu">lm</span>(unrate <span class="sc">~</span> unrate_lag <span class="sc">+</span> sp500 <span class="sc">+</span> sent,         <span class="at">data =</span> data_train)</span>
+<span id="cb52-14"><a href="session02.html#cb52-14" tabindex="-1"></a>model3 <span class="ot">&lt;-</span> <span class="fu">lm</span>(unrate <span class="sc">~</span> unrate_lag <span class="sc">+</span> sp500,                <span class="at">data =</span> data_train)</span>
+<span id="cb52-15"><a href="session02.html#cb52-15" tabindex="-1"></a></span>
+<span id="cb52-16"><a href="session02.html#cb52-16" tabindex="-1"></a><span class="co"># get predictions</span></span>
+<span id="cb52-17"><a href="session02.html#cb52-17" tabindex="-1"></a>y_hat1 <span class="ot">&lt;-</span> <span class="fu">predict</span>(model1, <span class="at">newdata =</span> data_test)</span>
+<span id="cb52-18"><a href="session02.html#cb52-18" tabindex="-1"></a>y_hat2 <span class="ot">&lt;-</span> <span class="fu">predict</span>(model2, <span class="at">newdata =</span> data_test)</span>
+<span id="cb52-19"><a href="session02.html#cb52-19" tabindex="-1"></a>y_hat3 <span class="ot">&lt;-</span> <span class="fu">predict</span>(model3, <span class="at">newdata =</span> data_test)</span>
+<span id="cb52-20"><a href="session02.html#cb52-20" tabindex="-1"></a></span>
+<span id="cb52-21"><a href="session02.html#cb52-21" tabindex="-1"></a><span class="co"># compute benchmark prediction (sample mean)</span></span>
+<span id="cb52-22"><a href="session02.html#cb52-22" tabindex="-1"></a>y_benchmark  <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="fu">mean</span>(data_train<span class="sc">$</span>unrate), <span class="fu">sum</span>(out_sample))</span>
+<span id="cb52-23"><a href="session02.html#cb52-23" tabindex="-1"></a></span>
+<span id="cb52-24"><a href="session02.html#cb52-24" tabindex="-1"></a><span class="co"># compute MSE</span></span>
+<span id="cb52-25"><a href="session02.html#cb52-25" tabindex="-1"></a>mse_model1     <span class="ot">&lt;-</span> <span class="fu">mse</span>(data_test<span class="sc">$</span>unrate, y_hat1)</span>
+<span id="cb52-26"><a href="session02.html#cb52-26" tabindex="-1"></a>mse_model2     <span class="ot">&lt;-</span> <span class="fu">mse</span>(data_test<span class="sc">$</span>unrate, y_hat2)</span>
+<span id="cb52-27"><a href="session02.html#cb52-27" tabindex="-1"></a>mse_model3     <span class="ot">&lt;-</span> <span class="fu">mse</span>(data_test<span class="sc">$</span>unrate, y_hat3)</span>
+<span id="cb52-28"><a href="session02.html#cb52-28" tabindex="-1"></a>mse_benchmark  <span class="ot">&lt;-</span> <span class="fu">mse</span>(data_test<span class="sc">$</span>unrate, y_benchmark)</span>
+<span id="cb52-29"><a href="session02.html#cb52-29" tabindex="-1"></a></span>
+<span id="cb52-30"><a href="session02.html#cb52-30" tabindex="-1"></a><span class="co"># results</span></span>
+<span id="cb52-31"><a href="session02.html#cb52-31" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">rbind</span>(</span>
+<span id="cb52-32"><a href="session02.html#cb52-32" tabindex="-1"></a>  <span class="at">mse_4vars =</span> mse_model1,</span>
+<span id="cb52-33"><a href="session02.html#cb52-33" tabindex="-1"></a>  <span class="at">mse_3vars =</span> mse_model2,</span>
+<span id="cb52-34"><a href="session02.html#cb52-34" tabindex="-1"></a>  <span class="at">mse_2vars =</span> mse_model3,</span>
+<span id="cb52-35"><a href="session02.html#cb52-35" tabindex="-1"></a>  <span class="at">mse_mean  =</span> mse_benchmark,</span>
+<span id="cb52-36"><a href="session02.html#cb52-36" tabindex="-1"></a>  <span class="at">R2_2vars  =</span> <span class="dv">1</span> <span class="sc">-</span> mse_model3<span class="sc">/</span>mse_benchmark        </span>
+<span id="cb52-37"><a href="session02.html#cb52-37" tabindex="-1"></a>), <span class="dv">4</span>)</span></code></pre></div>
+<pre><code>##             [,1]
+## mse_4vars 0.0536
+## mse_3vars 0.0302
+## mse_2vars 0.0296
+## mse_mean  0.0318
+## R2_2vars  0.0677</code></pre>
+<div class="sourceCode" id="cb54"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb54-1"><a href="session02.html#cb54-1" tabindex="-1"></a><span class="co"># convert to ts object to have dates in plot</span></span>
+<span id="cb54-2"><a href="session02.html#cb54-2" tabindex="-1"></a>y_true <span class="ot">&lt;-</span> <span class="fu">ts</span>(data_test<span class="sc">$</span>unrate, <span class="at">start =</span> <span class="fu">c</span>(<span class="dv">2000</span>, <span class="dv">1</span>), <span class="at">frequency =</span> <span class="dv">12</span>)</span>
+<span id="cb54-3"><a href="session02.html#cb54-3" tabindex="-1"></a>y_hat3 <span class="ot">&lt;-</span> <span class="fu">ts</span>(y_hat3, <span class="at">start =</span> <span class="fu">c</span>(<span class="dv">2000</span>, <span class="dv">1</span>), <span class="at">frequency =</span> <span class="dv">12</span>)</span>
+<span id="cb54-4"><a href="session02.html#cb54-4" tabindex="-1"></a>y_benchmark <span class="ot">&lt;-</span> <span class="fu">ts</span>(y_benchmark, <span class="at">start =</span> <span class="fu">c</span>(<span class="dv">2000</span>, <span class="dv">1</span>), <span class="at">frequency =</span> <span class="dv">12</span>)</span>
+<span id="cb54-5"><a href="session02.html#cb54-5" tabindex="-1"></a></span>
+<span id="cb54-6"><a href="session02.html#cb54-6" tabindex="-1"></a><span class="co"># plot</span></span>
+<span id="cb54-7"><a href="session02.html#cb54-7" tabindex="-1"></a><span class="fu">plot.ts</span>(y_true, <span class="at">col =</span> <span class="st">&quot;darkgrey&quot;</span>, <span class="at">ylim =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="fl">0.4</span>, <span class="fl">0.2</span>), </span>
+<span id="cb54-8"><a href="session02.html#cb54-8" tabindex="-1"></a>        <span class="at">main =</span> <span class="st">&quot;Forecasted values of unemployment change&quot;</span>,</span>
+<span id="cb54-9"><a href="session02.html#cb54-9" tabindex="-1"></a>        <span class="at">ylab =</span> <span class="st">&quot;Change in unemployment rate&quot;</span>, </span>
+<span id="cb54-10"><a href="session02.html#cb54-10" tabindex="-1"></a>        <span class="at">xlab =</span> <span class="st">&quot;&quot;</span>)</span>
+<span id="cb54-11"><a href="session02.html#cb54-11" tabindex="-1"></a><span class="fu">lines</span>(y_hat3, <span class="at">col =</span> <span class="st">&quot;darkred&quot;</span>, <span class="at">lwd =</span> <span class="dv">2</span>)</span>
+<span id="cb54-12"><a href="session02.html#cb54-12" tabindex="-1"></a><span class="fu">lines</span>(y_benchmark)</span>
+<span id="cb54-13"><a href="session02.html#cb54-13" tabindex="-1"></a><span class="fu">rect</span>(<span class="fl">2020.25</span>,<span class="sc">-</span><span class="dv">1</span>,<span class="fl">2020.75</span>,<span class="dv">1</span>,<span class="at">col =</span> <span class="fu">rgb</span>(<span class="fl">0.6</span>,<span class="fl">0.1</span>,<span class="fl">0.1</span>,<span class="dv">1</span><span class="sc">/</span><span class="dv">4</span>))</span>
+<span id="cb54-14"><a href="session02.html#cb54-14" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">&quot;bottomleft&quot;</span>, <span class="fu">c</span>(<span class="st">&quot;Forecast&quot;</span>, <span class="st">&quot;True&quot;</span>), <span class="at">col=</span><span class="fu">c</span>(<span class="st">&quot;darkred&quot;</span>, <span class="st">&quot;darkgrey&quot;</span>), <span class="at">lwd=</span><span class="dv">6</span>)</span></code></pre></div>
+<p><img src="_main_files/figure-html/unnamed-chunk-39-1.png" width="672" /></p>
+<p>It is common to report the plot of the normalized cumulated squared errors to assess if one model has a superior forecasting ability over all the testing period:</p>
+<p><span class="math display">\[
+\text{Cumulated error}_t =  \frac{\sum_{\tau = t_w + 1}^t e_\tau^2}{\sum_{\tau = t_w + 1}^T \bar{e}_{\tau}^2}
+\]</span></p>
+<p>where <span class="math inline">\(e_\tau, \bar{e}_\tau\)</span> denote respectively the forecast error of the model and the benchmark at time <span class="math inline">\(\tau\)</span>, and <span class="math inline">\(t_w\)</span> is the number of periods in the training set.</p>
+<div class="sourceCode" id="cb55"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb55-1"><a href="session02.html#cb55-1" tabindex="-1"></a><span class="do">## Plot the forecast errors over time</span></span>
+<span id="cb55-2"><a href="session02.html#cb55-2" tabindex="-1"></a><span class="co"># compute the forecast errors</span></span>
+<span id="cb55-3"><a href="session02.html#cb55-3" tabindex="-1"></a>err_model <span class="ot">&lt;-</span> y_true<span class="sc">-</span>y_hat3</span>
+<span id="cb55-4"><a href="session02.html#cb55-4" tabindex="-1"></a>err_benchmark <span class="ot">&lt;-</span> y_true<span class="sc">-</span>y_benchmark</span>
+<span id="cb55-5"><a href="session02.html#cb55-5" tabindex="-1"></a><span class="co"># compute the (normalized) cumulated squared errors and convert to ts object</span></span>
+<span id="cb55-6"><a href="session02.html#cb55-6" tabindex="-1"></a>err2_model     <span class="ot">&lt;-</span> <span class="fu">ts</span>(<span class="fu">cumsum</span>((err_model)<span class="sc">^</span><span class="dv">2</span>), <span class="at">start =</span> <span class="fu">c</span>(<span class="dv">2000</span>, <span class="dv">1</span>), <span class="at">frequency =</span> <span class="dv">12</span>)</span>
+<span id="cb55-7"><a href="session02.html#cb55-7" tabindex="-1"></a>err2_benchmark <span class="ot">&lt;-</span> <span class="fu">ts</span>(<span class="fu">cumsum</span>((err_benchmark)<span class="sc">^</span><span class="dv">2</span>), <span class="at">start =</span> <span class="fu">c</span>(<span class="dv">2000</span>, <span class="dv">1</span>), <span class="at">frequency =</span> <span class="dv">12</span>)</span>
+<span id="cb55-8"><a href="session02.html#cb55-8" tabindex="-1"></a>err2_constant  <span class="ot">&lt;-</span> <span class="fu">sum</span>((y_true<span class="sc">-</span>y_benchmark)<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb55-9"><a href="session02.html#cb55-9" tabindex="-1"></a><span class="co"># plot the cumulated squared errors over time</span></span>
+<span id="cb55-10"><a href="session02.html#cb55-10" tabindex="-1"></a><span class="fu">plot.ts</span>(err2_benchmark<span class="sc">/</span>err2_constant, <span class="at">lwd =</span> <span class="dv">2</span>,</span>
+<span id="cb55-11"><a href="session02.html#cb55-11" tabindex="-1"></a>        <span class="at">ylab =</span> <span class="st">&quot;Cumulated squared errors&quot;</span>,</span>
+<span id="cb55-12"><a href="session02.html#cb55-12" tabindex="-1"></a>        <span class="at">main =</span> <span class="st">&quot;Forecast errors over time&quot;</span>,</span>
+<span id="cb55-13"><a href="session02.html#cb55-13" tabindex="-1"></a>        <span class="at">xlab =</span> <span class="st">&quot;&quot;</span>)</span>
+<span id="cb55-14"><a href="session02.html#cb55-14" tabindex="-1"></a><span class="fu">lines</span>(err2_model<span class="sc">/</span>err2_constant, <span class="at">col =</span> <span class="st">&quot;darkred&quot;</span>, <span class="at">lwd =</span> <span class="dv">2</span>)</span>
+<span id="cb55-15"><a href="session02.html#cb55-15" tabindex="-1"></a><span class="fu">rect</span>(<span class="fl">2020.25</span>,<span class="sc">-</span><span class="dv">1</span>,<span class="fl">2020.75</span>,<span class="fl">1.5</span>,<span class="at">col =</span> <span class="fu">rgb</span>(<span class="fl">0.6</span>,<span class="fl">0.1</span>,<span class="fl">0.1</span>,<span class="dv">1</span><span class="sc">/</span><span class="dv">4</span>))</span>
+<span id="cb55-16"><a href="session02.html#cb55-16" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">&quot;topleft&quot;</span>, <span class="fu">c</span>(<span class="st">&quot;Regression model&quot;</span>, <span class="st">&quot;Sample mean&quot;</span>), <span class="at">col=</span><span class="fu">c</span>(<span class="st">&quot;darkred&quot;</span>, <span class="st">&quot;black&quot;</span>), <span class="at">lwd=</span><span class="dv">6</span>)</span></code></pre></div>
+<p><img src="_main_files/figure-html/unnamed-chunk-40-1.png" width="672" /></p>
+<div class="sourceCode" id="cb56"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb56-1"><a href="session02.html#cb56-1" tabindex="-1"></a><span class="do">## Diebold-Mariano test for predictive performance</span></span>
+<span id="cb56-2"><a href="session02.html#cb56-2" tabindex="-1"></a><span class="co"># one-sided test: </span></span>
+<span id="cb56-3"><a href="session02.html#cb56-3" tabindex="-1"></a><span class="co"># - H0: err_benchmark = err_model</span></span>
+<span id="cb56-4"><a href="session02.html#cb56-4" tabindex="-1"></a><span class="co"># - H1: err_benchmark &gt; err_model</span></span>
+<span id="cb56-5"><a href="session02.html#cb56-5" tabindex="-1"></a><span class="fu">dm.test</span>(err_benchmark, err_model, <span class="at">alternative =</span> <span class="st">&quot;greater&quot;</span>) </span></code></pre></div>
+<pre><code>## 
+##  Diebold-Mariano Test
+## 
+## data:  err_benchmarkerr_model
+## DM = 2.4995, Forecast horizon = 1, Loss function power = 2, p-value =
+## 0.006504
+## alternative hypothesis: greater</code></pre>
+<!-- # Cross-references {#cross} -->
+<!-- Cross-references make it easier for your readers to find and link to elements in your book. -->
+<!-- ## Chapters and sub-chapters -->
+<!-- There are two steps to cross-reference any heading: -->
+<!-- 1. Label the heading: `# Hello world {#nice-label}`.  -->
+<!--     - Leave the label off if you like the automated heading generated based on your heading title: for example, `# Hello world` = `# Hello world {#hello-world}`. -->
+<!--     - To label an un-numbered heading, use: `# Hello world {-#nice-label}` or `{# Hello world .unnumbered}`. -->
+<!-- 1. Next, reference the labeled heading anywhere in the text using `\@ref(nice-label)`; for example, please see Chapter \@ref(cross).  -->
+<!--     - If you prefer text as the link instead of a numbered reference use: [any text you want can go here](#cross). -->
+<!-- ## Captioned figures and tables -->
+<!-- Figures and tables *with captions* can also be cross-referenced from elsewhere in your book using `\@ref(fig:chunk-label)` and `\@ref(tab:chunk-label)`, respectively. -->
+<!-- See Figure \@ref(fig:nice-fig). -->
+<!-- ```{r nice-fig, fig.cap='Here is a nice figure!', out.width='80%', fig.asp=.75, fig.align='center', fig.alt='Plot with connected points showing that vapor pressure of mercury increases exponentially as temperature increases.'} -->
+<!-- par(mar = c(4, 4, .1, .1)) -->
+<!-- plot(pressure, type = 'b', pch = 19) -->
+<!-- ``` -->
+<!-- Don't miss Table \@ref(tab:nice-tab). -->
+<!-- ```{r nice-tab, tidy=FALSE} -->
+<!-- knitr::kable( -->
+<!--   head(pressure, 10), caption = 'Here is a nice table!', -->
+<!--   booktabs = TRUE -->
+<!-- ) -->
+<!-- ``` -->
+
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="session01.html" class="navigation navigation-prev navigation-unique" aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": null,
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": "https://github.com/aciancetta/finmetrics/edit/BRANCH/02-session02.Rmd",
+"text": "Edit"
+},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": null,
+"text": null
+},
+"download": ["_main.pdf"],
+"search": {
+"engine": "fuse",
+"options": null
+},
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>
