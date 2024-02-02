@@ -1,0 +1,327 @@
+# Large-dimensional methods for forecasting {#session03}
+
+
+## Preprocess FRED-MD
+
+Stationarity, outliers, missing values, scaling
+
+```{r}
+## load data
+fredmd <- read.csv("../data/current.csv")
+dates  <- as.Date(fredmd$sasdate[-1],'%m/%d/%Y')
+target_variables <- c("UNRATE", "W875RX1", "GS10", "CPIAUCSL", "WPSFD49207", "PAYEMS", "HOUST", "INDPRO", "M2SL", "S.P.500")
+
+## get tcodes
+tcodes <- fredmd[1,-1]
+d      <- fredmd[-1, -1]
+```
+
+Here we remove the columns with missing values. An alternative could be to impute the missing values. Be careful that in the latter case we should impute the missing values at each step of the forecast evaluation to make sure that no future information is included at each step of the evaluation.
+
+
+
+```{r}
+## Transform variables
+# transformation functions
+transform_fredmd <- list(
+  function(x) x,
+  function(x) c(0, diff(x)),
+  function(x) c(0, 0, diff(x, differences = 2)),
+  function(x) log(x),
+  function(x) c(0, diff(log(x))),
+  function(x) c(0, 0, diff(log(x), differences = 2)),
+  function(x) c(0, 0, diff( x[2:length(x)]/x[1:(length(x)-1)] - 1))
+)
+
+# transform series one by one
+for (j in 1:ncol(d)) {
+  tcode <- tcodes[[j]]
+  d[,j] <- transform_fredmd[[tcode]](d[,j])
+}
+
+## Subset and remove columns with NAs
+d <- d[dates >= '1980-01-01', ]
+dates <- dates[dates >= '1980-01-01']
+idx_na <- (colSums(is.na(d))==0)
+d <- d[, idx_na]
+plot.ts(d[,target_variables])
+```
+
+
+
+```{r}
+## Outliers
+detect_outlier <- function(x, n_iqr = 10) {
+  iqr <- IQR(x, na.rm = TRUE)
+  xbar <- mean(x)
+  threshold <- c(xbar-n_iqr*iqr, xbar+n_iqr*iqr)
+  
+  idx_outlier <- which((x < threshold[1] | x > threshold[2]))
+  # x[idx_outlier] <- NA
+  x[idx_outlier] <- mean(x[idx_outlier], na.rm = TRUE)
+  x
+}
+
+
+d_outlier <- sapply(d, detect_outlier)
+# barplot(sapply(d_outlier, function(x) sum(is.na(x))))
+# barplot(sapply(d_stationary, function(x) sum(is.na(x))))
+```
+
+
+```{r}
+## Imputation
+# em_impute <- function(d, r = 8, thresh = 0.01, verbose = TRUE) {
+#   
+#   # 1) Initialization
+#   n_var <- ncol(d)
+#   t_max <- nrow(d)
+#   
+#   ## 1.a) Scale the data
+#   d_scaled <- scale(d)
+#   means_d <- attr(d_scaled, "scaled:center")
+#   sds_d   <- attr(d_scaled, "scaled:scale")
+#   
+#   ## 1.b) Initialize the missing values to the column mean
+#   na_idx <- which(is.na(d_scaled))
+#   d_imputed <- d_scaled
+#   d_imputed[na_idx] <- 0
+#   
+#   ## 1.c) Initialize the matrix of principal components
+#   pc <- matrix(rep(0, t_max*r), t_max, r)
+# 
+#   # 2) while not converged:
+#   converged <- FALSE
+#   while(!converged){
+#     ## 2.a) Extract the principal components
+#     pc_old <- pc
+#     pca_fit <- stats::prcomp(d_imputed, rank. = r)
+#     loadings <- pca_fit$rotation
+#     pc <- pca_fit$x
+#     
+#     ## 2.b) Impute the missing values based on the reconstruction
+#     reconstruction <- pc %*% t(loadings)
+#     d_imputed[na_idx] <- reconstruction[na_idx]
+#     
+#     ## 2.c) Check convergence
+#     distance <- norm(pc - pc_old, type = "F")
+#     if(verbose){
+#       message("\rDistance is: ", round(distance/n_var, 4), appendLF = FALSE)
+#     }
+#     if(distance/n_var < thresh){
+#       converged <- TRUE
+#     }
+#   }
+#   
+#   d_imputed <- d_imputed * rep(sds_d, rep(nrow(d_imputed),length(sds_d))) + 
+#     rep(means_d, rep(nrow(d_imputed),length(sds_d)))
+#   
+#   # Output
+#   d_imputed
+# }
+```
+
+```{r}
+# d_imputed <- em_impute(d_outlier)
+# plot.ts(cbind(d_stationary[, 1:4], d_imputed[,1:4]))
+```
+
+**maybe we can omit the series with too many NAs, imputation is likely very bad**
+
+```{r}
+d_imputed <- d_outlier
+```
+
+
+
+
+## Forecasting algorithms
+
+```{r}
+pcr <- function(d, target, n_components, horizon) {
+  
+  ## Scale the data
+  d_scaled <- scale(d)
+  d_mean <- attr(d_scaled, "scaled:center")
+  d_sd <- attr(d_scaled, "scaled:scale")
+  
+  ## get the target
+  target_idx <- which(colnames(d) == target)
+  y <- d_scaled[,target_idx]    
+  ## get the principal components of the other variables
+  x <- d_scaled[,-target_idx]
+  eigen_list <- prcomp(x, center=FALSE)
+  f <- eigen_list$x[,1:n_components] 
+  
+  ## define the dataframes 
+  t_max <- length(y)
+  d_pcr <- as.data.frame(cbind(
+    y     = y[(horizon+1):t_max], 
+    y_lag =  y[1:(t_max-horizon)],  
+    f[1:(t_max-horizon),])
+  )
+  
+  ## fit
+  model <- lm(y ~ ., data = d_pcr)
+  
+  ## forecast
+  pred <- predict(model, newdata = d_pcr[nrow(d_pcr), ])
+  
+  ## output
+  pred*d_sd[target] + d_mean[target]
+
+  # d_test <- as.data.frame(cbind(y_lag=y,f))
+  # d_test <- d_test[nrow(d_test), ]
+  
+}
+
+pcr(d_imputed, "INDPRO", 4, 1)
+```
+
+```{r}
+library(glmnet)
+  
+penalized_reg <- function(d, target, horizon, alpha = 1, nlambda = 100) {
+  ## Scale the data
+  d_scaled <- scale(d)
+  d_mean <- attr(d_scaled, "scaled:center")
+  d_sd <- attr(d_scaled, "scaled:scale")
+  
+  ## get the target and predictors
+  t_max <- nrow(d)
+  y <- d_scaled[(horizon+1):t_max, target]   
+  x <- d_scaled[1:(t_max-horizon), ] # include also lagged target variable
+  
+  ## fit the model
+  model <- glmnet(x = x, y = y, family = "gaussian", 
+                  alpha = alpha, nlambda = nlambda)
+  
+  ## forecast
+  pred <- predict(model, newx = x[nrow(x),])
+  
+  ## Output
+  pred*d_sd[target] + d_mean[target]
+}
+
+penalized_reg(d_imputed, "INDPRO", 1, 1) # one value for each lambda
+
+```
+
+
+```{r}
+library(randomForest)
+forest <- function(d, target, horizon, seed = 1, ntree = 100) {
+  ## Scale the data
+  d_scaled <- scale(d)
+  d_mean <- attr(d_scaled, "scaled:center")
+  d_sd <- attr(d_scaled, "scaled:scale")
+  
+  ## get the target and predictors
+  t_max <- nrow(d)
+  y <- d_scaled[(horizon+1):t_max, target]   
+  x <- d_scaled[1:(t_max-horizon), ] # include also lagged target variable
+  
+  ## fit the model
+  set.seed(seed)
+  model <- randomForest(x = x, y = y, ntree = ntree)
+  
+  ## forecast
+  pred <- predict(model, newdata = x[nrow(x),])
+
+  ## Output
+  pred*d_sd[target] + d_mean[target]
+}
+
+forest(d_imputed, "INDPRO", 1)
+
+```
+
+
+## Forecast evaluation
+
+```{r}
+forecast_list <- list(
+  pcr = c(),
+  ridge = list(),
+  lasso = list(),
+  forest = c()
+)
+target <- "UNRATE"
+horizon <- 1
+
+
+initial_window <- sum(dates < "2002-01-01")
+idx_eval <- which(((dates < "2020-02-01") | (dates > "2020-10-01")) & 
+                    dates >= "2002-01-01") - initial_window
+
+n_steps <- nrow(d) - initial_window - horizon + 1 
+
+data_test <- d_imputed[(initial_window+horizon):nrow(d), target]
+
+## expanding window forecast evaluation
+for (s in 1:n_steps) {
+# for (s in 1:10) {
+  cat("\rStep", s, "of", n_steps)
+  data_train <- d_imputed[1:(initial_window+s-1),]
+  
+  forecast_list$pcr[s] <- pcr(data_train, target, 
+                              n_components = 4, horizon = horizon)
+  forecast_list$ridge[[s]] <- penalized_reg(data_train, target, 
+                                            horizon = horizon, alpha = 0) 
+  forecast_list$lasso[[s]] <- penalized_reg(data_train, target, 
+                                            horizon = horizon, alpha = 1) 
+  forecast_list$forest[s] <- forest(data_train, target,
+                                    horizon = horizon,
+                                    ntree = 100)
+}
+```
+```{r}
+# saveRDS(forecast_list, "session03_forecastlist.RDS")
+```
+
+
+
+```{r}
+rmse <- function(y, f) {sqrt(mean((y-f)^2))}
+
+pred_ridge <- sapply(forecast_list$ridge, function(x) x[30])
+pred_lasso <- sapply(forecast_list$lasso, function(x) x[8])
+pred_mean  <- rep(mean(d_imputed[1:initial_window, target]), n_steps)
+
+rbind(
+  # mean   = rmse(data_test[idx_eval], pred_mean[idx_eval]),
+  pcr    = rmse(data_test[idx_eval], forecast_list$pcr[idx_eval]),
+  forest = rmse(data_test[idx_eval], forecast_list$forest[idx_eval]),
+  ridge  = rmse(data_test[idx_eval], pred_ridge[idx_eval]),
+  lasso  = rmse(data_test[idx_eval], pred_lasso[idx_eval])
+)
+
+```
+
+ [1] -0.01919333 -0.07242667 -0.02218333  0.05772333 -0.08027333 -0.06860333 -0.02098333
+ [8] -0.09648667 -0.07807000  0.06399667
+ 
+ 
+
+```{r}
+plot.ts(data_test[idx_eval], type = "l", lwd = 2)
+lines(pred_mean[idx_eval], type = "l", col = "darkgrey")
+lines(pred_ridge, type = "b", col = "tomato")
+lines(forecast_list$pcr[idx_eval], type = "b", col = "darkred")
+lines(pred_lasso[idx_eval], type = "b", col = "steelblue")
+```
+
+
+
+<!-- # Parts -->
+
+<!-- You can add parts to organize one or more book chapters together. Parts can be inserted at the top of an .Rmd file, before the first-level chapter heading in that same file.  -->
+
+<!-- Add a numbered part: `# (PART) Act one {-}` (followed by `# A chapter`) -->
+
+<!-- Add an unnumbered part: `# (PART\*) Act one {-}` (followed by `# A chapter`) -->
+
+<!-- Add an appendix as a special kind of un-numbered part: `# (APPENDIX) Other stuff {-}` (followed by `# A chapter`). Chapters in an appendix are prepended with letters instead of numbers. -->
+
+
+

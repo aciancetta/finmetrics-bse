@@ -30,7 +30,7 @@
   
   
 <link rel="prev" href="session01.html"/>
-
+<link rel="next" href="session03.html"/>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
@@ -151,6 +151,12 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <ul>
 <li class="chapter" data-level="2.1" data-path="session02.html"><a href="session02.html#oracle-inequality"><i class="fa fa-check"></i><b>2.1</b> Oracle inequality</a></li>
 <li class="chapter" data-level="2.2" data-path="session02.html"><a href="session02.html#application-forecasting-unemployment"><i class="fa fa-check"></i><b>2.2</b> Application: forecasting unemployment</a></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="session03.html"><a href="session03.html"><i class="fa fa-check"></i><b>3</b> Large-dimensional methods for forecasting</a>
+<ul>
+<li class="chapter" data-level="3.1" data-path="session03.html"><a href="session03.html#preprocess-fred-md"><i class="fa fa-check"></i><b>3.1</b> Preprocess FRED-MD</a></li>
+<li class="chapter" data-level="3.2" data-path="session03.html"><a href="session03.html#forecasting-algorithms"><i class="fa fa-check"></i><b>3.2</b> Forecasting algorithms</a></li>
+<li class="chapter" data-level="3.3" data-path="session03.html"><a href="session03.html#forecast-evaluation"><i class="fa fa-check"></i><b>3.3</b> Forecast evaluation</a></li>
 </ul></li>
 <li class="divider"></li>
 <li><a href="https://github.com/aciancetta" target="blank">Alessandro Ciancetta</a></li>
@@ -396,7 +402,7 @@ To make sure that the series in the model are stationary, we transform the varia
 <span id="cb38-6"><a href="session02.html#cb38-6" tabindex="-1"></a>  <span class="cf">function</span>(x) <span class="fu">log</span>(x),</span>
 <span id="cb38-7"><a href="session02.html#cb38-7" tabindex="-1"></a>  <span class="cf">function</span>(x) <span class="fu">c</span>(<span class="dv">0</span>, <span class="fu">diff</span>(<span class="fu">log</span>(x))),</span>
 <span id="cb38-8"><a href="session02.html#cb38-8" tabindex="-1"></a>  <span class="cf">function</span>(x) <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="fu">diff</span>(<span class="fu">log</span>(x), <span class="at">differences =</span> <span class="dv">2</span>)),</span>
-<span id="cb38-9"><a href="session02.html#cb38-9" tabindex="-1"></a>  <span class="cf">function</span>(x) <span class="fu">c</span>(<span class="dv">0</span>, <span class="fu">diff</span>( x[<span class="dv">2</span><span class="sc">:</span><span class="fu">length</span>(x)]<span class="sc">/</span>x[<span class="dv">1</span><span class="sc">:</span>(<span class="fu">length</span>(x)<span class="sc">-</span><span class="dv">1</span>)] <span class="sc">-</span> <span class="dv">1</span>))</span>
+<span id="cb38-9"><a href="session02.html#cb38-9" tabindex="-1"></a>  <span class="cf">function</span>(x) <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="fu">diff</span>( x[<span class="dv">2</span><span class="sc">:</span><span class="fu">length</span>(x)]<span class="sc">/</span>x[<span class="dv">1</span><span class="sc">:</span>(<span class="fu">length</span>(x)<span class="sc">-</span><span class="dv">1</span>)] <span class="sc">-</span> <span class="dv">1</span>))</span>
 <span id="cb38-10"><a href="session02.html#cb38-10" tabindex="-1"></a>)</span></code></pre></div>
 <div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb39-1"><a href="session02.html#cb39-1" tabindex="-1"></a><span class="do">## save the transformed series separately</span></span>
 <span id="cb39-2"><a href="session02.html#cb39-2" tabindex="-1"></a>unrate <span class="ot">&lt;-</span> transform_fredmd[[tcodes<span class="sc">$</span>UNRATE]](data<span class="sc">$</span>UNRATE)</span>
@@ -660,8 +666,8 @@ To make sure that the series in the model are stationary, we transform the varia
           </div>
         </div>
       </div>
-<a href="session01.html" class="navigation navigation-prev navigation-unique" aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
-
+<a href="session01.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="session03.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>

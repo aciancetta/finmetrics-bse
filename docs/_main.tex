@@ -878,7 +878,7 @@ To make sure that the series in the model are stationary, we transform the varia
   \ControlFlowTok{function}\NormalTok{(x) }\FunctionTok{log}\NormalTok{(x),}
   \ControlFlowTok{function}\NormalTok{(x) }\FunctionTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{, }\FunctionTok{diff}\NormalTok{(}\FunctionTok{log}\NormalTok{(x))),}
   \ControlFlowTok{function}\NormalTok{(x) }\FunctionTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{0}\NormalTok{, }\FunctionTok{diff}\NormalTok{(}\FunctionTok{log}\NormalTok{(x), }\AttributeTok{differences =} \DecValTok{2}\NormalTok{)),}
-  \ControlFlowTok{function}\NormalTok{(x) }\FunctionTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{, }\FunctionTok{diff}\NormalTok{( x[}\DecValTok{2}\SpecialCharTok{:}\FunctionTok{length}\NormalTok{(x)]}\SpecialCharTok{/}\NormalTok{x[}\DecValTok{1}\SpecialCharTok{:}\NormalTok{(}\FunctionTok{length}\NormalTok{(x)}\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{)] }\SpecialCharTok{{-}} \DecValTok{1}\NormalTok{))}
+  \ControlFlowTok{function}\NormalTok{(x) }\FunctionTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{0}\NormalTok{, }\FunctionTok{diff}\NormalTok{( x[}\DecValTok{2}\SpecialCharTok{:}\FunctionTok{length}\NormalTok{(x)]}\SpecialCharTok{/}\NormalTok{x[}\DecValTok{1}\SpecialCharTok{:}\NormalTok{(}\FunctionTok{length}\NormalTok{(x)}\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{)] }\SpecialCharTok{{-}} \DecValTok{1}\NormalTok{))}
 \NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
@@ -1214,6 +1214,351 @@ where \(e_\tau, \bar{e}_\tau\) denote respectively the forecast error of the mod
 ## 0.006504
 ## alternative hypothesis: greater
 \end{verbatim}
+
+\hypertarget{session03}{%
+\chapter{Large-dimensional methods for forecasting}\label{session03}}
+
+In this session we compare the performances of four forecasting methods to predict the monthly change in the U.S. unemployment rate using more than 100 variables from the FRED-MD dataset. In order to deal with the large amount of data, we consider methods based on principal component analysis, penalized likelihood and regression trees.
+
+\hypertarget{preprocess-fred-md}{%
+\section{Preprocess FRED-MD}\label{preprocess-fred-md}}
+
+The preprocessing of the data is very similar to that of the previous session. The only difference is that we now transform all the series in the dataset using the list of transformation functions of the previous session.
+
+For simplicity, here we remove the columns with missing values. An alternative could be to impute the missing values using some regression technique. However, it is important to notice that in the latter case we should impute the missing values at each step of the forecast evaluation to make sure that no future information is included in the forecasts.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DocumentationTok{\#\# load data}
+\NormalTok{fredmd }\OtherTok{\textless{}{-}} \FunctionTok{read.csv}\NormalTok{(}\StringTok{"../data/current.csv"}\NormalTok{)}
+\NormalTok{dates  }\OtherTok{\textless{}{-}} \FunctionTok{as.Date}\NormalTok{(fredmd}\SpecialCharTok{$}\NormalTok{sasdate[}\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{],}\StringTok{\textquotesingle{}\%m/\%d/\%Y\textquotesingle{}}\NormalTok{)}
+\NormalTok{target\_variables }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{"UNRATE"}\NormalTok{, }\StringTok{"W875RX1"}\NormalTok{, }\StringTok{"GS10"}\NormalTok{, }\StringTok{"CPIAUCSL"}\NormalTok{, }\StringTok{"WPSFD49207"}\NormalTok{, }\StringTok{"PAYEMS"}\NormalTok{, }\StringTok{"HOUST"}\NormalTok{, }\StringTok{"INDPRO"}\NormalTok{, }\StringTok{"M2SL"}\NormalTok{, }\StringTok{"S.P.500"}\NormalTok{)}
+
+\DocumentationTok{\#\# get tcodes}
+\NormalTok{tcodes }\OtherTok{\textless{}{-}}\NormalTok{ fredmd[}\DecValTok{1}\NormalTok{,}\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{]}
+\NormalTok{d      }\OtherTok{\textless{}{-}}\NormalTok{ fredmd[}\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{, }\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{]}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DocumentationTok{\#\# Transform variables}
+\CommentTok{\# transformation functions}
+\NormalTok{transform\_fredmd }\OtherTok{\textless{}{-}} \FunctionTok{list}\NormalTok{(}
+  \ControlFlowTok{function}\NormalTok{(x) x,}
+  \ControlFlowTok{function}\NormalTok{(x) }\FunctionTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{, }\FunctionTok{diff}\NormalTok{(x)),}
+  \ControlFlowTok{function}\NormalTok{(x) }\FunctionTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{0}\NormalTok{, }\FunctionTok{diff}\NormalTok{(x, }\AttributeTok{differences =} \DecValTok{2}\NormalTok{)),}
+  \ControlFlowTok{function}\NormalTok{(x) }\FunctionTok{log}\NormalTok{(x),}
+  \ControlFlowTok{function}\NormalTok{(x) }\FunctionTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{, }\FunctionTok{diff}\NormalTok{(}\FunctionTok{log}\NormalTok{(x))),}
+  \ControlFlowTok{function}\NormalTok{(x) }\FunctionTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{0}\NormalTok{, }\FunctionTok{diff}\NormalTok{(}\FunctionTok{log}\NormalTok{(x), }\AttributeTok{differences =} \DecValTok{2}\NormalTok{)),}
+  \ControlFlowTok{function}\NormalTok{(x) }\FunctionTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{0}\NormalTok{, }\FunctionTok{diff}\NormalTok{( x[}\DecValTok{2}\SpecialCharTok{:}\FunctionTok{length}\NormalTok{(x)]}\SpecialCharTok{/}\NormalTok{x[}\DecValTok{1}\SpecialCharTok{:}\NormalTok{(}\FunctionTok{length}\NormalTok{(x)}\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{)] }\SpecialCharTok{{-}} \DecValTok{1}\NormalTok{))}
+\NormalTok{)}
+
+\CommentTok{\# transform series one by one}
+\ControlFlowTok{for}\NormalTok{ (j }\ControlFlowTok{in} \DecValTok{1}\SpecialCharTok{:}\FunctionTok{ncol}\NormalTok{(d)) \{}
+\NormalTok{  tcode }\OtherTok{\textless{}{-}}\NormalTok{ tcodes[[j]]}
+\NormalTok{  d[,j] }\OtherTok{\textless{}{-}}\NormalTok{ transform\_fredmd[[tcode]](d[,j])}
+\NormalTok{\}}
+
+\DocumentationTok{\#\# Subset and remove columns with NAs}
+\NormalTok{d }\OtherTok{\textless{}{-}}\NormalTok{ d[dates }\SpecialCharTok{\textgreater{}=} \StringTok{\textquotesingle{}1980{-}01{-}01\textquotesingle{}}\NormalTok{, ]}
+\NormalTok{dates }\OtherTok{\textless{}{-}}\NormalTok{ dates[dates }\SpecialCharTok{\textgreater{}=} \StringTok{\textquotesingle{}1980{-}01{-}01\textquotesingle{}}\NormalTok{]}
+\NormalTok{idx\_na }\OtherTok{\textless{}{-}}\NormalTok{ (}\FunctionTok{colSums}\NormalTok{(}\FunctionTok{is.na}\NormalTok{(d))}\SpecialCharTok{==}\DecValTok{0}\NormalTok{)}
+\NormalTok{d }\OtherTok{\textless{}{-}}\NormalTok{ d[, idx\_na]}
+\FunctionTok{plot.ts}\NormalTok{(d[,target\_variables])}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{_main_files/figure-latex/unnamed-chunk-43-1.pdf}
+
+\hypertarget{forecasting-algorithms}{%
+\section{Forecasting algorithms}\label{forecasting-algorithms}}
+
+Below we define the forecasting algorithms that we use in the forecast evaluation.
+
+Notice that at each step of the forecast evaluation we rescale the data so that each variable has mean zero and unit variance. This step is very important for many machine learning algorithms. If the variables have a different magnitude, the optimization procedure involved tend to over-focus on the features with higher magnitude, while we want to exploit the variability of each feature irrespectively of its scale.
+
+Also, we do not explicitly account for outliers in the forecasting algorithms, and we simply discard the Covid period during the evaluation of the results. In this sense, the procedure will tend to benefit those methods that can automatically deal better with the presence of outliers in the data used for estimation.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DocumentationTok{\#\# Principal Component Regression (PCR)}
+\NormalTok{pcr }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(d, target, n\_components, horizon) \{}
+  
+  \DocumentationTok{\#\# Scale the data}
+\NormalTok{  d\_scaled }\OtherTok{\textless{}{-}} \FunctionTok{scale}\NormalTok{(d)}
+\NormalTok{  d\_mean }\OtherTok{\textless{}{-}} \FunctionTok{attr}\NormalTok{(d\_scaled, }\StringTok{"scaled:center"}\NormalTok{)}
+\NormalTok{  d\_sd }\OtherTok{\textless{}{-}} \FunctionTok{attr}\NormalTok{(d\_scaled, }\StringTok{"scaled:scale"}\NormalTok{)}
+  
+  \DocumentationTok{\#\# get the target}
+\NormalTok{  target\_idx }\OtherTok{\textless{}{-}} \FunctionTok{which}\NormalTok{(}\FunctionTok{colnames}\NormalTok{(d) }\SpecialCharTok{==}\NormalTok{ target)}
+\NormalTok{  y }\OtherTok{\textless{}{-}}\NormalTok{ d\_scaled[,target\_idx]    }
+  \DocumentationTok{\#\# get the principal components of the other variables}
+\NormalTok{  x }\OtherTok{\textless{}{-}}\NormalTok{ d\_scaled[,}\SpecialCharTok{{-}}\NormalTok{target\_idx]}
+\NormalTok{  eigen\_list }\OtherTok{\textless{}{-}} \FunctionTok{prcomp}\NormalTok{(x, }\AttributeTok{center=}\ConstantTok{FALSE}\NormalTok{)}
+\NormalTok{  f }\OtherTok{\textless{}{-}}\NormalTok{ eigen\_list}\SpecialCharTok{$}\NormalTok{x[,}\DecValTok{1}\SpecialCharTok{:}\NormalTok{n\_components] }
+  
+  \DocumentationTok{\#\# define the dataframes }
+\NormalTok{  t\_max }\OtherTok{\textless{}{-}} \FunctionTok{length}\NormalTok{(y)}
+\NormalTok{  d\_pcr }\OtherTok{\textless{}{-}} \FunctionTok{as.data.frame}\NormalTok{(}\FunctionTok{cbind}\NormalTok{(}
+    \AttributeTok{y     =}\NormalTok{ y[(horizon}\SpecialCharTok{+}\DecValTok{1}\NormalTok{)}\SpecialCharTok{:}\NormalTok{t\_max], }
+    \AttributeTok{y\_lag =}\NormalTok{  y[}\DecValTok{1}\SpecialCharTok{:}\NormalTok{(t\_max}\SpecialCharTok{{-}}\NormalTok{horizon)],  }
+\NormalTok{    f[}\DecValTok{1}\SpecialCharTok{:}\NormalTok{(t\_max}\SpecialCharTok{{-}}\NormalTok{horizon),])}
+\NormalTok{  )}
+  
+  \DocumentationTok{\#\# fit}
+\NormalTok{  model }\OtherTok{\textless{}{-}} \FunctionTok{lm}\NormalTok{(y }\SpecialCharTok{\textasciitilde{}}\NormalTok{ ., }\AttributeTok{data =}\NormalTok{ d\_pcr)}
+  
+  \DocumentationTok{\#\# forecast}
+\NormalTok{  pred }\OtherTok{\textless{}{-}} \FunctionTok{predict}\NormalTok{(model, }\AttributeTok{newdata =}\NormalTok{ d\_pcr[}\FunctionTok{nrow}\NormalTok{(d\_pcr), ])}
+  
+  \DocumentationTok{\#\# output}
+\NormalTok{  pred}\SpecialCharTok{*}\NormalTok{d\_sd[target] }\SpecialCharTok{+}\NormalTok{ d\_mean[target]}
+\NormalTok{\}}
+
+\CommentTok{\# pcr(d, "INDPRO", 4, 1)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DocumentationTok{\#\# Penalized regression: LASSO (alpha = 1) and ridge (alpha = 0)}
+\FunctionTok{library}\NormalTok{(glmnet)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Caricamento del pacchetto richiesto: Matrix
+\end{verbatim}
+
+\begin{verbatim}
+## Loaded glmnet 4.1-4
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{penalized\_reg }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(d, target, horizon, }\AttributeTok{alpha =} \DecValTok{1}\NormalTok{, }\AttributeTok{nlambda =} \DecValTok{100}\NormalTok{) \{}
+  
+  \DocumentationTok{\#\# Scale the data}
+\NormalTok{  d\_scaled }\OtherTok{\textless{}{-}} \FunctionTok{scale}\NormalTok{(d)}
+\NormalTok{  d\_mean }\OtherTok{\textless{}{-}} \FunctionTok{attr}\NormalTok{(d\_scaled, }\StringTok{"scaled:center"}\NormalTok{)}
+\NormalTok{  d\_sd }\OtherTok{\textless{}{-}} \FunctionTok{attr}\NormalTok{(d\_scaled, }\StringTok{"scaled:scale"}\NormalTok{)}
+  
+  \DocumentationTok{\#\# get the target and predictors}
+\NormalTok{  t\_max }\OtherTok{\textless{}{-}} \FunctionTok{nrow}\NormalTok{(d)}
+\NormalTok{  y }\OtherTok{\textless{}{-}}\NormalTok{ d\_scaled[(horizon}\SpecialCharTok{+}\DecValTok{1}\NormalTok{)}\SpecialCharTok{:}\NormalTok{t\_max, target]   }
+\NormalTok{  x }\OtherTok{\textless{}{-}}\NormalTok{ d\_scaled[}\DecValTok{1}\SpecialCharTok{:}\NormalTok{(t\_max}\SpecialCharTok{{-}}\NormalTok{horizon), ] }\CommentTok{\# include also lagged target variable}
+  
+  \DocumentationTok{\#\# fit the model}
+\NormalTok{  model }\OtherTok{\textless{}{-}} \FunctionTok{glmnet}\NormalTok{(}\AttributeTok{x =}\NormalTok{ x, }\AttributeTok{y =}\NormalTok{ y, }\AttributeTok{family =} \StringTok{"gaussian"}\NormalTok{, }
+                  \AttributeTok{alpha =}\NormalTok{ alpha, }\AttributeTok{nlambda =}\NormalTok{ nlambda)}
+  
+  \DocumentationTok{\#\# forecast}
+\NormalTok{  pred }\OtherTok{\textless{}{-}} \FunctionTok{predict}\NormalTok{(model, }\AttributeTok{newx =}\NormalTok{ x[}\FunctionTok{nrow}\NormalTok{(x),])}
+  
+  \DocumentationTok{\#\# Output}
+\NormalTok{  pred}\SpecialCharTok{*}\NormalTok{d\_sd[target] }\SpecialCharTok{+}\NormalTok{ d\_mean[target]}
+\NormalTok{\}}
+
+\CommentTok{\# penalized\_reg(d, "INDPRO", 1, 1) \# one value for each lambda}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DocumentationTok{\#\# Random forest}
+\FunctionTok{library}\NormalTok{(randomForest)}
+\NormalTok{forest }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(d, target, horizon, }\AttributeTok{seed =} \DecValTok{1}\NormalTok{, }\AttributeTok{ntree =} \DecValTok{100}\NormalTok{) \{}
+  
+  \DocumentationTok{\#\# Scale the data}
+\NormalTok{  d\_scaled }\OtherTok{\textless{}{-}} \FunctionTok{scale}\NormalTok{(d)}
+\NormalTok{  d\_mean }\OtherTok{\textless{}{-}} \FunctionTok{attr}\NormalTok{(d\_scaled, }\StringTok{"scaled:center"}\NormalTok{)}
+\NormalTok{  d\_sd }\OtherTok{\textless{}{-}} \FunctionTok{attr}\NormalTok{(d\_scaled, }\StringTok{"scaled:scale"}\NormalTok{)}
+  
+  \DocumentationTok{\#\# get the target and predictors}
+\NormalTok{  t\_max }\OtherTok{\textless{}{-}} \FunctionTok{nrow}\NormalTok{(d)}
+\NormalTok{  y }\OtherTok{\textless{}{-}}\NormalTok{ d\_scaled[(horizon}\SpecialCharTok{+}\DecValTok{1}\NormalTok{)}\SpecialCharTok{:}\NormalTok{t\_max, target]   }
+\NormalTok{  x }\OtherTok{\textless{}{-}}\NormalTok{ d\_scaled[}\DecValTok{1}\SpecialCharTok{:}\NormalTok{(t\_max}\SpecialCharTok{{-}}\NormalTok{horizon), ] }\CommentTok{\# include also lagged target variable}
+  
+  \DocumentationTok{\#\# fit the model}
+  \FunctionTok{set.seed}\NormalTok{(seed)}
+\NormalTok{  model }\OtherTok{\textless{}{-}} \FunctionTok{randomForest}\NormalTok{(}\AttributeTok{x =}\NormalTok{ x, }\AttributeTok{y =}\NormalTok{ y, }\AttributeTok{ntree =}\NormalTok{ ntree)}
+  
+  \DocumentationTok{\#\# forecast}
+\NormalTok{  pred }\OtherTok{\textless{}{-}} \FunctionTok{predict}\NormalTok{(model, }\AttributeTok{newdata =}\NormalTok{ x[}\FunctionTok{nrow}\NormalTok{(x),])}
+
+  \DocumentationTok{\#\# Output}
+\NormalTok{  pred}\SpecialCharTok{*}\NormalTok{d\_sd[target] }\SpecialCharTok{+}\NormalTok{ d\_mean[target]}
+\NormalTok{\}}
+
+\CommentTok{\# forest(d, "INDPRO", 1)}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{forecast-evaluation}{%
+\section{Forecast evaluation}\label{forecast-evaluation}}
+
+We can now run the algorithms and compare their forecasting performances over the 2002-2020 period.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DocumentationTok{\#\# Initialize objects}
+\NormalTok{forecast\_list }\OtherTok{\textless{}{-}} \FunctionTok{list}\NormalTok{(}
+  \AttributeTok{pcr =} \FunctionTok{c}\NormalTok{(),}
+  \AttributeTok{ridge =} \FunctionTok{list}\NormalTok{(),}
+  \AttributeTok{lasso =} \FunctionTok{list}\NormalTok{(),}
+  \AttributeTok{forest =} \FunctionTok{c}\NormalTok{()}
+\NormalTok{)}
+\CommentTok{\# choose target variable and forecast horizon}
+\NormalTok{target }\OtherTok{\textless{}{-}} \StringTok{"UNRATE"}
+\NormalTok{horizon }\OtherTok{\textless{}{-}} \DecValTok{1}
+
+\CommentTok{\# pick the initial window for training and choose the test period}
+\NormalTok{initial\_window }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{(dates }\SpecialCharTok{\textless{}} \StringTok{"2002{-}01{-}01"}\NormalTok{)}
+\NormalTok{idx\_eval }\OtherTok{\textless{}{-}} \FunctionTok{which}\NormalTok{(((dates }\SpecialCharTok{\textless{}} \StringTok{"2020{-}02{-}01"}\NormalTok{)) }\SpecialCharTok{\&} 
+\NormalTok{                    dates }\SpecialCharTok{\textgreater{}=} \StringTok{"2002{-}01{-}01"}\NormalTok{) }\SpecialCharTok{{-}}\NormalTok{ initial\_window}
+
+\CommentTok{\# total steps of the forecast evaluation and selection of the test data}
+\NormalTok{n\_steps }\OtherTok{\textless{}{-}} \FunctionTok{nrow}\NormalTok{(d) }\SpecialCharTok{{-}}\NormalTok{ initial\_window }\SpecialCharTok{{-}}\NormalTok{ horizon }\SpecialCharTok{+} \DecValTok{1} 
+\NormalTok{data\_test }\OtherTok{\textless{}{-}}\NormalTok{ d[(initial\_window}\SpecialCharTok{+}\NormalTok{horizon)}\SpecialCharTok{:}\FunctionTok{nrow}\NormalTok{(d), target]}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DocumentationTok{\#\# expanding window forecast evaluation}
+\ControlFlowTok{for}\NormalTok{ (s }\ControlFlowTok{in} \DecValTok{1}\SpecialCharTok{:}\NormalTok{n\_steps) \{}
+  \FunctionTok{cat}\NormalTok{(}\StringTok{"}\SpecialCharTok{\textbackslash{}r}\StringTok{Step"}\NormalTok{, s, }\StringTok{"of"}\NormalTok{, n\_steps)}
+\NormalTok{  data\_train }\OtherTok{\textless{}{-}}\NormalTok{ d[}\DecValTok{1}\SpecialCharTok{:}\NormalTok{(initial\_window}\SpecialCharTok{+}\NormalTok{s}\DecValTok{{-}1}\NormalTok{),]}
+  
+\NormalTok{  forecast\_list}\SpecialCharTok{$}\NormalTok{pcr[s] }\OtherTok{\textless{}{-}} \FunctionTok{pcr}\NormalTok{(data\_train, target, }
+                              \AttributeTok{n\_components =} \DecValTok{4}\NormalTok{, }\AttributeTok{horizon =}\NormalTok{ horizon)}
+\NormalTok{  forecast\_list}\SpecialCharTok{$}\NormalTok{ridge[[s]] }\OtherTok{\textless{}{-}} \FunctionTok{penalized\_reg}\NormalTok{(data\_train, target, }
+                                            \AttributeTok{horizon =}\NormalTok{ horizon, }\AttributeTok{alpha =} \DecValTok{0}\NormalTok{) }
+\NormalTok{  forecast\_list}\SpecialCharTok{$}\NormalTok{lasso[[s]] }\OtherTok{\textless{}{-}} \FunctionTok{penalized\_reg}\NormalTok{(data\_train, target, }
+                                            \AttributeTok{horizon =}\NormalTok{ horizon, }\AttributeTok{alpha =} \DecValTok{1}\NormalTok{) }
+\NormalTok{  forecast\_list}\SpecialCharTok{$}\NormalTok{forest[s] }\OtherTok{\textless{}{-}} \FunctionTok{forest}\NormalTok{(data\_train, target,}
+                                    \AttributeTok{horizon =}\NormalTok{ horizon,}
+                                    \AttributeTok{ntree =} \DecValTok{100}\NormalTok{)}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\textbf{Remark}: here we just pick one value of \(\lambda\) among the many
+that we used for estimating ridge and LASSO regressions.
+A more rigourous approach would consist in using either information
+criteria or cross validation to pick the optimal \(\lambda\). We omit this part for simplicity of exposition.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DocumentationTok{\#\# Comppute the RMSE of the predictions}
+\NormalTok{rmse }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(y, f) \{}\FunctionTok{sqrt}\NormalTok{(}\FunctionTok{mean}\NormalTok{((y}\SpecialCharTok{{-}}\NormalTok{f)}\SpecialCharTok{\^{}}\DecValTok{2}\NormalTok{))\}}
+
+\NormalTok{pred\_ridge }\OtherTok{\textless{}{-}} \FunctionTok{sapply}\NormalTok{(forecast\_list}\SpecialCharTok{$}\NormalTok{ridge, }\ControlFlowTok{function}\NormalTok{(x) x[}\DecValTok{30}\NormalTok{])}
+\NormalTok{pred\_lasso }\OtherTok{\textless{}{-}} \FunctionTok{sapply}\NormalTok{(forecast\_list}\SpecialCharTok{$}\NormalTok{lasso, }\ControlFlowTok{function}\NormalTok{(x) x[}\DecValTok{8}\NormalTok{])}
+\NormalTok{pred\_mean  }\OtherTok{\textless{}{-}} \FunctionTok{rep}\NormalTok{(}\FunctionTok{mean}\NormalTok{(d[}\DecValTok{1}\SpecialCharTok{:}\NormalTok{initial\_window, target]), n\_steps)}
+
+\FunctionTok{rbind}\NormalTok{(}
+  \AttributeTok{mean   =} \FunctionTok{rmse}\NormalTok{(data\_test[idx\_eval], pred\_mean[idx\_eval]),}
+  \AttributeTok{pcr    =} \FunctionTok{rmse}\NormalTok{(data\_test[idx\_eval], forecast\_list}\SpecialCharTok{$}\NormalTok{pcr[idx\_eval]),}
+  \AttributeTok{forest =} \FunctionTok{rmse}\NormalTok{(data\_test[idx\_eval], forecast\_list}\SpecialCharTok{$}\NormalTok{forest[idx\_eval]),}
+  \AttributeTok{ridge  =} \FunctionTok{rmse}\NormalTok{(data\_test[idx\_eval], pred\_ridge[idx\_eval]),}
+  \AttributeTok{lasso  =} \FunctionTok{rmse}\NormalTok{(data\_test[idx\_eval], pred\_lasso[idx\_eval])}
+\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##             [,1]
+## mean   0.1600012
+## pcr    0.1513172
+## forest 0.1676554
+## ridge  0.1475805
+## lasso  0.1416051
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DocumentationTok{\#\# Plot the forecasted values}
+\NormalTok{ground\_truth   }\OtherTok{\textless{}{-}} \FunctionTok{ts}\NormalTok{(data\_test[idx\_eval], }\AttributeTok{start =} \FunctionTok{c}\NormalTok{(}\DecValTok{2002}\NormalTok{, }\DecValTok{1}\NormalTok{), }\AttributeTok{freq =} \DecValTok{12}\NormalTok{)}
+\NormalTok{pred\_benchmark }\OtherTok{\textless{}{-}} \FunctionTok{ts}\NormalTok{(pred\_mean[idx\_eval], }\AttributeTok{start =} \FunctionTok{c}\NormalTok{(}\DecValTok{2002}\NormalTok{, }\DecValTok{1}\NormalTok{), }\AttributeTok{freq =} \DecValTok{12}\NormalTok{)}
+\NormalTok{pred\_pcr       }\OtherTok{\textless{}{-}} \FunctionTok{ts}\NormalTok{(forecast\_list}\SpecialCharTok{$}\NormalTok{pcr[idx\_eval], }\AttributeTok{start =} \FunctionTok{c}\NormalTok{(}\DecValTok{2002}\NormalTok{, }\DecValTok{1}\NormalTok{), }\AttributeTok{freq =} \DecValTok{12}\NormalTok{)}
+\NormalTok{pred\_lasso     }\OtherTok{\textless{}{-}} \FunctionTok{ts}\NormalTok{(pred\_lasso[idx\_eval], }\AttributeTok{start =} \FunctionTok{c}\NormalTok{(}\DecValTok{2002}\NormalTok{, }\DecValTok{1}\NormalTok{), }\AttributeTok{freq =} \DecValTok{12}\NormalTok{)}
+\FunctionTok{plot.ts}\NormalTok{(ground\_truth, }\AttributeTok{type =} \StringTok{"l"}\NormalTok{, }\AttributeTok{lwd =} \DecValTok{2}\NormalTok{,}
+        \AttributeTok{main =} \StringTok{"Forecasts VS. ground truth"}\NormalTok{, }
+        \AttributeTok{ylab =} \StringTok{"UNRATE change"}\NormalTok{)}
+\FunctionTok{lines}\NormalTok{(pred\_benchmark, }\AttributeTok{type =} \StringTok{"l"}\NormalTok{, }\AttributeTok{col =} \StringTok{"darkgrey"}\NormalTok{)}
+\FunctionTok{lines}\NormalTok{(pred\_pcr, }\AttributeTok{type =} \StringTok{"b"}\NormalTok{, }\AttributeTok{col =} \StringTok{"darkred"}\NormalTok{, }\AttributeTok{pch =} \DecValTok{18}\NormalTok{)}
+\FunctionTok{lines}\NormalTok{(pred\_lasso, }\AttributeTok{type =} \StringTok{"b"}\NormalTok{, }\AttributeTok{col =} \StringTok{"steelblue"}\NormalTok{, }\AttributeTok{pch =} \DecValTok{19}\NormalTok{)}
+\FunctionTok{legend}\NormalTok{(}\StringTok{"topright"}\NormalTok{, }\FunctionTok{c}\NormalTok{(}\StringTok{"PCR"}\NormalTok{, }\StringTok{"LASSO"}\NormalTok{), }\AttributeTok{col =} \FunctionTok{c}\NormalTok{(}\StringTok{"darkred"}\NormalTok{, }\StringTok{"steelblue"}\NormalTok{), }
+       \AttributeTok{pch =} \FunctionTok{c}\NormalTok{(}\DecValTok{18}\NormalTok{, }\DecValTok{19}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{_main_files/figure-latex/unnamed-chunk-52-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DocumentationTok{\#\# Diebold{-}Mariano test}
+\FunctionTok{library}\NormalTok{(forecast)}
+\NormalTok{err\_benchmark }\OtherTok{\textless{}{-}}\NormalTok{ data\_test[idx\_eval] }\SpecialCharTok{{-}}\NormalTok{ pred\_mean[idx\_eval]}
+\NormalTok{err\_lasso }\OtherTok{\textless{}{-}}\NormalTok{ data\_test[idx\_eval] }\SpecialCharTok{{-}}\NormalTok{ pred\_lasso[idx\_eval]}
+\NormalTok{err\_pcr }\OtherTok{\textless{}{-}}\NormalTok{ data\_test[idx\_eval] }\SpecialCharTok{{-}}\NormalTok{ forecast\_list}\SpecialCharTok{$}\NormalTok{pcr[idx\_eval]}
+
+\CommentTok{\# LASSO}
+\FunctionTok{dm.test}\NormalTok{(err\_benchmark, err\_lasso, }\AttributeTok{alternative =} \StringTok{"greater"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##  Diebold-Mariano Test
+## 
+## data:  err_benchmarkerr_lasso
+## DM = 3.9017, Forecast horizon = 1, Loss function power = 2, p-value =
+## 6.381e-05
+## alternative hypothesis: greater
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# PCR}
+\FunctionTok{dm.test}\NormalTok{(err\_benchmark, err\_pcr, }\AttributeTok{alternative =} \StringTok{"greater"}\NormalTok{) }
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##  Diebold-Mariano Test
+## 
+## data:  err_benchmarkerr_pcr
+## DM = 1.0484, Forecast horizon = 1, Loss function power = 2, p-value =
+## 0.1478
+## alternative hypothesis: greater
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DocumentationTok{\#\# plot the cumulated squared errors over time}
+\CommentTok{\# compute the (normalized) cumulated squared errors and convert to ts object}
+\NormalTok{err2\_benchmark }\OtherTok{\textless{}{-}} \FunctionTok{ts}\NormalTok{(}\FunctionTok{cumsum}\NormalTok{((err\_benchmark)}\SpecialCharTok{\^{}}\DecValTok{2}\NormalTok{), }\AttributeTok{start =} \FunctionTok{c}\NormalTok{(}\DecValTok{2002}\NormalTok{, }\DecValTok{1}\NormalTok{), }\AttributeTok{frequency =} \DecValTok{12}\NormalTok{)}
+\NormalTok{err2\_pcr       }\OtherTok{\textless{}{-}} \FunctionTok{ts}\NormalTok{(}\FunctionTok{cumsum}\NormalTok{((err\_pcr)}\SpecialCharTok{\^{}}\DecValTok{2}\NormalTok{), }\AttributeTok{start =} \FunctionTok{c}\NormalTok{(}\DecValTok{2002}\NormalTok{, }\DecValTok{1}\NormalTok{), }\AttributeTok{frequency =} \DecValTok{12}\NormalTok{)}
+\NormalTok{err2\_lasso     }\OtherTok{\textless{}{-}} \FunctionTok{ts}\NormalTok{(}\FunctionTok{cumsum}\NormalTok{((err\_lasso)}\SpecialCharTok{\^{}}\DecValTok{2}\NormalTok{), }\AttributeTok{start =} \FunctionTok{c}\NormalTok{(}\DecValTok{2002}\NormalTok{, }\DecValTok{1}\NormalTok{), }\AttributeTok{frequency =} \DecValTok{12}\NormalTok{)}
+\NormalTok{err2\_constant  }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{(err\_benchmark}\SpecialCharTok{\^{}}\DecValTok{2}\NormalTok{)}
+\CommentTok{\# plot}
+\FunctionTok{plot.ts}\NormalTok{(err2\_benchmark}\SpecialCharTok{/}\NormalTok{err2\_constant, }\AttributeTok{lwd =} \DecValTok{2}\NormalTok{,}
+        \AttributeTok{ylab =} \StringTok{"Cumulated squared errors"}\NormalTok{,}
+        \AttributeTok{main =} \StringTok{"Forecast errors over time"}\NormalTok{,}
+        \AttributeTok{xlab =} \StringTok{""}\NormalTok{)}
+\FunctionTok{lines}\NormalTok{(err2\_pcr}\SpecialCharTok{/}\NormalTok{err2\_constant, }\AttributeTok{col =} \StringTok{"steelblue"}\NormalTok{, }\AttributeTok{lwd =} \DecValTok{2}\NormalTok{)}
+\FunctionTok{lines}\NormalTok{(err2\_lasso}\SpecialCharTok{/}\NormalTok{err2\_constant, }\AttributeTok{col =} \StringTok{"darkred"}\NormalTok{, }\AttributeTok{lwd =} \DecValTok{2}\NormalTok{)}
+\FunctionTok{rect}\NormalTok{(}\DecValTok{2008}\NormalTok{,}\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{,}\FloatTok{2009.5}\NormalTok{,}\FloatTok{1.5}\NormalTok{,}\AttributeTok{col =} \FunctionTok{rgb}\NormalTok{(}\FloatTok{0.6}\NormalTok{,}\FloatTok{0.1}\NormalTok{,}\FloatTok{0.1}\NormalTok{,}\DecValTok{1}\SpecialCharTok{/}\DecValTok{4}\NormalTok{))}
+\FunctionTok{legend}\NormalTok{(}\StringTok{"topleft"}\NormalTok{, }\FunctionTok{c}\NormalTok{(}\StringTok{"Sample mean"}\NormalTok{, }\StringTok{"PCR"}\NormalTok{, }\StringTok{"LASSO"}\NormalTok{), }
+       \AttributeTok{col=}\FunctionTok{c}\NormalTok{(}\StringTok{"black"}\NormalTok{, }\StringTok{"steelblue"}\NormalTok{, }\StringTok{"darkred"}\NormalTok{), }\AttributeTok{lwd=}\DecValTok{6}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{_main_files/figure-latex/unnamed-chunk-54-1.pdf}
 
   \bibliography{book.bib,packages.bib}
 

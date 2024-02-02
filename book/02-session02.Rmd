@@ -259,7 +259,7 @@ transform_fredmd <- list(
   function(x) log(x),
   function(x) c(0, diff(log(x))),
   function(x) c(0, 0, diff(log(x), differences = 2)),
-  function(x) c(0, diff( x[2:length(x)]/x[1:(length(x)-1)] - 1))
+  function(x) c(0, 0, diff( x[2:length(x)]/x[1:(length(x)-1)] - 1))
 )
 ```
 
