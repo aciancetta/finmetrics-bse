@@ -74,7 +74,7 @@ pcr <- function(d, target, horizon, n_compennts) {
   pred*d_sd[target] + d_mean[target]
 }
 
-
+pcr(d, "INDPRO", 1, 4)
 
 
 

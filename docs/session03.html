@@ -30,7 +30,7 @@
   
   
 <link rel="prev" href="session02.html"/>
-
+<link rel="next" href="session04.html"/>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
@@ -158,6 +158,11 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="3.2" data-path="session03.html"><a href="session03.html#forecasting-algorithms"><i class="fa fa-check"></i><b>3.2</b> Forecasting algorithms</a></li>
 <li class="chapter" data-level="3.3" data-path="session03.html"><a href="session03.html#forecast-evaluation"><i class="fa fa-check"></i><b>3.3</b> Forecast evaluation</a></li>
 </ul></li>
+<li class="chapter" data-level="4" data-path="session04.html"><a href="session04.html"><i class="fa fa-check"></i><b>4</b> ARMA(1,1) model</a>
+<ul>
+<li class="chapter" data-level="4.1" data-path="session04.html"><a href="session04.html#mle-for-the-arma11"><i class="fa fa-check"></i><b>4.1</b> MLE for the ARMA(1,1)</a></li>
+<li class="chapter" data-level="4.2" data-path="session04.html"><a href="session04.html#exercises"><i class="fa fa-check"></i><b>4.2</b> Exercises</a></li>
+</ul></li>
 <li class="divider"></li>
 <li><a href="https://github.com/aciancetta" target="blank">Alessandro Ciancetta</a></li>
 
@@ -188,11 +193,12 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div class="sourceCode" id="cb58"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb58-1"><a href="session03.html#cb58-1" tabindex="-1"></a><span class="do">## load data</span></span>
 <span id="cb58-2"><a href="session03.html#cb58-2" tabindex="-1"></a>fredmd <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">&quot;../data/current.csv&quot;</span>)</span>
 <span id="cb58-3"><a href="session03.html#cb58-3" tabindex="-1"></a>dates  <span class="ot">&lt;-</span> <span class="fu">as.Date</span>(fredmd<span class="sc">$</span>sasdate[<span class="sc">-</span><span class="dv">1</span>],<span class="st">&#39;%m/%d/%Y&#39;</span>)</span>
-<span id="cb58-4"><a href="session03.html#cb58-4" tabindex="-1"></a>target_variables <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;UNRATE&quot;</span>, <span class="st">&quot;W875RX1&quot;</span>, <span class="st">&quot;GS10&quot;</span>, <span class="st">&quot;CPIAUCSL&quot;</span>, <span class="st">&quot;WPSFD49207&quot;</span>, <span class="st">&quot;PAYEMS&quot;</span>, <span class="st">&quot;HOUST&quot;</span>, <span class="st">&quot;INDPRO&quot;</span>, <span class="st">&quot;M2SL&quot;</span>, <span class="st">&quot;S.P.500&quot;</span>)</span>
-<span id="cb58-5"><a href="session03.html#cb58-5" tabindex="-1"></a></span>
-<span id="cb58-6"><a href="session03.html#cb58-6" tabindex="-1"></a><span class="do">## get tcodes</span></span>
-<span id="cb58-7"><a href="session03.html#cb58-7" tabindex="-1"></a>tcodes <span class="ot">&lt;-</span> fredmd[<span class="dv">1</span>,<span class="sc">-</span><span class="dv">1</span>]</span>
-<span id="cb58-8"><a href="session03.html#cb58-8" tabindex="-1"></a>d      <span class="ot">&lt;-</span> fredmd[<span class="sc">-</span><span class="dv">1</span>, <span class="sc">-</span><span class="dv">1</span>]</span></code></pre></div>
+<span id="cb58-4"><a href="session03.html#cb58-4" tabindex="-1"></a>target_variables <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;UNRATE&quot;</span>, <span class="st">&quot;W875RX1&quot;</span>, <span class="st">&quot;GS10&quot;</span>, <span class="st">&quot;CPIAUCSL&quot;</span>, <span class="st">&quot;WPSFD49207&quot;</span>, </span>
+<span id="cb58-5"><a href="session03.html#cb58-5" tabindex="-1"></a>                      <span class="st">&quot;PAYEMS&quot;</span>, <span class="st">&quot;HOUST&quot;</span>, <span class="st">&quot;INDPRO&quot;</span>, <span class="st">&quot;M2SL&quot;</span>, <span class="st">&quot;S.P.500&quot;</span>)</span>
+<span id="cb58-6"><a href="session03.html#cb58-6" tabindex="-1"></a></span>
+<span id="cb58-7"><a href="session03.html#cb58-7" tabindex="-1"></a><span class="do">## get tcodes</span></span>
+<span id="cb58-8"><a href="session03.html#cb58-8" tabindex="-1"></a>tcodes <span class="ot">&lt;-</span> fredmd[<span class="dv">1</span>,<span class="sc">-</span><span class="dv">1</span>]</span>
+<span id="cb58-9"><a href="session03.html#cb58-9" tabindex="-1"></a>d      <span class="ot">&lt;-</span> fredmd[<span class="sc">-</span><span class="dv">1</span>, <span class="sc">-</span><span class="dv">1</span>]</span></code></pre></div>
 <div class="sourceCode" id="cb59"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb59-1"><a href="session03.html#cb59-1" tabindex="-1"></a><span class="do">## Transform variables</span></span>
 <span id="cb59-2"><a href="session03.html#cb59-2" tabindex="-1"></a><span class="co"># transformation functions</span></span>
 <span id="cb59-3"><a href="session03.html#cb59-3" tabindex="-1"></a>transform_fredmd <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
@@ -443,8 +449,8 @@ criteria or cross validation to pick the optimal <span class="math inline">\(\la
           </div>
         </div>
       </div>
-<a href="session02.html" class="navigation navigation-prev navigation-unique" aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
-
+<a href="session02.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="session04.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>

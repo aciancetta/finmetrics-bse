@@ -121,7 +121,7 @@
 
 \title{Financial Econometrics - Tutorials}
 \author{Alessandro Ciancetta}
-\date{Last update: January 25, 2024}
+\date{Last update: February 09, 2024}
 
 \begin{document}
 \maketitle
@@ -1232,7 +1232,8 @@ For simplicity, here we remove the columns with missing values. An alternative c
 \DocumentationTok{\#\# load data}
 \NormalTok{fredmd }\OtherTok{\textless{}{-}} \FunctionTok{read.csv}\NormalTok{(}\StringTok{"../data/current.csv"}\NormalTok{)}
 \NormalTok{dates  }\OtherTok{\textless{}{-}} \FunctionTok{as.Date}\NormalTok{(fredmd}\SpecialCharTok{$}\NormalTok{sasdate[}\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{],}\StringTok{\textquotesingle{}\%m/\%d/\%Y\textquotesingle{}}\NormalTok{)}
-\NormalTok{target\_variables }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{"UNRATE"}\NormalTok{, }\StringTok{"W875RX1"}\NormalTok{, }\StringTok{"GS10"}\NormalTok{, }\StringTok{"CPIAUCSL"}\NormalTok{, }\StringTok{"WPSFD49207"}\NormalTok{, }\StringTok{"PAYEMS"}\NormalTok{, }\StringTok{"HOUST"}\NormalTok{, }\StringTok{"INDPRO"}\NormalTok{, }\StringTok{"M2SL"}\NormalTok{, }\StringTok{"S.P.500"}\NormalTok{)}
+\NormalTok{target\_variables }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{"UNRATE"}\NormalTok{, }\StringTok{"W875RX1"}\NormalTok{, }\StringTok{"GS10"}\NormalTok{, }\StringTok{"CPIAUCSL"}\NormalTok{, }\StringTok{"WPSFD49207"}\NormalTok{, }
+                      \StringTok{"PAYEMS"}\NormalTok{, }\StringTok{"HOUST"}\NormalTok{, }\StringTok{"INDPRO"}\NormalTok{, }\StringTok{"M2SL"}\NormalTok{, }\StringTok{"S.P.500"}\NormalTok{)}
 
 \DocumentationTok{\#\# get tcodes}
 \NormalTok{tcodes }\OtherTok{\textless{}{-}}\NormalTok{ fredmd[}\DecValTok{1}\NormalTok{,}\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{]}
@@ -1559,6 +1560,229 @@ criteria or cross validation to pick the optimal \(\lambda\). We omit this part 
 \end{Shaded}
 
 \includegraphics{_main_files/figure-latex/unnamed-chunk-54-1.pdf}
+
+\hypertarget{session04}{%
+\chapter{ARMA(1,1) model}\label{session04}}
+
+\hypertarget{mle-for-the-arma11}{%
+\section{MLE for the ARMA(1,1)}\label{mle-for-the-arma11}}
+
+In this session we consider the ARMA(1,1) model:
+
+\[
+y_t = c + \phi y_{t-1} + \theta \varepsilon_{t-1} + \varepsilon_t, \quad \varepsilon_t \sim WN(0, \sigma^2_\varepsilon)
+\]
+
+Below we simulate an ARMA(1,1) model with Gaussian iid noise terms: \(\varepsilon_t \sim \mathcal{N}(0, \sigma^2_\varepsilon)\).
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DocumentationTok{\#\# Setup parameters for simulation}
+\NormalTok{t\_max }\OtherTok{\textless{}{-}} \DecValTok{800}
+\NormalTok{y0    }\OtherTok{\textless{}{-}} \DecValTok{0}
+\NormalTok{const }\OtherTok{\textless{}{-}} \DecValTok{0}
+\NormalTok{phi   }\OtherTok{\textless{}{-}} \FloatTok{0.9}
+\NormalTok{theta }\OtherTok{\textless{}{-}} \SpecialCharTok{{-}}\FloatTok{0.5}
+\NormalTok{sigma\_eps }\OtherTok{\textless{}{-}} \DecValTok{1}
+
+\DocumentationTok{\#\# Simulation ARMA(1,1)}
+\NormalTok{eps }\OtherTok{\textless{}{-}} \FunctionTok{rnorm}\NormalTok{(t\_max}\SpecialCharTok{+}\DecValTok{1}\NormalTok{, }\AttributeTok{sd =}\NormalTok{ sigma\_eps)}
+\NormalTok{y }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{()}
+\NormalTok{y[}\DecValTok{1}\NormalTok{] }\OtherTok{\textless{}{-}}\NormalTok{ y0}
+\ControlFlowTok{for}\NormalTok{ (t }\ControlFlowTok{in} \DecValTok{2}\SpecialCharTok{:}\NormalTok{t\_max) \{}
+\NormalTok{  y[t] }\OtherTok{\textless{}{-}}\NormalTok{ const }\SpecialCharTok{+}\NormalTok{ phi}\SpecialCharTok{*}\NormalTok{y[t}\DecValTok{{-}1}\NormalTok{] }\SpecialCharTok{+}\NormalTok{ theta}\SpecialCharTok{*}\NormalTok{eps[t}\DecValTok{{-}1}\NormalTok{] }\SpecialCharTok{+}\NormalTok{ eps[t]}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{plot.ts}\NormalTok{(y)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{_main_files/figure-latex/unnamed-chunk-56-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DocumentationTok{\#\# Autocorrelograms}
+\FunctionTok{acf}\NormalTok{(y, }\AttributeTok{lwd =} \DecValTok{3}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{_main_files/figure-latex/unnamed-chunk-57-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{pacf}\NormalTok{(y, }\AttributeTok{lwd =} \DecValTok{3}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{_main_files/figure-latex/unnamed-chunk-57-2.pdf}
+
+We now turn to estimate the model by maximum likelihood. We can then compare the estimates with the true values of the parameters that we used to simulate the data. Notice that the distribution of observation \(y_t\) given all the information set \(I_{t-1}\) available up to time \(t-1\) is
+
+\[
+y_t | I_{t-1} \sim \mathcal{N}(c + \phi y_{t-1} + \theta \varepsilon_{t-1}, \ \sigma^2_\varepsilon).
+\]
+
+Let \$ \eta = (c, \phi, \theta, \sigma\^{}2\_\varepsilon)\$ denote the vector of parameters of the model. The \emph{conditional} likelihood can be obtained as:
+
+\[
+L(\eta; y_1, \dots, y_T) = \prod_{t=2}^T \frac{1}{\sqrt{2\pi\sigma^2_{\varepsilon}}} \exp\left( -\frac{1}{2\sigma^2_\varepsilon} (y_t - c - \phi y_{t-1} - \theta \varepsilon_{t-1} )^2  \right) 
+\]
+
+where the conditioning is on the first observation \(y_1\). Taking the logarithm and defining \(\hat \varepsilon_t = y_t - c - \phi y_{t-1} - \theta \varepsilon_{t-1}\) we get
+
+\[
+\ell(\eta ;  y_1, \dots, y_T)  =  - \frac{T-1}{2} \log(2\pi\sigma^2_\varepsilon) - \frac{1}{2\sigma^2_\varepsilon} \sum_{t=2}^T \hat\varepsilon_t^2
+\]
+
+The estimate of the innovations can be obtained using a filtering procedure: for a given value of the parameters \(\eta = (c, \phi, \theta, \sigma^2_\varepsilon)\), we set \(\hat\varepsilon_1\) equal to the deviation from the unconditional mean of the first observation, \(\hat\varepsilon_1 = y_1 - \frac{c}{1-\phi}\), and then we compute \(\hat\varepsilon_{t} = y_t - c - \phi y_{t-1} + \theta \hat\varepsilon_{t-1}\) recursively for \(t = 2, \dots, T\). Then we can use the estimated sequence of innovations \(\{\hat\varepsilon_t\}_{t=2}^T\) to evaluate the log-likelihood in \(\eta\).
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DocumentationTok{\#\# Estimation: filtering}
+
+\DocumentationTok{\#\# 1{-}step ahead conditional mean of ARMA(1,1) model}
+\NormalTok{arma\_filter }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(x, params)\{}
+  \CommentTok{\# get parameters}
+\NormalTok{  const }\OtherTok{\textless{}{-}}\NormalTok{ params[}\DecValTok{1}\NormalTok{]}
+\NormalTok{  phi }\OtherTok{\textless{}{-}}\NormalTok{ params[}\DecValTok{2}\NormalTok{]}
+\NormalTok{  theta }\OtherTok{\textless{}{-}}\NormalTok{ params[}\DecValTok{3}\NormalTok{]}
+
+  \DocumentationTok{\#\# initialize intercept, innovation}
+\NormalTok{  mu }\OtherTok{\textless{}{-}} \FunctionTok{rep}\NormalTok{(}\DecValTok{0}\NormalTok{, }\FunctionTok{length}\NormalTok{(x))}
+\NormalTok{  mu[}\DecValTok{1}\NormalTok{] }\OtherTok{\textless{}{-}}\NormalTok{ const}\SpecialCharTok{/}\NormalTok{(}\DecValTok{1}\SpecialCharTok{{-}}\NormalTok{phi)}
+\NormalTok{  eps }\OtherTok{\textless{}{-}} \FunctionTok{rep}\NormalTok{(}\DecValTok{0}\NormalTok{, }\FunctionTok{length}\NormalTok{(x))}
+\NormalTok{  eps[}\DecValTok{1}\NormalTok{] }\OtherTok{\textless{}{-}}\NormalTok{ x[}\DecValTok{1}\NormalTok{] }\SpecialCharTok{{-}}\NormalTok{ mu[}\DecValTok{1}\NormalTok{]}
+
+  \CommentTok{\# filter and innovations}
+  \ControlFlowTok{for}\NormalTok{(t }\ControlFlowTok{in} \DecValTok{2}\SpecialCharTok{:}\FunctionTok{length}\NormalTok{(x))\{}
+\NormalTok{    mu[t] }\OtherTok{\textless{}{-}}\NormalTok{ const }\SpecialCharTok{+}\NormalTok{ phi}\SpecialCharTok{*}\NormalTok{x[t}\DecValTok{{-}1}\NormalTok{] }\SpecialCharTok{+}\NormalTok{ theta}\SpecialCharTok{*}\NormalTok{eps[t}\DecValTok{{-}1}\NormalTok{]}
+\NormalTok{    eps[t] }\OtherTok{\textless{}{-}}\NormalTok{ x[t] }\SpecialCharTok{{-}}\NormalTok{ mu[t]}
+\NormalTok{  \}}
+
+  \CommentTok{\# output: estimated innovations}
+\NormalTok{  eps}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{arma\_loglik }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(x, params)\{}
+  \CommentTok{\# params now include (c, phi, theta, sigma2)}
+\NormalTok{  t\_max }\OtherTok{\textless{}{-}} \FunctionTok{length}\NormalTok{(x)}
+\NormalTok{  sigma2 }\OtherTok{\textless{}{-}}\NormalTok{ params[}\DecValTok{4}\NormalTok{]}
+\NormalTok{  eps }\OtherTok{\textless{}{-}} \FunctionTok{arma\_filter}\NormalTok{(x, params[}\DecValTok{1}\SpecialCharTok{:}\DecValTok{3}\NormalTok{])}
+
+  \CommentTok{\# compute loglik}
+\NormalTok{  loglik }\OtherTok{\textless{}{-}} \SpecialCharTok{{-}}\FloatTok{0.5}\SpecialCharTok{*}\NormalTok{t\_max}\SpecialCharTok{*}\FunctionTok{log}\NormalTok{(}\DecValTok{2}\SpecialCharTok{*}\NormalTok{pi}\SpecialCharTok{*}\NormalTok{sigma2) }\SpecialCharTok{{-}}\NormalTok{ (}\DecValTok{1}\SpecialCharTok{/}\NormalTok{(}\DecValTok{2}\SpecialCharTok{*}\NormalTok{sigma2))}\SpecialCharTok{*}\FunctionTok{sum}\NormalTok{(eps}\SpecialCharTok{\^{}}\DecValTok{2}\NormalTok{)}
+  
+  \CommentTok{\# nlm() minimizes functions {-}{-}\textgreater{} we swap the sign of the log{-}likelihood}
+  \CommentTok{\# (max L = min {-}L)}
+  \SpecialCharTok{{-}}\NormalTok{loglik}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DocumentationTok{\#\# estimation}
+\NormalTok{param\_estim }\OtherTok{\textless{}{-}} \FunctionTok{nlm}\NormalTok{(arma\_loglik, }\AttributeTok{p =} \FunctionTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{, }\FloatTok{0.1}\NormalTok{, }\DecValTok{0}\NormalTok{, }\DecValTok{1}\NormalTok{), }\AttributeTok{x =}\NormalTok{ y)}\SpecialCharTok{$}\NormalTok{estimate}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Warning in nlm(arma_loglik, p = c(0, 0.1, 0, 1), x = y): NA/Inf sostituito da
+## valore massimo positivo
+
+## Warning in nlm(arma_loglik, p = c(0, 0.1, 0, 1), x = y): NA/Inf sostituito da
+## valore massimo positivo
+
+## Warning in nlm(arma_loglik, p = c(0, 0.1, 0, 1), x = y): NA/Inf sostituito da
+## valore massimo positivo
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{cbind}\NormalTok{(}\FunctionTok{c}\NormalTok{(const, phi, theta, sigma\_eps), }\FunctionTok{round}\NormalTok{(param\_estim, }\DecValTok{3}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##      [,1]   [,2]
+## [1,]  0.0 -0.005
+## [2,]  0.9  0.873
+## [3,] -0.5 -0.515
+## [4,]  1.0  1.030
+\end{verbatim}
+
+\hypertarget{exercises}{%
+\section{Exercises}\label{exercises}}
+
+\textbf{Exercise 1 (LASSO as OLS with thresholding)}
+
+Consider the linear regression model \(y = X\beta + \varepsilon\) with uncorrelated regressors: \(X'X = I_n\), where \(X\in\mathbb{R}^{T\times n}\). Show that the LASSO estimator
+\[
+\hat\beta^{(\lambda)} = \arg\min_{\beta \in \mathbb{R}^n} \ (y-X\beta)'(y-X\beta) + \lambda ||\beta||_1
+\]
+can be written as
+
+\[
+\hat\beta_j^{(\lambda)} = 
+\begin{cases}
+\hat\beta_j^{OLS} - \frac{\lambda}{2} & \qquad \text{if} \quad \hat\beta_j^{OLS} >  \frac{\lambda}{2} \\
+\hat\beta_j^{OLS} + \frac{\lambda}{2} & \qquad \text{if} \quad \hat\beta_j^{OLS} <  -\frac{\lambda}{2} \\
+0 & \qquad \text{if} \quad \hat\beta_j^{OLS} \in  \left[ -\frac{\lambda}{2}, \frac{\lambda}{2} \right]\\
+\end{cases}
+\]
+
+where \(\hat\beta_j^{OLS}\) denotes the \(j\)-th entry of the OLS estimator and \(j = 1, \dots, n\).
+
+\textbf{Exercise 2 (MA(\(\infty\)) representation of stationary ARMA(1,1))}
+
+Show that the ARMA(1,1) process with \(|\phi| < 1\)
+
+\[
+y_t = c + \phi y_{t-1} + \theta \varepsilon_{t-1} + \varepsilon_t, \quad \varepsilon_t \sim WN(0, \sigma^2_\varepsilon)
+\]
+
+can be rewritten as
+
+\[
+y_t = \mu + \sum_{j=0}^\infty \psi_j \varepsilon_{t-j},
+\]
+
+for \(\mu = \frac{c}{1-\phi}\), \(\psi_0 = 1\), \(\psi_j = (\phi + \theta)\phi^{j-1}\).
+
+\textbf{Exercise 3 (autocovariance function of the ARMA(1,1))}
+
+Show that the covariance function \(\gamma(k) = \text{cov}(y_t, y_{t-k})\) of the ARMA(1,1) process
+
+\[
+y_t = c + \phi y_{t-1} + \theta \varepsilon_{t-1} + \varepsilon_t, \quad \varepsilon_t \sim WN(0, \sigma^2_\varepsilon)
+\]
+
+with \(|\phi < 1|\) can be written as
+
+\[
+\gamma(k) = 
+\begin{cases}
+\sigma^2_\varepsilon \left(1 + \frac{(\phi+\theta)^2}{1-\phi^2}\right) & \qquad \text{for} \quad k=0 \\[1em]
+\sigma^2_\varepsilon \left(\phi+\theta + \frac{(\phi+\theta)^2\phi}{1-\phi^2}\right) & \qquad \text{for} \quad k=1 \\[1em]
+\phi^{k-1} \ \gamma(1) &  \qquad \text{for} \quad k>1 
+\end{cases}
+\]
+
+\emph{Hint}: you may use the fact that for a linear time series \(y_t = \mu + \sum_{j=0}^\infty \psi_j \varepsilon_{t-j}\) the autocovariance function is given by
+
+\[
+\gamma(k) = \sigma^2_\varepsilon \sum_{j=k}^\infty \psi_j \psi_{j-k},
+\]
+
+provided that \(\sum_{j=0}^{\infty} \psi_j^2 < \infty\).
 
   \bibliography{book.bib,packages.bib}
 
