@@ -121,7 +121,7 @@
 
 \title{Financial Econometrics - Tutorials}
 \author{Alessandro Ciancetta}
-\date{Last update: February 09, 2024}
+\date{Last update: February 19, 2024}
 
 \begin{document}
 \maketitle
@@ -1783,6 +1783,236 @@ with \(|\phi < 1|\) can be written as
 \]
 
 provided that \(\sum_{j=0}^{\infty} \psi_j^2 < \infty\).
+
+\hypertarget{session05}{%
+\chapter{ARMA models in practice}\label{session05}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DocumentationTok{\#\# load libraries}
+\FunctionTok{library}\NormalTok{(moments)}
+
+\DocumentationTok{\#\# function to plot time series}
+\NormalTok{myplot }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{( dates , y , }\AttributeTok{col=}\StringTok{\textquotesingle{}darkblue\textquotesingle{}}\NormalTok{ , }\AttributeTok{t=}\StringTok{\textquotesingle{}l\textquotesingle{}}\NormalTok{ , }\AttributeTok{lwd=}\DecValTok{2}\NormalTok{ , }\AttributeTok{ylim=}\ConstantTok{NULL}\NormalTok{ , }\AttributeTok{main=}\ConstantTok{NULL}\NormalTok{ )\{}
+  \ControlFlowTok{if}\NormalTok{( }\FunctionTok{is.null}\NormalTok{(main) )\{ }\FunctionTok{par}\NormalTok{( }\AttributeTok{mar=}\FunctionTok{c}\NormalTok{(}\DecValTok{2}\NormalTok{,}\DecValTok{2}\NormalTok{,}\FloatTok{0.1}\NormalTok{,}\FloatTok{0.1}\NormalTok{) ) \}}
+  \FunctionTok{plot}\NormalTok{( dates , y , }\AttributeTok{t=}\NormalTok{t , }\AttributeTok{col=}\NormalTok{col , }\AttributeTok{lwd=}\NormalTok{lwd , }\AttributeTok{axes=}\NormalTok{F , }\AttributeTok{xlab=}\StringTok{\textquotesingle{}\textquotesingle{}}\NormalTok{ , }\AttributeTok{ylab=}\StringTok{\textquotesingle{}\textquotesingle{}}\NormalTok{ , }\AttributeTok{xaxs=}\StringTok{"i"}\NormalTok{ , }\AttributeTok{ylim=}\NormalTok{ylim , }\AttributeTok{main=}\NormalTok{main )}
+\NormalTok{  xticks }\OtherTok{\textless{}{-}} \FunctionTok{axis.Date}\NormalTok{(}\DecValTok{1}\NormalTok{, }\AttributeTok{x=}\NormalTok{dates, }\AttributeTok{at=}\FunctionTok{seq}\NormalTok{(dates[}\DecValTok{1}\NormalTok{], dates[}\FunctionTok{length}\NormalTok{(dates)], }\StringTok{"year"}\NormalTok{) , }\AttributeTok{lwd=}\DecValTok{0}\NormalTok{, }\AttributeTok{lwd.tick=}\DecValTok{1}\NormalTok{, }\AttributeTok{tck=}\FloatTok{0.02}\NormalTok{)}
+\NormalTok{  yticks }\OtherTok{\textless{}{-}} \FunctionTok{axis}\NormalTok{(}\DecValTok{2}\NormalTok{ , }\AttributeTok{lwd=}\DecValTok{0}\NormalTok{, }\AttributeTok{lwd.tick=}\DecValTok{1}\NormalTok{, }\AttributeTok{tck=}\FloatTok{0.02}\NormalTok{)}
+  \FunctionTok{axis.Date}\NormalTok{(}\DecValTok{3}\NormalTok{, }\AttributeTok{x=}\NormalTok{dates, }\AttributeTok{at=}\FunctionTok{seq}\NormalTok{(dates[}\DecValTok{1}\NormalTok{], dates[}\FunctionTok{length}\NormalTok{(dates)], }\StringTok{"year"}\NormalTok{), }\AttributeTok{lwd=}\DecValTok{0}\NormalTok{, }\AttributeTok{lwd.tick=}\DecValTok{1}\NormalTok{, }\AttributeTok{tck=}\FloatTok{0.02}\NormalTok{, }\AttributeTok{lab=}\NormalTok{F)}
+  \FunctionTok{axis}\NormalTok{(}\DecValTok{4}\NormalTok{, }\AttributeTok{lwd=}\DecValTok{0}\NormalTok{, }\AttributeTok{lwd.tick=}\DecValTok{1}\NormalTok{, }\AttributeTok{tck=}\FloatTok{0.02}\NormalTok{, }\AttributeTok{lab=}\NormalTok{F)}
+  \FunctionTok{abline}\NormalTok{( }\AttributeTok{h=}\NormalTok{yticks , }\AttributeTok{lty=}\DecValTok{3}\NormalTok{ )}
+  \FunctionTok{abline}\NormalTok{( }\AttributeTok{v=}\NormalTok{xticks , }\AttributeTok{lty=}\DecValTok{3}\NormalTok{ )}
+  \FunctionTok{box}\NormalTok{()}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{forecasting-the-u.s.-gdp-growth}{%
+\section{Forecasting the U.S. GDP growth}\label{forecasting-the-u.s.-gdp-growth}}
+
+In this session we consider an application of ARMA models to forecasting the U.S. GDP growth rates.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DocumentationTok{\#\# Load U.S. GDP growth rate}
+\NormalTok{D }\OtherTok{\textless{}{-}} \FunctionTok{read.table}\NormalTok{(}\StringTok{\textquotesingle{}../data/gdp{-}us{-}grate.csv\textquotesingle{}}\NormalTok{)}
+\NormalTok{dates }\OtherTok{\textless{}{-}} \FunctionTok{as.Date}\NormalTok{(}\FunctionTok{as.character}\NormalTok{(D[,}\DecValTok{1}\NormalTok{]),}\StringTok{\textquotesingle{}\%Y{-}\%m{-}\%d\textquotesingle{}}\NormalTok{)}
+
+\DocumentationTok{\#\# Setup }
+\NormalTok{H }\OtherTok{\textless{}{-}} \DecValTok{6}   \CommentTok{\# predict 1,2,...,H steps ahead}
+\NormalTok{N }\OtherTok{\textless{}{-}} \FunctionTok{nrow}\NormalTok{(D)}\SpecialCharTok{{-}}\DecValTok{6}
+\NormalTok{y }\OtherTok{\textless{}{-}}\NormalTok{ D[}\DecValTok{1}\SpecialCharTok{:}\NormalTok{N,}\DecValTok{2}\NormalTok{]}
+\NormalTok{y.out }\OtherTok{\textless{}{-}}\NormalTok{D[(N}\SpecialCharTok{+}\DecValTok{1}\NormalTok{)}\SpecialCharTok{:}\NormalTok{(N}\SpecialCharTok{+}\NormalTok{H),}\DecValTok{2}\NormalTok{]}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# LBQ Test for autocorrelation}
+\FunctionTok{Box.test}\NormalTok{( y, }\AttributeTok{lag=}\DecValTok{22}\NormalTok{ , }\AttributeTok{type=}\StringTok{"Ljung{-}Box"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##  Box-Ljung test
+## 
+## data:  y
+## X-squared = 82.561, df = 22, p-value = 6.112e-09
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# ACF \& PACF}
+\FunctionTok{par}\NormalTok{( }\AttributeTok{mar=}\FunctionTok{c}\NormalTok{(}\DecValTok{2}\NormalTok{,}\DecValTok{2}\NormalTok{,}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{) , }\AttributeTok{mfrow=}\FunctionTok{c}\NormalTok{(}\DecValTok{2}\NormalTok{,}\DecValTok{1}\NormalTok{) )}
+\FunctionTok{acf}\NormalTok{( y , }\AttributeTok{ylim=}\FunctionTok{c}\NormalTok{(}\SpecialCharTok{{-}}\FloatTok{0.2}\NormalTok{,}\DecValTok{1}\NormalTok{) , }\AttributeTok{lwd=}\DecValTok{5}\NormalTok{ , }\AttributeTok{xlim=}\FunctionTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{25}\NormalTok{) , }\AttributeTok{col=}\StringTok{\textquotesingle{}darkorange2\textquotesingle{}}\NormalTok{ , }\AttributeTok{tck=}\FloatTok{0.02}\NormalTok{)}
+\FunctionTok{legend}\NormalTok{(}\StringTok{\textquotesingle{}topright\textquotesingle{}}\NormalTok{,}\FunctionTok{c}\NormalTok{(}\StringTok{\textquotesingle{}ACF\textquotesingle{}}\NormalTok{),}\AttributeTok{col=}\FunctionTok{c}\NormalTok{(}\StringTok{\textquotesingle{}darkorange2\textquotesingle{}}\NormalTok{),}\AttributeTok{lwd=}\DecValTok{3}\NormalTok{)}
+\FunctionTok{pacf}\NormalTok{( y , }\AttributeTok{ylim=}\FunctionTok{c}\NormalTok{(}\SpecialCharTok{{-}}\FloatTok{0.2}\NormalTok{,}\DecValTok{1}\NormalTok{) , }\AttributeTok{lwd=}\DecValTok{5}\NormalTok{ , }\AttributeTok{xlim=}\FunctionTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{25}\NormalTok{) , }\AttributeTok{col=}\StringTok{\textquotesingle{}darkorange2\textquotesingle{}}\NormalTok{ , }\AttributeTok{tck=}\FloatTok{0.02}\NormalTok{)}
+\FunctionTok{legend}\NormalTok{(}\StringTok{\textquotesingle{}topright\textquotesingle{}}\NormalTok{,}\FunctionTok{c}\NormalTok{(}\StringTok{\textquotesingle{}PACF\textquotesingle{}}\NormalTok{),}\AttributeTok{col=}\FunctionTok{c}\NormalTok{(}\StringTok{\textquotesingle{}darkorange2\textquotesingle{}}\NormalTok{),}\AttributeTok{lwd=}\DecValTok{3}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{_main_files/figure-latex/unnamed-chunk-63-1.pdf}
+
+\hypertarget{estimation}{%
+\subsubsection*{Estimation}\label{estimation}}
+\addcontentsline{toc}{subsubsection}{Estimation}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{ar1    }\OtherTok{\textless{}{-}} \FunctionTok{arima}\NormalTok{(y,}\AttributeTok{order=}\FunctionTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{,}\DecValTok{0}\NormalTok{,}\DecValTok{0}\NormalTok{))}
+\NormalTok{ma1    }\OtherTok{\textless{}{-}} \FunctionTok{arima}\NormalTok{(y,}\AttributeTok{order=}\FunctionTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{0}\NormalTok{,}\DecValTok{1}\NormalTok{))}
+\NormalTok{ma2    }\OtherTok{\textless{}{-}} \FunctionTok{arima}\NormalTok{(y,}\AttributeTok{order=}\FunctionTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{0}\NormalTok{,}\DecValTok{2}\NormalTok{))}
+\NormalTok{arma11 }\OtherTok{\textless{}{-}} \FunctionTok{arima}\NormalTok{(y,}\AttributeTok{order=}\FunctionTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{,}\DecValTok{0}\NormalTok{,}\DecValTok{1}\NormalTok{))}
+
+\CommentTok{\# Information criteria}
+\NormalTok{ar1\_aic    }\OtherTok{\textless{}{-}}\NormalTok{ (}\SpecialCharTok{{-}}\DecValTok{2}\SpecialCharTok{*}\NormalTok{ar1}\SpecialCharTok{$}\NormalTok{loglik}\SpecialCharTok{+}\DecValTok{2}\SpecialCharTok{*}\DecValTok{3}\NormalTok{)}\SpecialCharTok{/}\NormalTok{N     }\CommentTok{\# (constant, phi, sigma\_e)}
+\NormalTok{ma1\_aic    }\OtherTok{\textless{}{-}}\NormalTok{ (}\SpecialCharTok{{-}}\DecValTok{2}\SpecialCharTok{*}\NormalTok{ma1}\SpecialCharTok{$}\NormalTok{loglik}\SpecialCharTok{+}\DecValTok{2}\SpecialCharTok{*}\DecValTok{3}\NormalTok{)}\SpecialCharTok{/}\NormalTok{N     }\CommentTok{\# (constant, theta, sigma\_e)}
+\NormalTok{ma2\_aic    }\OtherTok{\textless{}{-}}\NormalTok{ (}\SpecialCharTok{{-}}\DecValTok{2}\SpecialCharTok{*}\NormalTok{ma2}\SpecialCharTok{$}\NormalTok{loglik}\SpecialCharTok{+}\DecValTok{2}\SpecialCharTok{*}\DecValTok{4}\NormalTok{)}\SpecialCharTok{/}\NormalTok{N     }\CommentTok{\# (constant, theta1, theta2, sigma\_e)}
+\NormalTok{arma11\_aic }\OtherTok{\textless{}{-}}\NormalTok{ (}\SpecialCharTok{{-}}\DecValTok{2}\SpecialCharTok{*}\NormalTok{arma11}\SpecialCharTok{$}\NormalTok{loglik}\SpecialCharTok{+}\DecValTok{2}\SpecialCharTok{*}\DecValTok{4}\NormalTok{)}\SpecialCharTok{/}\NormalTok{N  }\CommentTok{\# (constant, phi, theta, sigma\_e)}
+
+\NormalTok{ar1\_bic    }\OtherTok{\textless{}{-}}\NormalTok{ (}\SpecialCharTok{{-}}\DecValTok{2}\SpecialCharTok{*}\NormalTok{ar1}\SpecialCharTok{$}\NormalTok{loglik}\SpecialCharTok{+}\FunctionTok{log}\NormalTok{(N)}\SpecialCharTok{*}\DecValTok{3}\NormalTok{)}\SpecialCharTok{/}\NormalTok{N}
+\NormalTok{ma1\_bic    }\OtherTok{\textless{}{-}}\NormalTok{ (}\SpecialCharTok{{-}}\DecValTok{2}\SpecialCharTok{*}\NormalTok{ma1}\SpecialCharTok{$}\NormalTok{loglik}\SpecialCharTok{+}\FunctionTok{log}\NormalTok{(N)}\SpecialCharTok{*}\DecValTok{3}\NormalTok{)}\SpecialCharTok{/}\NormalTok{N}
+\NormalTok{ma2\_bic    }\OtherTok{\textless{}{-}}\NormalTok{ (}\SpecialCharTok{{-}}\DecValTok{2}\SpecialCharTok{*}\NormalTok{ma2}\SpecialCharTok{$}\NormalTok{loglik}\SpecialCharTok{+}\FunctionTok{log}\NormalTok{(N)}\SpecialCharTok{*}\DecValTok{4}\NormalTok{)}\SpecialCharTok{/}\NormalTok{N}
+\NormalTok{arma11\_bic }\OtherTok{\textless{}{-}}\NormalTok{ (}\SpecialCharTok{{-}}\DecValTok{2}\SpecialCharTok{*}\NormalTok{arma11}\SpecialCharTok{$}\NormalTok{loglik}\SpecialCharTok{+}\FunctionTok{log}\NormalTok{(N)}\SpecialCharTok{*}\DecValTok{4}\NormalTok{)}\SpecialCharTok{/}\NormalTok{N}
+
+\DocumentationTok{\#\# table of likelihood and ICs}
+\NormalTok{tab1 }\OtherTok{\textless{}{-}} \FunctionTok{round}\NormalTok{( }\FunctionTok{rbind}\NormalTok{( }\FunctionTok{c}\NormalTok{(ar1}\SpecialCharTok{$}\NormalTok{loglik,ma1}\SpecialCharTok{$}\NormalTok{loglik.ma2}\SpecialCharTok{$}\NormalTok{loglik,arma11}\SpecialCharTok{$}\NormalTok{loglik), }
+              \FunctionTok{c}\NormalTok{(ar1\_aic,ma1\_aic,ma2\_aic,arma11\_aic) , }
+              \FunctionTok{c}\NormalTok{(ar1\_bic,ma1\_bic,ma2\_bic,arma11\_bic) ) ,  }\DecValTok{3}\NormalTok{ )}
+\FunctionTok{row.names}\NormalTok{(tab1) }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{"loglik"}\NormalTok{, }\StringTok{"AIC"}\NormalTok{, }\StringTok{"BIC"}\NormalTok{)}
+\FunctionTok{colnames}\NormalTok{(tab1)  }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{"AR(1)"}\NormalTok{, }\StringTok{"MA(1)"}\NormalTok{, }\StringTok{"MA(2)"}\NormalTok{, }\StringTok{"ARMA(1,1)"}\NormalTok{)}
+\NormalTok{tab1}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##           AR(1)    MA(1)    MA(2) ARMA(1,1)
+## loglik -747.736 -746.702 -747.736  -746.702
+## AIC       5.382    5.419    5.371     5.381
+## BIC       5.421    5.458    5.423     5.433
+\end{verbatim}
+
+\hypertarget{forecasting}{%
+\subsubsection*{Forecasting}\label{forecasting}}
+\addcontentsline{toc}{subsubsection}{Forecasting}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DocumentationTok{\#\# get forecasts}
+\NormalTok{ar1\_pred    }\OtherTok{\textless{}{-}} \FunctionTok{predict}\NormalTok{(ar1, }\AttributeTok{n.ahead=}\NormalTok{H)}
+\NormalTok{ma1\_pred    }\OtherTok{\textless{}{-}} \FunctionTok{predict}\NormalTok{(ma1, }\AttributeTok{n.ahead=}\NormalTok{H)}
+\NormalTok{ma2\_pred    }\OtherTok{\textless{}{-}} \FunctionTok{predict}\NormalTok{(ma2, }\AttributeTok{n.ahead=}\NormalTok{H)}
+\NormalTok{arma11\_pred }\OtherTok{\textless{}{-}} \FunctionTok{predict}\NormalTok{(arma11, }\AttributeTok{n.ahead=}\NormalTok{H)}
+
+\DocumentationTok{\#\# get fitted values}
+\NormalTok{ar1\_mu     }\OtherTok{\textless{}{-}}\NormalTok{ y}\SpecialCharTok{{-}}\NormalTok{ar1}\SpecialCharTok{$}\NormalTok{residuals}
+\NormalTok{ma1\_mu     }\OtherTok{\textless{}{-}}\NormalTok{ y}\SpecialCharTok{{-}}\NormalTok{ma1}\SpecialCharTok{$}\NormalTok{residuals}
+\NormalTok{ma2\_mu     }\OtherTok{\textless{}{-}}\NormalTok{ y}\SpecialCharTok{{-}}\NormalTok{ma2}\SpecialCharTok{$}\NormalTok{residuals}
+\NormalTok{arma11\_mu  }\OtherTok{\textless{}{-}}\NormalTok{ y}\SpecialCharTok{{-}}\NormalTok{arma11}\SpecialCharTok{$}\NormalTok{residuals}
+
+\DocumentationTok{\#\# compute RMSE}
+\NormalTok{rmse }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(y, f) \{}\FunctionTok{sqrt}\NormalTok{(}\FunctionTok{mean}\NormalTok{((y}\SpecialCharTok{{-}}\FunctionTok{as.numeric}\NormalTok{(f))}\SpecialCharTok{\^{}}\DecValTok{2}\NormalTok{))\}}
+\NormalTok{ar1\_mse    }\OtherTok{\textless{}{-}}\FunctionTok{rmse}\NormalTok{(y.out, ar1\_pred}\SpecialCharTok{$}\NormalTok{pred)}
+\NormalTok{ma1\_mse    }\OtherTok{\textless{}{-}}\FunctionTok{rmse}\NormalTok{(y.out, ma1\_pred}\SpecialCharTok{$}\NormalTok{pred)}
+\NormalTok{ma2\_mse    }\OtherTok{\textless{}{-}}\FunctionTok{rmse}\NormalTok{(y.out, ma2\_pred}\SpecialCharTok{$}\NormalTok{pred)}
+\NormalTok{arma11\_mse }\OtherTok{\textless{}{-}}\FunctionTok{rmse}\NormalTok{(y.out, arma11\_pred}\SpecialCharTok{$}\NormalTok{pred)}
+
+\DocumentationTok{\#\# Plot}
+\FunctionTok{par}\NormalTok{(}\AttributeTok{mfrow =} \FunctionTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{,}\DecValTok{2}\NormalTok{))}
+
+\FunctionTok{myplot}\NormalTok{( dates[(N}\DecValTok{{-}10}\NormalTok{)}\SpecialCharTok{:}\NormalTok{(N}\SpecialCharTok{+}\NormalTok{H)] , }\FunctionTok{c}\NormalTok{(y[(N}\DecValTok{{-}10}\NormalTok{)}\SpecialCharTok{:}\NormalTok{N], y.out) , }\AttributeTok{t=}\StringTok{\textquotesingle{}b\textquotesingle{}}\NormalTok{, }\AttributeTok{main=}\FunctionTok{sprintf}\NormalTok{(}\StringTok{\textquotesingle{}AR(1) RMSE \%3.3f\textquotesingle{}}\NormalTok{,ar1\_mse) , }\AttributeTok{ylim=}\FunctionTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{7}\NormalTok{) , }\AttributeTok{col=}\StringTok{\textquotesingle{}darkorange\textquotesingle{}}\NormalTok{ ) }
+\FunctionTok{abline}\NormalTok{( }\AttributeTok{v=}\NormalTok{dates[N] , }\AttributeTok{lwd=}\DecValTok{2}\NormalTok{ )}
+\FunctionTok{abline}\NormalTok{( }\AttributeTok{h=}\NormalTok{ar1}\SpecialCharTok{$}\NormalTok{coef[}\StringTok{\textquotesingle{}intercept\textquotesingle{}}\NormalTok{] , }\AttributeTok{lwd=}\DecValTok{2}\NormalTok{ )}
+\FunctionTok{lines}\NormalTok{( dates[(N}\DecValTok{{-}10}\NormalTok{)}\SpecialCharTok{:}\NormalTok{N] , ar1\_mu[(N}\DecValTok{{-}10}\NormalTok{)}\SpecialCharTok{:}\NormalTok{N] , }\AttributeTok{t=}\StringTok{\textquotesingle{}l\textquotesingle{}}\NormalTok{ , }\AttributeTok{lwd=}\DecValTok{2}\NormalTok{ , }\AttributeTok{col=}\StringTok{\textquotesingle{}blue3\textquotesingle{}}\NormalTok{ )}
+\FunctionTok{lines}\NormalTok{( dates[(N}\SpecialCharTok{+}\DecValTok{1}\NormalTok{)}\SpecialCharTok{:}\NormalTok{(N}\SpecialCharTok{+}\NormalTok{H)] , }\FunctionTok{as.numeric}\NormalTok{(ar1\_pred}\SpecialCharTok{$}\NormalTok{pred)  , }\AttributeTok{t=}\StringTok{\textquotesingle{}b\textquotesingle{}}\NormalTok{ , }\AttributeTok{lwd=}\DecValTok{2}\NormalTok{ , }\AttributeTok{col=}\StringTok{\textquotesingle{}blue3\textquotesingle{}}\NormalTok{ )}
+
+\FunctionTok{myplot}\NormalTok{( dates[(N}\DecValTok{{-}10}\NormalTok{)}\SpecialCharTok{:}\NormalTok{(N}\SpecialCharTok{+}\NormalTok{H)] , }\FunctionTok{c}\NormalTok{(y[(N}\DecValTok{{-}10}\NormalTok{)}\SpecialCharTok{:}\NormalTok{N], y.out) , }\AttributeTok{t=}\StringTok{\textquotesingle{}b\textquotesingle{}}\NormalTok{ , }\AttributeTok{main=}\FunctionTok{sprintf}\NormalTok{(}\StringTok{\textquotesingle{}ARMA(1,1) RMSE \%3.3f\textquotesingle{}}\NormalTok{,arma11\_mse) , }\AttributeTok{ylim=}\FunctionTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{7}\NormalTok{) , }\AttributeTok{col=}\StringTok{\textquotesingle{}darkorange\textquotesingle{}}\NormalTok{ ) }
+\FunctionTok{abline}\NormalTok{( }\AttributeTok{v=}\NormalTok{dates[N] , }\AttributeTok{lwd=}\DecValTok{2}\NormalTok{ )}
+\FunctionTok{abline}\NormalTok{( }\AttributeTok{h=}\NormalTok{arma11}\SpecialCharTok{$}\NormalTok{coef[}\StringTok{\textquotesingle{}intercept\textquotesingle{}}\NormalTok{] , }\AttributeTok{lwd=}\DecValTok{2}\NormalTok{ )}
+\FunctionTok{lines}\NormalTok{( dates[(N}\DecValTok{{-}10}\NormalTok{)}\SpecialCharTok{:}\NormalTok{N] , arma11\_mu[(N}\DecValTok{{-}10}\NormalTok{)}\SpecialCharTok{:}\NormalTok{N] , }\AttributeTok{t=}\StringTok{\textquotesingle{}l\textquotesingle{}}\NormalTok{ , }\AttributeTok{lwd=}\DecValTok{2}\NormalTok{ , }\AttributeTok{col=}\StringTok{\textquotesingle{}blue3\textquotesingle{}}\NormalTok{ )}
+\FunctionTok{lines}\NormalTok{( dates[(N}\SpecialCharTok{+}\DecValTok{1}\NormalTok{)}\SpecialCharTok{:}\NormalTok{(N}\SpecialCharTok{+}\NormalTok{H)] , }\FunctionTok{as.numeric}\NormalTok{(arma11\_pred}\SpecialCharTok{$}\NormalTok{pred)  , }\AttributeTok{t=}\StringTok{\textquotesingle{}b\textquotesingle{}}\NormalTok{ , }\AttributeTok{lwd=}\DecValTok{2}\NormalTok{ , }\AttributeTok{col=}\StringTok{\textquotesingle{}blue3\textquotesingle{}}\NormalTok{ )}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{_main_files/figure-latex/unnamed-chunk-65-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{par}\NormalTok{(}\AttributeTok{mfrow =} \FunctionTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{,}\DecValTok{2}\NormalTok{))}
+
+\FunctionTok{myplot}\NormalTok{( dates[(N}\DecValTok{{-}10}\NormalTok{)}\SpecialCharTok{:}\NormalTok{(N}\SpecialCharTok{+}\NormalTok{H)] , }\FunctionTok{c}\NormalTok{(y[(N}\DecValTok{{-}10}\NormalTok{)}\SpecialCharTok{:}\NormalTok{N], y.out) , }\AttributeTok{t=}\StringTok{\textquotesingle{}b\textquotesingle{}}\NormalTok{, }\AttributeTok{main=}\FunctionTok{sprintf}\NormalTok{(}\StringTok{\textquotesingle{}MA(2) RMSE \%3.3f\textquotesingle{}}\NormalTok{,ma2\_mse) , }\AttributeTok{ylim=}\FunctionTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{7}\NormalTok{) , }\AttributeTok{col=}\StringTok{\textquotesingle{}darkorange\textquotesingle{}}\NormalTok{ ) }
+\FunctionTok{abline}\NormalTok{( }\AttributeTok{v=}\NormalTok{dates[N] , }\AttributeTok{lwd=}\DecValTok{2}\NormalTok{ )}
+\FunctionTok{abline}\NormalTok{( }\AttributeTok{h=}\NormalTok{ma2}\SpecialCharTok{$}\NormalTok{coef[}\StringTok{\textquotesingle{}intercept\textquotesingle{}}\NormalTok{] , }\AttributeTok{lwd=}\DecValTok{2}\NormalTok{ )}
+\FunctionTok{lines}\NormalTok{( dates[(N}\DecValTok{{-}10}\NormalTok{)}\SpecialCharTok{:}\NormalTok{N] , ma2\_mu[(N}\DecValTok{{-}10}\NormalTok{)}\SpecialCharTok{:}\NormalTok{N] , }\AttributeTok{t=}\StringTok{\textquotesingle{}l\textquotesingle{}}\NormalTok{ , }\AttributeTok{lwd=}\DecValTok{2}\NormalTok{ , }\AttributeTok{col=}\StringTok{\textquotesingle{}blue3\textquotesingle{}}\NormalTok{ )}
+\FunctionTok{lines}\NormalTok{( dates[(N}\SpecialCharTok{+}\DecValTok{1}\NormalTok{)}\SpecialCharTok{:}\NormalTok{(N}\SpecialCharTok{+}\NormalTok{H)] , }\FunctionTok{as.numeric}\NormalTok{(ma2\_pred}\SpecialCharTok{$}\NormalTok{pred)  , }\AttributeTok{t=}\StringTok{\textquotesingle{}b\textquotesingle{}}\NormalTok{ , }\AttributeTok{lwd=}\DecValTok{2}\NormalTok{ , }\AttributeTok{col=}\StringTok{\textquotesingle{}blue3\textquotesingle{}}\NormalTok{ )}
+
+\FunctionTok{myplot}\NormalTok{( dates[(N}\DecValTok{{-}10}\NormalTok{)}\SpecialCharTok{:}\NormalTok{(N}\SpecialCharTok{+}\NormalTok{H)] , }\FunctionTok{c}\NormalTok{(y[(N}\DecValTok{{-}10}\NormalTok{)}\SpecialCharTok{:}\NormalTok{N], y.out) , }\AttributeTok{t=}\StringTok{\textquotesingle{}b\textquotesingle{}}\NormalTok{ , }\AttributeTok{main=}\FunctionTok{sprintf}\NormalTok{(}\StringTok{\textquotesingle{}MA(1) RMSE \%3.3f\textquotesingle{}}\NormalTok{,ma1\_mse) , }\AttributeTok{ylim=}\FunctionTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{7}\NormalTok{) , }\AttributeTok{col=}\StringTok{\textquotesingle{}darkorange\textquotesingle{}}\NormalTok{ ) }
+\FunctionTok{abline}\NormalTok{( }\AttributeTok{v=}\NormalTok{dates[N] , }\AttributeTok{lwd=}\DecValTok{2}\NormalTok{ )}
+\FunctionTok{abline}\NormalTok{( }\AttributeTok{h=}\NormalTok{ma1}\SpecialCharTok{$}\NormalTok{coef[}\StringTok{\textquotesingle{}intercept\textquotesingle{}}\NormalTok{] , }\AttributeTok{lwd=}\DecValTok{2}\NormalTok{ )}
+\FunctionTok{lines}\NormalTok{( dates[(N}\DecValTok{{-}10}\NormalTok{)}\SpecialCharTok{:}\NormalTok{N] , ma1\_mu[(N}\DecValTok{{-}10}\NormalTok{)}\SpecialCharTok{:}\NormalTok{N] , }\AttributeTok{t=}\StringTok{\textquotesingle{}l\textquotesingle{}}\NormalTok{ , }\AttributeTok{lwd=}\DecValTok{2}\NormalTok{ , }\AttributeTok{col=}\StringTok{\textquotesingle{}blue3\textquotesingle{}}\NormalTok{ )}
+\FunctionTok{lines}\NormalTok{( dates[(N}\SpecialCharTok{+}\DecValTok{1}\NormalTok{)}\SpecialCharTok{:}\NormalTok{(N}\SpecialCharTok{+}\NormalTok{H)] , }\FunctionTok{as.numeric}\NormalTok{(ma1\_pred}\SpecialCharTok{$}\NormalTok{pred)  , }\AttributeTok{t=}\StringTok{\textquotesingle{}b\textquotesingle{}}\NormalTok{ , }\AttributeTok{lwd=}\DecValTok{2}\NormalTok{ , }\AttributeTok{col=}\StringTok{\textquotesingle{}blue3\textquotesingle{}}\NormalTok{ )}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{_main_files/figure-latex/unnamed-chunk-65-2.pdf}
+
+\hypertarget{exercises-1}{%
+\section{Exercises}\label{exercises-1}}
+
+\textbf{Exercise 1 (Best forecast under the square loss)}
+
+Show that the best forecast under the square loss
+\[
+L(y_{t+h}, \ \hat{y}_{t+h|t}) = (y_{t+h}-\hat{y}_{t+h|t})^2
+\]
+
+for some forecast horizon \(h \in \mathbb{N}\) is
+\[
+\hat{y}_{t+h|t} = \mathbb{E} [y_{t+h} \ | \ y_t, \dots, y_1]
+\]
+
+\textbf{Exercise 2 (Best forecast under the absolute loss)}
+
+Show that the best forecast under the absolute loss
+\[
+L(y_{t+h}, \ \hat{y}_{t+h|t}) = |y_{t+h}-\hat{y}_{t+h|t}|
+\]
+
+for some forecast horizon \(h \in \mathbb{N}\) is
+\[
+\hat{y}_{t+h|t} = \text{median}(y_{t+h}  \ | \ y_t, \dots, y_1)
+\]
+
+\textbf{Exercise 3 (Invertibility of MA(1))}
+
+Consider the MA(1) process
+
+\[
+y_t = \theta \varepsilon_{t-1} + \varepsilon_t.
+\]
+
+Show that:
+
+\begin{itemize}
+\tightlist
+\item
+  if \(|\theta|<1\), then the process is invertible in the past observed values:
+\end{itemize}
+
+\[
+ \varepsilon_t = \sum_{j=0}^{\infty} (-\theta)^j y_{t-j}
+ \]
+
+\begin{itemize}
+\tightlist
+\item
+  if \(|\theta|>1\), then the process is invertible in the future observed values:
+\end{itemize}
+
+\[
+ \varepsilon_t = \frac{1}{\theta} \sum_{j=0}^{\infty} \left(-\frac{1}{\theta}\right)^j y_{t+j+1}
+ \]
 
   \bibliography{book.bib,packages.bib}
 
