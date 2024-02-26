@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>Session 6 Volatility modeling | Financial Econometrics - Tutorials</title>
+  <meta name="description" content="TA materials for the Financial Econometrics course held by Prof. Christian Brownlees at the Barcelona School of Economics." />
+  <meta name="generator" content="bookdown 0.33 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="Session 6 Volatility modeling | Financial Econometrics - Tutorials" />
+  <meta property="og:type" content="book" />
+  
+  <meta property="og:description" content="TA materials for the Financial Econometrics course held by Prof. Christian Brownlees at the Barcelona School of Economics." />
+  <meta name="github-repo" content="rstudio/bookdown-demo" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Session 6 Volatility modeling | Financial Econometrics - Tutorials" />
+  
+  <meta name="twitter:description" content="TA materials for the Financial Econometrics course held by Prof. Christian Brownlees at the Barcelona School of Economics." />
+  
+
+<meta name="author" content="Alessandro Ciancetta" />
+
+
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="session05.html"/>
+
+<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
+
+
+<style type="text/css">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li><a href="./">Financial Econometrics at BSE</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>About</a></li>
+<li class="chapter" data-level="1" data-path="session01.html"><a href="session01.html"><i class="fa fa-check"></i><b>1</b> Introduction to time series</a>
+<ul>
+<li class="chapter" data-level="1.1" data-path="session01.html"><a href="session01.html#stochastic-processes-and-dependence"><i class="fa fa-check"></i><b>1.1</b> Stochastic processes and dependence</a>
+<ul>
+<li class="chapter" data-level="" data-path="session01.html"><a href="session01.html#stationarity"><i class="fa fa-check"></i>Stationarity</a></li>
+<li class="chapter" data-level="" data-path="session01.html"><a href="session01.html#ergodicity"><i class="fa fa-check"></i>Ergodicity</a></li>
+</ul></li>
+<li class="chapter" data-level="1.2" data-path="session01.html"><a href="session01.html#asymptotic-results"><i class="fa fa-check"></i><b>1.2</b> Asymptotic results</a></li>
+<li class="chapter" data-level="1.3" data-path="session01.html"><a href="session01.html#empirical-moments-and-summary-statistics"><i class="fa fa-check"></i><b>1.3</b> Empirical moments and summary statistics</a></li>
+<li class="chapter" data-level="1.4" data-path="session01.html"><a href="session01.html#hypothesis-testing"><i class="fa fa-check"></i><b>1.4</b> Hypothesis testing</a></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="session02.html"><a href="session02.html"><i class="fa fa-check"></i><b>2</b> Forecasting with time-series regression</a>
+<ul>
+<li class="chapter" data-level="2.1" data-path="session02.html"><a href="session02.html#oracle-inequality"><i class="fa fa-check"></i><b>2.1</b> Oracle inequality</a></li>
+<li class="chapter" data-level="2.2" data-path="session02.html"><a href="session02.html#application-forecasting-unemployment"><i class="fa fa-check"></i><b>2.2</b> Application: forecasting unemployment</a></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="session03.html"><a href="session03.html"><i class="fa fa-check"></i><b>3</b> Large-dimensional methods for forecasting</a>
+<ul>
+<li class="chapter" data-level="3.1" data-path="session03.html"><a href="session03.html#preprocess-fred-md"><i class="fa fa-check"></i><b>3.1</b> Preprocess FRED-MD</a></li>
+<li class="chapter" data-level="3.2" data-path="session03.html"><a href="session03.html#forecasting-algorithms"><i class="fa fa-check"></i><b>3.2</b> Forecasting algorithms</a></li>
+<li class="chapter" data-level="3.3" data-path="session03.html"><a href="session03.html#forecast-evaluation"><i class="fa fa-check"></i><b>3.3</b> Forecast evaluation</a></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="session04.html"><a href="session04.html"><i class="fa fa-check"></i><b>4</b> ARMA(1,1) model</a>
+<ul>
+<li class="chapter" data-level="4.1" data-path="session04.html"><a href="session04.html#mle-for-the-arma11"><i class="fa fa-check"></i><b>4.1</b> MLE for the ARMA(1,1)</a></li>
+<li class="chapter" data-level="4.2" data-path="session04.html"><a href="session04.html#exercises"><i class="fa fa-check"></i><b>4.2</b> Exercises</a></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="session05.html"><a href="session05.html"><i class="fa fa-check"></i><b>5</b> ARMA models in practice</a>
+<ul>
+<li class="chapter" data-level="5.1" data-path="session05.html"><a href="session05.html#forecasting-the-u.s.-gdp-growth"><i class="fa fa-check"></i><b>5.1</b> Forecasting the U.S. GDP growth</a></li>
+<li class="chapter" data-level="5.2" data-path="session05.html"><a href="session05.html#exercises-1"><i class="fa fa-check"></i><b>5.2</b> Exercises</a></li>
+</ul></li>
+<li class="chapter" data-level="6" data-path="session06.html"><a href="session06.html"><i class="fa fa-check"></i><b>6</b> Volatility modeling</a>
+<ul>
+<li class="chapter" data-level="6.1" data-path="session06.html"><a href="session06.html#garch11-estimation"><i class="fa fa-check"></i><b>6.1</b> GARCH(1,1) estimation</a></li>
+<li class="chapter" data-level="6.2" data-path="session06.html"><a href="session06.html#exercises-2"><i class="fa fa-check"></i><b>6.2</b> Exercises</a></li>
+</ul></li>
+<li class="divider"></li>
+<li><a href="https://github.com/aciancetta" target="blank">Alessandro Ciancetta</a></li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Financial Econometrics - Tutorials</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="session06" class="section level1 hasAnchor" number="6">
+<h1><span class="header-section-number">Session 6</span> Volatility modeling<a href="session06.html#session06" class="anchor-section" aria-label="Anchor link to header"></a></h1>
+<div id="garch11-estimation" class="section level2 hasAnchor" number="6.1">
+<h2><span class="header-section-number">6.1</span> GARCH(1,1) estimation<a href="session06.html#garch11-estimation" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>In this session, we implement the maximum likelihood estimation of the GARCH(1,1) model. We consider a Gaussian GARCH(1,1)</p>
+<p><span class="math display">\[
+\begin{aligned}
+r_t &amp;= \sigma^2_t z_t \\[1ex]
+\sigma^2_t &amp;= \omega + \alpha r_{t-1}^2 + \beta \sigma^2_{t-1}
+\end{aligned}
+\]</span></p>
+<p>where <span class="math inline">\(z_t \sim \mathcal{N}(0, 1)\)</span>. The log-likelihood is (Exercise 3):</p>
+<p><span class="math display">\[
+\ell(\theta; r_1, \dots, r_T) = -\frac{T-1}{2}\log(2\pi) - \frac{1}{2}\sum_{t=2}^T\log\hat\sigma_t -\frac{1}{2} \sum_{t=2}^T \frac{r_t^2}{\hat\sigma^2_t}
+\]</span></p>
+<p>The values of the latent volatility <span class="math inline">\(\{\sigma_2^2, \sigma_3^2, \dots, \sigma_T^2\}\)</span> can be estimated using the following filtering procedure for each given value <span class="math inline">\(\theta = (\omega, \alpha, \beta)\)</span>:</p>
+<ul>
+<li>set <span class="math inline">\(\hat\sigma^2_t = \hat{\text{Var}}(r_t)\)</span></li>
+<li>for <span class="math inline">\(t = 2, \dots, T\)</span> set <span class="math inline">\(\hat\sigma^2_t = \omega + \alpha r_{t-1}^2 + \beta \hat\sigma^2_{t-1}\)</span></li>
+</ul>
+<p>We simulate the data according to the GARCH(1,1) process and compare the MLE with the true parameters.</p>
+<div class="sourceCode" id="cb95"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb95-1"><a href="session06.html#cb95-1" tabindex="-1"></a><span class="do">## Simulate data</span></span>
+<span id="cb95-2"><a href="session06.html#cb95-2" tabindex="-1"></a>t_max <span class="ot">&lt;-</span> <span class="dv">1000</span></span>
+<span id="cb95-3"><a href="session06.html#cb95-3" tabindex="-1"></a>w <span class="ot">&lt;-</span> <span class="fl">0.01</span></span>
+<span id="cb95-4"><a href="session06.html#cb95-4" tabindex="-1"></a>alpha <span class="ot">&lt;-</span> <span class="fl">0.05</span></span>
+<span id="cb95-5"><a href="session06.html#cb95-5" tabindex="-1"></a>beta <span class="ot">&lt;-</span> <span class="fl">0.949</span></span>
+<span id="cb95-6"><a href="session06.html#cb95-6" tabindex="-1"></a></span>
+<span id="cb95-7"><a href="session06.html#cb95-7" tabindex="-1"></a>z <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(t_max)</span>
+<span id="cb95-8"><a href="session06.html#cb95-8" tabindex="-1"></a>sigma <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="fu">rep</span>(<span class="cn">NA</span>, t_max))</span>
+<span id="cb95-9"><a href="session06.html#cb95-9" tabindex="-1"></a>r     <span class="ot">&lt;-</span> <span class="fu">c</span>(sigma[<span class="dv">1</span>]<span class="sc">*</span>z[<span class="dv">1</span>], <span class="fu">rep</span>(<span class="cn">NA</span>, t_max))</span>
+<span id="cb95-10"><a href="session06.html#cb95-10" tabindex="-1"></a><span class="cf">for</span> (t <span class="cf">in</span> <span class="dv">2</span><span class="sc">:</span>(t_max<span class="sc">+</span><span class="dv">1</span>)) {</span>
+<span id="cb95-11"><a href="session06.html#cb95-11" tabindex="-1"></a>  sigma[t] <span class="ot">&lt;-</span> w <span class="sc">+</span> alpha<span class="sc">*</span>r[t<span class="dv">-1</span>] <span class="sc">+</span> beta<span class="sc">*</span>sigma[t<span class="dv">-1</span>]</span>
+<span id="cb95-12"><a href="session06.html#cb95-12" tabindex="-1"></a>  r[t]     <span class="ot">&lt;-</span> sigma[t]<span class="sc">*</span>z[t]</span>
+<span id="cb95-13"><a href="session06.html#cb95-13" tabindex="-1"></a>}</span>
+<span id="cb95-14"><a href="session06.html#cb95-14" tabindex="-1"></a>r <span class="ot">&lt;-</span> r[<span class="dv">100</span><span class="sc">:</span><span class="dv">1000</span>]</span></code></pre></div>
+<div class="sourceCode" id="cb96"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb96-1"><a href="session06.html#cb96-1" tabindex="-1"></a><span class="fu">plot.ts</span>(r)</span></code></pre></div>
+<p><img src="_main_files/figure-html/unnamed-chunk-67-1.png" width="672" /></p>
+<div class="sourceCode" id="cb97"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb97-1"><a href="session06.html#cb97-1" tabindex="-1"></a><span class="fu">plot.ts</span>(r<span class="sc">^</span><span class="dv">2</span>)</span></code></pre></div>
+<p><img src="_main_files/figure-html/unnamed-chunk-67-2.png" width="672" /></p>
+<p>Estimation</p>
+<div class="sourceCode" id="cb98"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb98-1"><a href="session06.html#cb98-1" tabindex="-1"></a><span class="do">## filter </span></span>
+<span id="cb98-2"><a href="session06.html#cb98-2" tabindex="-1"></a>garch11_filter <span class="ot">&lt;-</span> <span class="cf">function</span>(data, params){</span>
+<span id="cb98-3"><a href="session06.html#cb98-3" tabindex="-1"></a>  <span class="co"># initializations</span></span>
+<span id="cb98-4"><a href="session06.html#cb98-4" tabindex="-1"></a>  omega <span class="ot">&lt;-</span> params[<span class="dv">1</span>]; </span>
+<span id="cb98-5"><a href="session06.html#cb98-5" tabindex="-1"></a>  alpha <span class="ot">&lt;-</span> params[<span class="dv">2</span>]; </span>
+<span id="cb98-6"><a href="session06.html#cb98-6" tabindex="-1"></a>  beta <span class="ot">&lt;-</span> params[<span class="dv">3</span>];</span>
+<span id="cb98-7"><a href="session06.html#cb98-7" tabindex="-1"></a>  T <span class="ot">&lt;-</span> <span class="fu">length</span>(data);</span>
+<span id="cb98-8"><a href="session06.html#cb98-8" tabindex="-1"></a>  sig2 <span class="ot">&lt;-</span> <span class="fu">numeric</span>(T); </span>
+<span id="cb98-9"><a href="session06.html#cb98-9" tabindex="-1"></a>  z <span class="ot">&lt;-</span> <span class="fu">numeric</span>(T); </span>
+<span id="cb98-10"><a href="session06.html#cb98-10" tabindex="-1"></a>  loglik <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb98-11"><a href="session06.html#cb98-11" tabindex="-1"></a>  sig2[<span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="fu">var</span>(data); z[<span class="dv">1</span>] <span class="ot">&lt;-</span> data[<span class="dv">1</span>]<span class="sc">/</span><span class="fu">sqrt</span>(sig2[<span class="dv">1</span>])</span>
+<span id="cb98-12"><a href="session06.html#cb98-12" tabindex="-1"></a>  <span class="co"># for loop calculating one-step-ahead</span></span>
+<span id="cb98-13"><a href="session06.html#cb98-13" tabindex="-1"></a>  <span class="cf">for</span> (t <span class="cf">in</span> <span class="dv">2</span><span class="sc">:</span>T){</span>
+<span id="cb98-14"><a href="session06.html#cb98-14" tabindex="-1"></a>    sig <span class="ot">&lt;-</span> omega <span class="sc">+</span> alpha <span class="sc">*</span> data[t<span class="dv">-1</span>]<span class="sc">^</span><span class="dv">2</span> <span class="sc">+</span> beta <span class="sc">*</span> sig2[t<span class="dv">-1</span>]</span>
+<span id="cb98-15"><a href="session06.html#cb98-15" tabindex="-1"></a>    sig2[t] <span class="ot">&lt;-</span> sig; z[t] <span class="ot">&lt;-</span> data[t]<span class="sc">/</span><span class="fu">sqrt</span>(sig)</span>
+<span id="cb98-16"><a href="session06.html#cb98-16" tabindex="-1"></a>  }</span>
+<span id="cb98-17"><a href="session06.html#cb98-17" tabindex="-1"></a>  <span class="co"># loglik</span></span>
+<span id="cb98-18"><a href="session06.html#cb98-18" tabindex="-1"></a>  loglik <span class="ot">&lt;-</span> <span class="sc">-</span>T<span class="sc">/</span><span class="dv">2</span><span class="sc">*</span><span class="fu">log</span>(<span class="dv">2</span><span class="sc">*</span>pi) <span class="sc">-</span> <span class="fu">sum</span>(<span class="fu">log</span>(sig2))<span class="sc">/</span><span class="dv">2</span> <span class="sc">-</span> <span class="fu">sum</span>(data<span class="sc">^</span><span class="dv">2</span><span class="sc">/</span>sig2)<span class="sc">/</span><span class="dv">2</span></span>
+<span id="cb98-19"><a href="session06.html#cb98-19" tabindex="-1"></a>  <span class="fu">return</span>(<span class="fu">list</span>(<span class="at">sig2 =</span> sig2, <span class="at">z =</span> z, <span class="at">loglik =</span> loglik))</span>
+<span id="cb98-20"><a href="session06.html#cb98-20" tabindex="-1"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb99"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb99-1"><a href="session06.html#cb99-1" tabindex="-1"></a><span class="do">## likelihood</span></span>
+<span id="cb99-2"><a href="session06.html#cb99-2" tabindex="-1"></a>garch11_objective <span class="ot">&lt;-</span> <span class="cf">function</span>(data, params) {</span>
+<span id="cb99-3"><a href="session06.html#cb99-3" tabindex="-1"></a>  </span>
+<span id="cb99-4"><a href="session06.html#cb99-4" tabindex="-1"></a>  <span class="co">#initializations</span></span>
+<span id="cb99-5"><a href="session06.html#cb99-5" tabindex="-1"></a>  omega <span class="ot">&lt;-</span> params[<span class="dv">1</span>]; alpha <span class="ot">&lt;-</span> params[<span class="dv">2</span>]; beta <span class="ot">&lt;-</span> params[<span class="dv">3</span>]</span>
+<span id="cb99-6"><a href="session06.html#cb99-6" tabindex="-1"></a>  T <span class="ot">&lt;-</span> <span class="fu">length</span>(data)</span>
+<span id="cb99-7"><a href="session06.html#cb99-7" tabindex="-1"></a>  sig2 <span class="ot">&lt;-</span> <span class="fu">garch11_filter</span>(data, params)<span class="sc">$</span>sig2</span>
+<span id="cb99-8"><a href="session06.html#cb99-8" tabindex="-1"></a>  </span>
+<span id="cb99-9"><a href="session06.html#cb99-9" tabindex="-1"></a>  <span class="co"># if-else statement calculating negative loglik</span></span>
+<span id="cb99-10"><a href="session06.html#cb99-10" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">all</span>(<span class="fu">is.finite</span>(params)) <span class="sc">&amp;</span> omega <span class="sc">&gt;</span> <span class="dv">0</span> <span class="sc">&amp;</span> alpha <span class="sc">&gt;</span> <span class="dv">0</span> <span class="sc">&amp;</span> beta <span class="sc">&gt;</span> <span class="dv">0</span> <span class="sc">&amp;</span> alpha <span class="sc">+</span> beta <span class="sc">&lt;</span> <span class="dv">1</span>) {</span>
+<span id="cb99-11"><a href="session06.html#cb99-11" tabindex="-1"></a>    neg_loglik <span class="ot">&lt;-</span> <span class="sc">-</span>(<span class="sc">-</span>T<span class="sc">/</span><span class="dv">2</span><span class="sc">*</span><span class="fu">log</span>(<span class="dv">2</span><span class="sc">*</span>pi) <span class="sc">-</span> <span class="fu">sum</span>(<span class="fu">log</span>(sig2))<span class="sc">/</span><span class="dv">2</span> <span class="sc">-</span> <span class="fu">sum</span>(data<span class="sc">^</span><span class="dv">2</span><span class="sc">/</span>sig2)<span class="sc">/</span><span class="dv">2</span>)</span>
+<span id="cb99-12"><a href="session06.html#cb99-12" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
+<span id="cb99-13"><a href="session06.html#cb99-13" tabindex="-1"></a>    neg_loglik <span class="ot">&lt;-</span> <span class="cn">Inf</span></span>
+<span id="cb99-14"><a href="session06.html#cb99-14" tabindex="-1"></a>  }</span>
+<span id="cb99-15"><a href="session06.html#cb99-15" tabindex="-1"></a>  <span class="fu">return</span>(neg_loglik)</span>
+<span id="cb99-16"><a href="session06.html#cb99-16" tabindex="-1"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb100"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb100-1"><a href="session06.html#cb100-1" tabindex="-1"></a><span class="do">## MLE</span></span>
+<span id="cb100-2"><a href="session06.html#cb100-2" tabindex="-1"></a>garch11_mle <span class="ot">&lt;-</span> <span class="cf">function</span>(data, params) {</span>
+<span id="cb100-3"><a href="session06.html#cb100-3" tabindex="-1"></a>  <span class="co"># nlminb function optimizing parameters </span></span>
+<span id="cb100-4"><a href="session06.html#cb100-4" tabindex="-1"></a>  fit <span class="ot">&lt;-</span> <span class="fu">nlminb</span>(<span class="at">start =</span> params, <span class="at">objective =</span> garch11_objective, </span>
+<span id="cb100-5"><a href="session06.html#cb100-5" tabindex="-1"></a>                <span class="at">data =</span> data, <span class="at">lower =</span> <span class="fl">0.0001</span>, <span class="at">upper =</span> <span class="dv">1</span>)</span>
+<span id="cb100-6"><a href="session06.html#cb100-6" tabindex="-1"></a>  <span class="fu">return</span>(<span class="at">param_mle =</span> fit<span class="sc">$</span>par)</span>
+<span id="cb100-7"><a href="session06.html#cb100-7" tabindex="-1"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb101"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb101-1"><a href="session06.html#cb101-1" tabindex="-1"></a>mle <span class="ot">&lt;-</span> <span class="fu">garch11_mle</span>(r, <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">0.1</span>, <span class="fl">0.1</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb102"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb102-1"><a href="session06.html#cb102-1" tabindex="-1"></a><span class="fu">cbind</span>(mle, <span class="fu">c</span>(w, alpha, beta))</span></code></pre></div>
+<pre><code>##              mle      
+## [1,] 0.001443815 0.010
+## [2,] 0.036959629 0.050
+## [3,] 0.930826309 0.949</code></pre>
+</div>
+<div id="exercises-2" class="section level2 hasAnchor" number="6.2">
+<h2><span class="header-section-number">6.2</span> Exercises<a href="session06.html#exercises-2" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p><strong>Exercise 1 (ARCH(<span class="math inline">\(\infty\)</span>) representation of GARCH(1,1))</strong></p>
+<p>Show that the GARCH(1,1)</p>
+<p><span class="math display">\[
+\begin{aligned}
+r_t &amp;= \sigma^2_t z_t \\[1ex]
+\sigma^2_t &amp;= \omega + \alpha r_{t-1}^2 + \beta \sigma^2_{t-1}
+\end{aligned}
+\]</span>
+with <span class="math inline">\(\mathbb{E}[z_t] = 0\)</span>, <span class="math inline">\(\mathbb{E}[z^2_t] = 1\)</span> can be rewritten as an ARCH(<span class="math inline">\(\infty\)</span>) with</p>
+<p><span class="math display">\[
+\sigma^2_t = \frac{\omega}{1-\beta} + \alpha \sum_{j=0}^\infty \beta^j \ r^2_{t-j-1}
+\]</span></p>
+<p>under the assumption that <span class="math inline">\(|\beta| &lt; 1\)</span>.</p>
+<p><br>
+<br></p>
+<p><strong>Exercise 2 (Autocovariance of the GARCH(1,1))</strong></p>
+<p>Consider the GARCH(1,1)</p>
+<p><span class="math display">\[
+\begin{aligned}
+r_t &amp;= \sigma^2_t z_t \\[1ex]
+\sigma^2_t &amp;= \omega + \alpha r_{t-1}^2 + \beta \sigma^2_{t-1}
+\end{aligned}
+\]</span></p>
+<p>with <span class="math inline">\(\mathbb{E}[z_t] = 0\)</span>, <span class="math inline">\(\mathbb{E}[z^2_t] = 1\)</span>.</p>
+<p>Show that:</p>
+<p><span class="math display">\[
+\gamma(k) = \text{cov}(r_t, r_{t-k}) =
+\begin{cases}
+\frac{\omega}{1-\alpha-\beta}  \qquad  &amp; k = 0 \\
+0 &amp; k \neq 0
+\end{cases}
+\]</span></p>
+<p><em>[Difficult question]</em> Also show that</p>
+<p><span class="math display">\[
+\gamma_2(k) = \text{cov}(r^2_t, r^2_{t-k}) =
+\begin{cases}
+\text{Var}(r^2_t - \sigma^2_t)\left[1+\frac{\alpha+2\beta}{1-(\alpha+\beta)^2}\right] \qquad  &amp; k = 0 \\[1em]
+\text{Var}(r^2_t - \sigma^2_t)\left[\alpha+2\beta+\frac{(\alpha+2\beta)^2 (\alpha+\beta)}{1-(\alpha+\beta)^2}\right] \qquad  &amp; k = 1 \\[1em]
+(\alpha+\beta)^{k-1}\gamma(1) &amp; k \geq 2
+\end{cases}
+\]</span>
+where <span class="math inline">\(\text{Var}(r^2_t - \sigma^2_t) = (\mu_4 - 1)\left( \sigma_4 - \left(\frac{\omega}{1-\alpha-\beta}\right)^2 \right)\)</span>, <span class="math inline">\(\sigma^4 = \mathbb{E}[\sigma^4_t]\)</span> (you do not need to find the explicit expression for this in terms of the parameters) and <span class="math inline">\(\mu_4 = \mathbb{E}[z_t^4]\)</span>.</p>
+<p><strong>Hint:</strong> Show that the GARCH(1,1) admits an ARMA(1,1) representation <span class="math inline">\(\sigma_t^2 = \omega + (\alpha+\beta)r^2_{t-1} + \beta(r^2_{t-1}-\sigma^2_{t-1}) + (r^2_{t}-\sigma^2_{t})\)</span> and apply the formula for the autocovariance of the ARMA(1,1) (see Exercise 3 in Session 4).</p>
+<p><br>
+<br></p>
+<p><strong>Exercise 3 (Log-likelihood of the GARCH(1,1))</strong>
+Consider a Gaussian GARCH(1,1)</p>
+<p><span class="math display">\[
+\begin{aligned}
+r_t &amp;= \sigma^2_t z_t \\[1ex]
+\sigma^2_t &amp;= \omega + \alpha r_{t-1}^2 + \beta \sigma^2_{t-1}
+\end{aligned}
+\]</span></p>
+<p>where <span class="math inline">\(z_t \sim \mathcal{N}(0, 1)\)</span>. Show that the conditional log-likelihood of the model is</p>
+<p><span class="math display">\[
+\ell(\theta; r_1, \dots, r_T) = -\frac{T-1}{2}\log(2\pi) - \frac{1}{2}\sum_{t=2}^T\log\hat\sigma_t -\frac{1}{2} \sum_{t=2}^T \frac{r_t^2}{\hat\sigma^2_t}
+\]</span></p>
+<p>where <span class="math inline">\(\hat\sigma_t^2\)</span> is the predicted value of the latent volatility computed using the filtering procedure described in the session.</p>
+<!-- # Sharing your book -->
+<!-- ## Publishing -->
+<!-- HTML books can be published online, see: https://bookdown.org/yihui/bookdown/publishing.html -->
+<!-- ## 404 pages -->
+<!-- By default, users will be directed to a 404 page if they try to access a webpage that cannot be found. If you'd like to customize your 404 page instead of using the default, you may add either a `_404.Rmd` or `_404.md` file to your project root and use code and/or Markdown syntax. -->
+<!-- ## Metadata for sharing -->
+<!-- Bookdown HTML books will provide HTML metadata for social sharing on platforms like Twitter, Facebook, and LinkedIn, using information you provide in the `index.Rmd` YAML. To setup, set the `url` for your book and the path to your `cover-image` file. Your book's `title` and `description` are also used. -->
+<!-- This `gitbook` uses the same social sharing data across all chapters in your book- all links shared will look the same. -->
+<!-- Specify your book's source repository on GitHub using the `edit` key under the configuration options in the `_output.yml` file, which allows users to suggest an edit by linking to a chapter's source file.  -->
+<!-- Read more about the features of this output format here: -->
+<!-- https://pkgs.rstudio.com/bookdown/reference/gitbook.html -->
+<!-- Or use: -->
+<!-- ```{r eval=FALSE} -->
+<!-- ?bookdown::gitbook -->
+<!-- ``` -->
+
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="session05.html" class="navigation navigation-prev navigation-unique" aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": null,
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": "https://github.com/aciancetta/finmetrics/edit/BRANCH/06-session06.Rmd",
+"text": "Edit"
+},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": null,
+"text": null
+},
+"download": ["_main.pdf"],
+"search": {
+"engine": "fuse",
+"options": null
+},
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>
