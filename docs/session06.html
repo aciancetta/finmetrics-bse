@@ -30,7 +30,7 @@
   
   
 <link rel="prev" href="session05.html"/>
-
+<link rel="next" href="session07.html"/>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
@@ -173,6 +173,12 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="6.1" data-path="session06.html"><a href="session06.html#garch11-estimation"><i class="fa fa-check"></i><b>6.1</b> GARCH(1,1) estimation</a></li>
 <li class="chapter" data-level="6.2" data-path="session06.html"><a href="session06.html#exercises-2"><i class="fa fa-check"></i><b>6.2</b> Exercises</a></li>
 </ul></li>
+<li class="chapter" data-level="7" data-path="session07.html"><a href="session07.html"><i class="fa fa-check"></i><b>7</b> Volatility modeling in practice</a>
+<ul>
+<li class="chapter" data-level="7.1" data-path="session07.html"><a href="session07.html#the-arma11-tgarch11-model"><i class="fa fa-check"></i><b>7.1</b> The ARMA(1,1)-TGARCH(1,1) model</a></li>
+<li class="chapter" data-level="7.2" data-path="session07.html"><a href="session07.html#modeling-the-sp-500-volatility"><i class="fa fa-check"></i><b>7.2</b> Modeling the S&amp;P 500 volatility</a></li>
+<li class="chapter" data-level="7.3" data-path="session07.html"><a href="session07.html#exercises-3"><i class="fa fa-check"></i><b>7.3</b> Exercises</a></li>
+</ul></li>
 <li class="divider"></li>
 <li><a href="https://github.com/aciancetta" target="blank">Alessandro Ciancetta</a></li>
 
@@ -224,10 +230,11 @@ r_t &amp;= \sigma^2_t z_t \\[1ex]
 <span id="cb95-8"><a href="session06.html#cb95-8" tabindex="-1"></a>sigma <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="fu">rep</span>(<span class="cn">NA</span>, t_max))</span>
 <span id="cb95-9"><a href="session06.html#cb95-9" tabindex="-1"></a>r     <span class="ot">&lt;-</span> <span class="fu">c</span>(sigma[<span class="dv">1</span>]<span class="sc">*</span>z[<span class="dv">1</span>], <span class="fu">rep</span>(<span class="cn">NA</span>, t_max))</span>
 <span id="cb95-10"><a href="session06.html#cb95-10" tabindex="-1"></a><span class="cf">for</span> (t <span class="cf">in</span> <span class="dv">2</span><span class="sc">:</span>(t_max<span class="sc">+</span><span class="dv">1</span>)) {</span>
-<span id="cb95-11"><a href="session06.html#cb95-11" tabindex="-1"></a>  sigma[t] <span class="ot">&lt;-</span> w <span class="sc">+</span> alpha<span class="sc">*</span>r[t<span class="dv">-1</span>] <span class="sc">+</span> beta<span class="sc">*</span>sigma[t<span class="dv">-1</span>]</span>
-<span id="cb95-12"><a href="session06.html#cb95-12" tabindex="-1"></a>  r[t]     <span class="ot">&lt;-</span> sigma[t]<span class="sc">*</span>z[t]</span>
-<span id="cb95-13"><a href="session06.html#cb95-13" tabindex="-1"></a>}</span>
-<span id="cb95-14"><a href="session06.html#cb95-14" tabindex="-1"></a>r <span class="ot">&lt;-</span> r[<span class="dv">100</span><span class="sc">:</span><span class="dv">1000</span>]</span></code></pre></div>
+<span id="cb95-11"><a href="session06.html#cb95-11" tabindex="-1"></a>  <span class="fu">set.seed</span>(t<span class="sc">*</span><span class="dv">212</span>) <span class="co"># for reproducibility</span></span>
+<span id="cb95-12"><a href="session06.html#cb95-12" tabindex="-1"></a>  sigma[t] <span class="ot">&lt;-</span> w <span class="sc">+</span> alpha<span class="sc">*</span>r[t<span class="dv">-1</span>] <span class="sc">+</span> beta<span class="sc">*</span>sigma[t<span class="dv">-1</span>]</span>
+<span id="cb95-13"><a href="session06.html#cb95-13" tabindex="-1"></a>  r[t]     <span class="ot">&lt;-</span> sigma[t]<span class="sc">*</span>z[t]</span>
+<span id="cb95-14"><a href="session06.html#cb95-14" tabindex="-1"></a>}</span>
+<span id="cb95-15"><a href="session06.html#cb95-15" tabindex="-1"></a>r <span class="ot">&lt;-</span> r[<span class="dv">100</span><span class="sc">:</span><span class="dv">1000</span>]</span></code></pre></div>
 <div class="sourceCode" id="cb96"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb96-1"><a href="session06.html#cb96-1" tabindex="-1"></a><span class="fu">plot.ts</span>(r)</span></code></pre></div>
 <p><img src="_main_files/figure-html/unnamed-chunk-67-1.png" width="672" /></p>
 <div class="sourceCode" id="cb97"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb97-1"><a href="session06.html#cb97-1" tabindex="-1"></a><span class="fu">plot.ts</span>(r<span class="sc">^</span><span class="dv">2</span>)</span></code></pre></div>
@@ -236,12 +243,12 @@ r_t &amp;= \sigma^2_t z_t \\[1ex]
 <div class="sourceCode" id="cb98"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb98-1"><a href="session06.html#cb98-1" tabindex="-1"></a><span class="do">## filter </span></span>
 <span id="cb98-2"><a href="session06.html#cb98-2" tabindex="-1"></a>garch11_filter <span class="ot">&lt;-</span> <span class="cf">function</span>(data, params){</span>
 <span id="cb98-3"><a href="session06.html#cb98-3" tabindex="-1"></a>  <span class="co"># initializations</span></span>
-<span id="cb98-4"><a href="session06.html#cb98-4" tabindex="-1"></a>  omega <span class="ot">&lt;-</span> params[<span class="dv">1</span>]; </span>
-<span id="cb98-5"><a href="session06.html#cb98-5" tabindex="-1"></a>  alpha <span class="ot">&lt;-</span> params[<span class="dv">2</span>]; </span>
-<span id="cb98-6"><a href="session06.html#cb98-6" tabindex="-1"></a>  beta <span class="ot">&lt;-</span> params[<span class="dv">3</span>];</span>
-<span id="cb98-7"><a href="session06.html#cb98-7" tabindex="-1"></a>  T <span class="ot">&lt;-</span> <span class="fu">length</span>(data);</span>
-<span id="cb98-8"><a href="session06.html#cb98-8" tabindex="-1"></a>  sig2 <span class="ot">&lt;-</span> <span class="fu">numeric</span>(T); </span>
-<span id="cb98-9"><a href="session06.html#cb98-9" tabindex="-1"></a>  z <span class="ot">&lt;-</span> <span class="fu">numeric</span>(T); </span>
+<span id="cb98-4"><a href="session06.html#cb98-4" tabindex="-1"></a>  omega <span class="ot">&lt;-</span> params[<span class="dv">1</span>] </span>
+<span id="cb98-5"><a href="session06.html#cb98-5" tabindex="-1"></a>  alpha <span class="ot">&lt;-</span> params[<span class="dv">2</span>] </span>
+<span id="cb98-6"><a href="session06.html#cb98-6" tabindex="-1"></a>  beta <span class="ot">&lt;-</span> params[<span class="dv">3</span>]</span>
+<span id="cb98-7"><a href="session06.html#cb98-7" tabindex="-1"></a>  T <span class="ot">&lt;-</span> <span class="fu">length</span>(data)</span>
+<span id="cb98-8"><a href="session06.html#cb98-8" tabindex="-1"></a>  sig2 <span class="ot">&lt;-</span> <span class="fu">numeric</span>(T)</span>
+<span id="cb98-9"><a href="session06.html#cb98-9" tabindex="-1"></a>  z <span class="ot">&lt;-</span> <span class="fu">numeric</span>(T) </span>
 <span id="cb98-10"><a href="session06.html#cb98-10" tabindex="-1"></a>  loglik <span class="ot">&lt;-</span> <span class="dv">0</span></span>
 <span id="cb98-11"><a href="session06.html#cb98-11" tabindex="-1"></a>  sig2[<span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="fu">var</span>(data); z[<span class="dv">1</span>] <span class="ot">&lt;-</span> data[<span class="dv">1</span>]<span class="sc">/</span><span class="fu">sqrt</span>(sig2[<span class="dv">1</span>])</span>
 <span id="cb98-12"><a href="session06.html#cb98-12" tabindex="-1"></a>  <span class="co"># for loop calculating one-step-ahead</span></span>
@@ -257,18 +264,20 @@ r_t &amp;= \sigma^2_t z_t \\[1ex]
 <span id="cb99-2"><a href="session06.html#cb99-2" tabindex="-1"></a>garch11_objective <span class="ot">&lt;-</span> <span class="cf">function</span>(data, params) {</span>
 <span id="cb99-3"><a href="session06.html#cb99-3" tabindex="-1"></a>  </span>
 <span id="cb99-4"><a href="session06.html#cb99-4" tabindex="-1"></a>  <span class="co">#initializations</span></span>
-<span id="cb99-5"><a href="session06.html#cb99-5" tabindex="-1"></a>  omega <span class="ot">&lt;-</span> params[<span class="dv">1</span>]; alpha <span class="ot">&lt;-</span> params[<span class="dv">2</span>]; beta <span class="ot">&lt;-</span> params[<span class="dv">3</span>]</span>
-<span id="cb99-6"><a href="session06.html#cb99-6" tabindex="-1"></a>  T <span class="ot">&lt;-</span> <span class="fu">length</span>(data)</span>
-<span id="cb99-7"><a href="session06.html#cb99-7" tabindex="-1"></a>  sig2 <span class="ot">&lt;-</span> <span class="fu">garch11_filter</span>(data, params)<span class="sc">$</span>sig2</span>
-<span id="cb99-8"><a href="session06.html#cb99-8" tabindex="-1"></a>  </span>
-<span id="cb99-9"><a href="session06.html#cb99-9" tabindex="-1"></a>  <span class="co"># if-else statement calculating negative loglik</span></span>
-<span id="cb99-10"><a href="session06.html#cb99-10" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">all</span>(<span class="fu">is.finite</span>(params)) <span class="sc">&amp;</span> omega <span class="sc">&gt;</span> <span class="dv">0</span> <span class="sc">&amp;</span> alpha <span class="sc">&gt;</span> <span class="dv">0</span> <span class="sc">&amp;</span> beta <span class="sc">&gt;</span> <span class="dv">0</span> <span class="sc">&amp;</span> alpha <span class="sc">+</span> beta <span class="sc">&lt;</span> <span class="dv">1</span>) {</span>
-<span id="cb99-11"><a href="session06.html#cb99-11" tabindex="-1"></a>    neg_loglik <span class="ot">&lt;-</span> <span class="sc">-</span>(<span class="sc">-</span>T<span class="sc">/</span><span class="dv">2</span><span class="sc">*</span><span class="fu">log</span>(<span class="dv">2</span><span class="sc">*</span>pi) <span class="sc">-</span> <span class="fu">sum</span>(<span class="fu">log</span>(sig2))<span class="sc">/</span><span class="dv">2</span> <span class="sc">-</span> <span class="fu">sum</span>(data<span class="sc">^</span><span class="dv">2</span><span class="sc">/</span>sig2)<span class="sc">/</span><span class="dv">2</span>)</span>
-<span id="cb99-12"><a href="session06.html#cb99-12" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
-<span id="cb99-13"><a href="session06.html#cb99-13" tabindex="-1"></a>    neg_loglik <span class="ot">&lt;-</span> <span class="cn">Inf</span></span>
-<span id="cb99-14"><a href="session06.html#cb99-14" tabindex="-1"></a>  }</span>
-<span id="cb99-15"><a href="session06.html#cb99-15" tabindex="-1"></a>  <span class="fu">return</span>(neg_loglik)</span>
-<span id="cb99-16"><a href="session06.html#cb99-16" tabindex="-1"></a>}</span></code></pre></div>
+<span id="cb99-5"><a href="session06.html#cb99-5" tabindex="-1"></a>  omega <span class="ot">&lt;-</span> params[<span class="dv">1</span>] </span>
+<span id="cb99-6"><a href="session06.html#cb99-6" tabindex="-1"></a>  alpha <span class="ot">&lt;-</span> params[<span class="dv">2</span>] </span>
+<span id="cb99-7"><a href="session06.html#cb99-7" tabindex="-1"></a>  beta <span class="ot">&lt;-</span> params[<span class="dv">3</span>]</span>
+<span id="cb99-8"><a href="session06.html#cb99-8" tabindex="-1"></a>  T <span class="ot">&lt;-</span> <span class="fu">length</span>(data)</span>
+<span id="cb99-9"><a href="session06.html#cb99-9" tabindex="-1"></a>  sig2 <span class="ot">&lt;-</span> <span class="fu">garch11_filter</span>(data, params)<span class="sc">$</span>sig2</span>
+<span id="cb99-10"><a href="session06.html#cb99-10" tabindex="-1"></a>  </span>
+<span id="cb99-11"><a href="session06.html#cb99-11" tabindex="-1"></a>  <span class="co"># if-else statement calculating negative loglik</span></span>
+<span id="cb99-12"><a href="session06.html#cb99-12" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">all</span>(<span class="fu">is.finite</span>(params)) <span class="sc">&amp;</span> omega <span class="sc">&gt;</span> <span class="dv">0</span> <span class="sc">&amp;</span> alpha <span class="sc">&gt;</span> <span class="dv">0</span> <span class="sc">&amp;</span> beta <span class="sc">&gt;</span> <span class="dv">0</span> <span class="sc">&amp;</span> alpha <span class="sc">+</span> beta <span class="sc">&lt;</span> <span class="dv">1</span>) {</span>
+<span id="cb99-13"><a href="session06.html#cb99-13" tabindex="-1"></a>    neg_loglik <span class="ot">&lt;-</span> <span class="sc">-</span>(<span class="sc">-</span>T<span class="sc">/</span><span class="dv">2</span><span class="sc">*</span><span class="fu">log</span>(<span class="dv">2</span><span class="sc">*</span>pi) <span class="sc">-</span> <span class="fu">sum</span>(<span class="fu">log</span>(sig2))<span class="sc">/</span><span class="dv">2</span> <span class="sc">-</span> <span class="fu">sum</span>(data<span class="sc">^</span><span class="dv">2</span><span class="sc">/</span>sig2)<span class="sc">/</span><span class="dv">2</span>)</span>
+<span id="cb99-14"><a href="session06.html#cb99-14" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
+<span id="cb99-15"><a href="session06.html#cb99-15" tabindex="-1"></a>    neg_loglik <span class="ot">&lt;-</span> <span class="cn">Inf</span></span>
+<span id="cb99-16"><a href="session06.html#cb99-16" tabindex="-1"></a>  }</span>
+<span id="cb99-17"><a href="session06.html#cb99-17" tabindex="-1"></a>  <span class="fu">return</span>(neg_loglik)</span>
+<span id="cb99-18"><a href="session06.html#cb99-18" tabindex="-1"></a>}</span></code></pre></div>
 <div class="sourceCode" id="cb100"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb100-1"><a href="session06.html#cb100-1" tabindex="-1"></a><span class="do">## MLE</span></span>
 <span id="cb100-2"><a href="session06.html#cb100-2" tabindex="-1"></a>garch11_mle <span class="ot">&lt;-</span> <span class="cf">function</span>(data, params) {</span>
 <span id="cb100-3"><a href="session06.html#cb100-3" tabindex="-1"></a>  <span class="co"># nlminb function optimizing parameters </span></span>
@@ -277,11 +286,15 @@ r_t &amp;= \sigma^2_t z_t \\[1ex]
 <span id="cb100-6"><a href="session06.html#cb100-6" tabindex="-1"></a>  <span class="fu">return</span>(<span class="at">param_mle =</span> fit<span class="sc">$</span>par)</span>
 <span id="cb100-7"><a href="session06.html#cb100-7" tabindex="-1"></a>}</span></code></pre></div>
 <div class="sourceCode" id="cb101"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb101-1"><a href="session06.html#cb101-1" tabindex="-1"></a>mle <span class="ot">&lt;-</span> <span class="fu">garch11_mle</span>(r, <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">0.1</span>, <span class="fl">0.1</span>))</span></code></pre></div>
-<div class="sourceCode" id="cb102"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb102-1"><a href="session06.html#cb102-1" tabindex="-1"></a><span class="fu">cbind</span>(mle, <span class="fu">c</span>(w, alpha, beta))</span></code></pre></div>
-<pre><code>##              mle      
-## [1,] 0.001443815 0.010
-## [2,] 0.036959629 0.050
-## [3,] 0.930826309 0.949</code></pre>
+<p>For comparison, we also estimate the model using the <code>garch</code> function in the package <code>tseries</code>.</p>
+<div class="sourceCode" id="cb102"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb102-1"><a href="session06.html#cb102-1" tabindex="-1"></a><span class="do">## estimate garch(1,1) using built-in function</span></span>
+<span id="cb102-2"><a href="session06.html#cb102-2" tabindex="-1"></a><span class="fu">library</span>(tseries)</span>
+<span id="cb102-3"><a href="session06.html#cb102-3" tabindex="-1"></a>garch_tseries <span class="ot">&lt;-</span> <span class="fu">garch</span>(r, <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">1</span>), <span class="at">verbose =</span> <span class="cn">FALSE</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb103"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb103-1"><a href="session06.html#cb103-1" tabindex="-1"></a><span class="fu">cbind</span>(mle, <span class="fu">coef</span>(garch_tseries), <span class="fu">c</span>(w, alpha, beta)) <span class="sc">|&gt;</span> <span class="fu">round</span>(<span class="dv">3</span>)</span></code></pre></div>
+<pre><code>##      mle            
+## a0 0.001 0.001 0.010
+## a1 0.037 0.037 0.050
+## b1 0.931 0.931 0.949</code></pre>
 </div>
 <div id="exercises-2" class="section level2 hasAnchor" number="6.2">
 <h2><span class="header-section-number">6.2</span> Exercises<a href="session06.html#exercises-2" class="anchor-section" aria-label="Anchor link to header"></a></h2>
@@ -330,8 +343,8 @@ where <span class="math inline">\(\text{Var}(r^2_t - \sigma^2_t) = (\mu_4 - 1)\l
 <p><strong>Hint:</strong> Show that the GARCH(1,1) admits an ARMA(1,1) representation <span class="math inline">\(\sigma_t^2 = \omega + (\alpha+\beta)r^2_{t-1} + \beta(r^2_{t-1}-\sigma^2_{t-1}) + (r^2_{t}-\sigma^2_{t})\)</span> and apply the formula for the autocovariance of the ARMA(1,1) (see Exercise 3 in Session 4).</p>
 <p><br>
 <br></p>
-<p><strong>Exercise 3 (Log-likelihood of the GARCH(1,1))</strong>
-Consider a Gaussian GARCH(1,1)</p>
+<p><strong>Exercise 3 (Log-likelihood of the GARCH(1,1))</strong></p>
+<p>Consider a Gaussian GARCH(1,1)</p>
 <p><span class="math display">\[
 \begin{aligned}
 r_t &amp;= \sigma^2_t z_t \\[1ex]
@@ -366,8 +379,8 @@ r_t &amp;= \sigma^2_t z_t \\[1ex]
           </div>
         </div>
       </div>
-<a href="session05.html" class="navigation navigation-prev navigation-unique" aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
-
+<a href="session05.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="session07.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>

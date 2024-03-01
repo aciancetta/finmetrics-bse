@@ -121,7 +121,7 @@
 
 \title{Financial Econometrics - Tutorials}
 \author{Alessandro Ciancetta}
-\date{Last update: February 26, 2024}
+\date{Last update: February 29, 2024}
 
 \begin{document}
 \maketitle
@@ -2059,6 +2059,7 @@ We simulate the data according to the GARCH(1,1) process and compare the MLE wit
 \NormalTok{sigma }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{, }\FunctionTok{rep}\NormalTok{(}\ConstantTok{NA}\NormalTok{, t\_max))}
 \NormalTok{r     }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(sigma[}\DecValTok{1}\NormalTok{]}\SpecialCharTok{*}\NormalTok{z[}\DecValTok{1}\NormalTok{], }\FunctionTok{rep}\NormalTok{(}\ConstantTok{NA}\NormalTok{, t\_max))}
 \ControlFlowTok{for}\NormalTok{ (t }\ControlFlowTok{in} \DecValTok{2}\SpecialCharTok{:}\NormalTok{(t\_max}\SpecialCharTok{+}\DecValTok{1}\NormalTok{)) \{}
+  \FunctionTok{set.seed}\NormalTok{(t}\SpecialCharTok{*}\DecValTok{212}\NormalTok{) }\CommentTok{\# for reproducibility}
 \NormalTok{  sigma[t] }\OtherTok{\textless{}{-}}\NormalTok{ w }\SpecialCharTok{+}\NormalTok{ alpha}\SpecialCharTok{*}\NormalTok{r[t}\DecValTok{{-}1}\NormalTok{] }\SpecialCharTok{+}\NormalTok{ beta}\SpecialCharTok{*}\NormalTok{sigma[t}\DecValTok{{-}1}\NormalTok{]}
 \NormalTok{  r[t]     }\OtherTok{\textless{}{-}}\NormalTok{ sigma[t]}\SpecialCharTok{*}\NormalTok{z[t]}
 \NormalTok{\}}
@@ -2089,12 +2090,12 @@ Estimation
 \DocumentationTok{\#\# filter }
 \NormalTok{garch11\_filter }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(data, params)\{}
   \CommentTok{\# initializations}
-\NormalTok{  omega }\OtherTok{\textless{}{-}}\NormalTok{ params[}\DecValTok{1}\NormalTok{]; }
-\NormalTok{  alpha }\OtherTok{\textless{}{-}}\NormalTok{ params[}\DecValTok{2}\NormalTok{]; }
-\NormalTok{  beta }\OtherTok{\textless{}{-}}\NormalTok{ params[}\DecValTok{3}\NormalTok{];}
-\NormalTok{  T }\OtherTok{\textless{}{-}} \FunctionTok{length}\NormalTok{(data);}
-\NormalTok{  sig2 }\OtherTok{\textless{}{-}} \FunctionTok{numeric}\NormalTok{(T); }
-\NormalTok{  z }\OtherTok{\textless{}{-}} \FunctionTok{numeric}\NormalTok{(T); }
+\NormalTok{  omega }\OtherTok{\textless{}{-}}\NormalTok{ params[}\DecValTok{1}\NormalTok{] }
+\NormalTok{  alpha }\OtherTok{\textless{}{-}}\NormalTok{ params[}\DecValTok{2}\NormalTok{] }
+\NormalTok{  beta }\OtherTok{\textless{}{-}}\NormalTok{ params[}\DecValTok{3}\NormalTok{]}
+\NormalTok{  T }\OtherTok{\textless{}{-}} \FunctionTok{length}\NormalTok{(data)}
+\NormalTok{  sig2 }\OtherTok{\textless{}{-}} \FunctionTok{numeric}\NormalTok{(T)}
+\NormalTok{  z }\OtherTok{\textless{}{-}} \FunctionTok{numeric}\NormalTok{(T) }
 \NormalTok{  loglik }\OtherTok{\textless{}{-}} \DecValTok{0}
 \NormalTok{  sig2[}\DecValTok{1}\NormalTok{] }\OtherTok{\textless{}{-}} \FunctionTok{var}\NormalTok{(data); z[}\DecValTok{1}\NormalTok{] }\OtherTok{\textless{}{-}}\NormalTok{ data[}\DecValTok{1}\NormalTok{]}\SpecialCharTok{/}\FunctionTok{sqrt}\NormalTok{(sig2[}\DecValTok{1}\NormalTok{])}
   \CommentTok{\# for loop calculating one{-}step{-}ahead}
@@ -2115,7 +2116,9 @@ Estimation
 \NormalTok{garch11\_objective }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(data, params) \{}
   
   \CommentTok{\#initializations}
-\NormalTok{  omega }\OtherTok{\textless{}{-}}\NormalTok{ params[}\DecValTok{1}\NormalTok{]; alpha }\OtherTok{\textless{}{-}}\NormalTok{ params[}\DecValTok{2}\NormalTok{]; beta }\OtherTok{\textless{}{-}}\NormalTok{ params[}\DecValTok{3}\NormalTok{]}
+\NormalTok{  omega }\OtherTok{\textless{}{-}}\NormalTok{ params[}\DecValTok{1}\NormalTok{] }
+\NormalTok{  alpha }\OtherTok{\textless{}{-}}\NormalTok{ params[}\DecValTok{2}\NormalTok{] }
+\NormalTok{  beta }\OtherTok{\textless{}{-}}\NormalTok{ params[}\DecValTok{3}\NormalTok{]}
 \NormalTok{  T }\OtherTok{\textless{}{-}} \FunctionTok{length}\NormalTok{(data)}
 \NormalTok{  sig2 }\OtherTok{\textless{}{-}} \FunctionTok{garch11\_filter}\NormalTok{(data, params)}\SpecialCharTok{$}\NormalTok{sig2}
   
@@ -2148,17 +2151,27 @@ Estimation
 \end{Highlighting}
 \end{Shaded}
 
+For comparison, we also estimate the model using the \texttt{garch} function in the package \texttt{tseries}.
+
 \begin{Shaded}
 \begin{Highlighting}[]
-\FunctionTok{cbind}\NormalTok{(mle, }\FunctionTok{c}\NormalTok{(w, alpha, beta))}
+\DocumentationTok{\#\# estimate garch(1,1) using built{-}in function}
+\FunctionTok{library}\NormalTok{(tseries)}
+\NormalTok{garch\_tseries }\OtherTok{\textless{}{-}} \FunctionTok{garch}\NormalTok{(r, }\FunctionTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{), }\AttributeTok{verbose =} \ConstantTok{FALSE}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{cbind}\NormalTok{(mle, }\FunctionTok{coef}\NormalTok{(garch\_tseries), }\FunctionTok{c}\NormalTok{(w, alpha, beta)) }\SpecialCharTok{|\textgreater{}} \FunctionTok{round}\NormalTok{(}\DecValTok{3}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
 \begin{verbatim}
-##              mle      
-## [1,] 0.001443815 0.010
-## [2,] 0.036959629 0.050
-## [3,] 0.930826309 0.949
+##      mle            
+## a0 0.001 0.001 0.010
+## a1 0.037 0.037 0.050
+## b1 0.931 0.931 0.949
 \end{verbatim}
 
 \hypertarget{exercises-2}{%
@@ -2220,6 +2233,7 @@ where \(\text{Var}(r^2_t - \sigma^2_t) = (\mu_4 - 1)\left( \sigma_4 - \left(\fra
 \textbf{Hint:} Show that the GARCH(1,1) admits an ARMA(1,1) representation \(\sigma_t^2 = \omega + (\alpha+\beta)r^2_{t-1} + \beta(r^2_{t-1}-\sigma^2_{t-1}) + (r^2_{t}-\sigma^2_{t})\) and apply the formula for the autocovariance of the ARMA(1,1) (see Exercise 3 in Session 4).
 
 \textbf{Exercise 3 (Log-likelihood of the GARCH(1,1))}
+
 Consider a Gaussian GARCH(1,1)
 
 \[
@@ -2236,6 +2250,316 @@ where \(z_t \sim \mathcal{N}(0, 1)\). Show that the conditional log-likelihood o
 \]
 
 where \(\hat\sigma_t^2\) is the predicted value of the latent volatility computed using the filtering procedure described in the session.
+
+\hypertarget{session07}{%
+\chapter{Volatility modeling in practice}\label{session07}}
+
+\hypertarget{the-arma11-tgarch11-model}{%
+\section{The ARMA(1,1)-TGARCH(1,1) model}\label{the-arma11-tgarch11-model}}
+
+In this session we include the conditionally-heteroskedastic models into the ARMA framework. In particular, we consider an ARMA(1,1) model with conditionally-heteroskedastic innovations and asymmetric effects. For simplicity, we just consider first-order difference equations, but the model can be generalized to include more lags. The model is an ARMA(1,1)-TGARCH(1,1) of the following form:
+
+\[
+\begin{aligned}
+y_t &= c + \phi y_{t-1} + \theta \varepsilon_{t-1} + \varepsilon_t \\
+\varepsilon_t &= \sigma_t z_t \\
+\sigma^2_t &= \omega + \alpha y_{t-1}^2 + \beta \sigma^2_{t-1} + \gamma y_{t-1}^2 \mathbb{1}_{y_{t-1}<0}
+\end{aligned}
+\]
+
+Throughout this session, we consider \(z_t \sim \mathcal{N}(0,1)\) and we estimate the model via maximum-likelihood. Let \(I_t = \{y_1, \dots, y_t, \varepsilon_1, \dots, \varepsilon_t, \sigma_1, \dots, \sigma_t\}\). The log-likelihood of the model is:
+
+\[
+\ell(\theta; I_T) = -\frac{T-1}{2} \log(2\pi) - \frac{1}{2}\sum_{t=2}^T \log \sigma_t(I_{t-1}; \theta) - \frac{1}{2}\sum_{t=2}^T \frac{( \varepsilon_t(I_{t-1}; \theta))^2}{\sigma^2_t(I_{t-1}; \theta)},
+\]
+
+where expressions for \(\sigma_t(I_{t-1}; \theta), \ \varepsilon_t(I_{t-1}; \theta)\) can be found using a standard filtering procedure (Exercise 3).
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DocumentationTok{\#\# Simulate data from ARMA(1,1){-}TGARCH(1,1) process}
+\CommentTok{\# set parameters}
+\NormalTok{t\_max }\OtherTok{\textless{}{-}} \DecValTok{1000}
+\NormalTok{c }\OtherTok{\textless{}{-}} \DecValTok{0}
+\NormalTok{phi }\OtherTok{\textless{}{-}} \FloatTok{0.85}
+\NormalTok{theta }\OtherTok{\textless{}{-}} \SpecialCharTok{{-}}\FloatTok{0.1}
+\NormalTok{omega }\OtherTok{\textless{}{-}} \FloatTok{0.01}
+\NormalTok{alpha }\OtherTok{\textless{}{-}} \FloatTok{0.1}
+\NormalTok{beta }\OtherTok{\textless{}{-}} \FloatTok{0.85}
+\NormalTok{gamma }\OtherTok{\textless{}{-}} \FloatTok{0.05}
+
+\CommentTok{\# simulate}
+\FunctionTok{set.seed}\NormalTok{(}\DecValTok{123}\NormalTok{)}
+\NormalTok{z }\OtherTok{\textless{}{-}} \FunctionTok{rnorm}\NormalTok{(t\_max)}
+\NormalTok{epsilon }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{, }\FunctionTok{rep}\NormalTok{(}\ConstantTok{NA}\NormalTok{, t\_max))}
+\NormalTok{sigma2 }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{, }\FunctionTok{rep}\NormalTok{(}\ConstantTok{NA}\NormalTok{, t\_max))}
+\NormalTok{y     }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(sigma2[}\DecValTok{1}\NormalTok{]}\SpecialCharTok{*}\NormalTok{z[}\DecValTok{1}\NormalTok{], }\FunctionTok{rep}\NormalTok{(}\ConstantTok{NA}\NormalTok{, t\_max))}
+\ControlFlowTok{for}\NormalTok{ (t }\ControlFlowTok{in} \DecValTok{2}\SpecialCharTok{:}\NormalTok{(t\_max}\SpecialCharTok{+}\DecValTok{1}\NormalTok{)) \{}
+  \FunctionTok{set.seed}\NormalTok{(t}\SpecialCharTok{*}\DecValTok{212}\NormalTok{) }\CommentTok{\# for reproducibility}
+  \CommentTok{\# sigma2[t]  \textless{}{-} omega + alpha*y[t{-}1]\^{}2 + beta*sigma2[t{-}1] + gamma*y[t{-}1]\^{}2 + gamma*y[t{-}1]\^{}2*(y[t{-}1]\textless{}0)}
+\NormalTok{  sigma2[t]  }\OtherTok{\textless{}{-}}\NormalTok{ omega }\SpecialCharTok{+}\NormalTok{ alpha}\SpecialCharTok{*}\NormalTok{y[t}\DecValTok{{-}1}\NormalTok{]}\SpecialCharTok{\^{}}\DecValTok{2} \SpecialCharTok{+}\NormalTok{ beta}\SpecialCharTok{*}\NormalTok{sigma2[t}\DecValTok{{-}1}\NormalTok{] }\SpecialCharTok{+}\NormalTok{ gamma}\SpecialCharTok{*}\NormalTok{y[t}\DecValTok{{-}1}\NormalTok{]}\SpecialCharTok{\^{}}\DecValTok{2}\SpecialCharTok{*}\NormalTok{(y[t}\DecValTok{{-}1}\NormalTok{]}\SpecialCharTok{\textless{}}\DecValTok{0}\NormalTok{)}
+\NormalTok{  epsilon[t] }\OtherTok{\textless{}{-}}\NormalTok{ sigma2[t]}\SpecialCharTok{*}\NormalTok{z[t]}
+\NormalTok{  y[t]       }\OtherTok{\textless{}{-}}\NormalTok{ c }\SpecialCharTok{+}\NormalTok{ phi}\SpecialCharTok{*}\NormalTok{y[t}\DecValTok{{-}1}\NormalTok{] }\SpecialCharTok{+}\NormalTok{ theta}\SpecialCharTok{*}\NormalTok{epsilon[t}\DecValTok{{-}1}\NormalTok{] }\SpecialCharTok{+}\NormalTok{ epsilon[t]}
+\NormalTok{\}}
+\NormalTok{y }\OtherTok{\textless{}{-}}\NormalTok{ y[}\DecValTok{50}\SpecialCharTok{:}\NormalTok{t\_max]}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# plot simulated series}
+\FunctionTok{plot.ts}\NormalTok{(y)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{_main_files/figure-latex/unnamed-chunk-75-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# plot simulated series squared}
+\FunctionTok{plot.ts}\NormalTok{(y}\SpecialCharTok{\^{}}\DecValTok{2}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{_main_files/figure-latex/unnamed-chunk-75-2.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DocumentationTok{\#\# filter }
+\NormalTok{arma11tgarch11\_filter }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(y, params)\{}
+  \CommentTok{\# initializations}
+\NormalTok{  c      }\OtherTok{\textless{}{-}}\NormalTok{ params[}\DecValTok{1}\NormalTok{]}
+\NormalTok{  phi    }\OtherTok{\textless{}{-}}\NormalTok{ params[}\DecValTok{2}\NormalTok{]}
+\NormalTok{  theta  }\OtherTok{\textless{}{-}}\NormalTok{ params[}\DecValTok{3}\NormalTok{]}
+\NormalTok{  omega  }\OtherTok{\textless{}{-}}\NormalTok{ params[}\DecValTok{4}\NormalTok{]}
+\NormalTok{  alpha  }\OtherTok{\textless{}{-}}\NormalTok{ params[}\DecValTok{5}\NormalTok{]}
+\NormalTok{  beta   }\OtherTok{\textless{}{-}}\NormalTok{ params[}\DecValTok{6}\NormalTok{]}
+\NormalTok{  gamma  }\OtherTok{\textless{}{-}}\NormalTok{ params[}\DecValTok{7}\NormalTok{]}
+\NormalTok{  t\_max  }\OtherTok{\textless{}{-}} \FunctionTok{length}\NormalTok{(y)}
+  
+\NormalTok{  eps  }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{, }\FunctionTok{rep}\NormalTok{(}\ConstantTok{NA}\NormalTok{, t\_max}\DecValTok{{-}1}\NormalTok{))}
+\NormalTok{  sig2 }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{, }\FunctionTok{rep}\NormalTok{(}\ConstantTok{NA}\NormalTok{, t\_max}\DecValTok{{-}1}\NormalTok{))}
+\NormalTok{  z    }\OtherTok{\textless{}{-}} \FunctionTok{rep}\NormalTok{(}\ConstantTok{NA}\NormalTok{, t\_max)}
+\NormalTok{  loglik }\OtherTok{\textless{}{-}} \DecValTok{0}
+\NormalTok{  sig2[}\DecValTok{1}\NormalTok{] }\OtherTok{\textless{}{-}} \FunctionTok{var}\NormalTok{(y)}
+\NormalTok{  z[}\DecValTok{1}\NormalTok{]    }\OtherTok{\textless{}{-}}\NormalTok{ y[}\DecValTok{1}\NormalTok{]}\SpecialCharTok{/}\FunctionTok{sqrt}\NormalTok{(sig2[}\DecValTok{1}\NormalTok{])}
+  \CommentTok{\# for loop calculating one{-}step{-}ahead}
+  \ControlFlowTok{for}\NormalTok{ (t }\ControlFlowTok{in} \DecValTok{2}\SpecialCharTok{:}\NormalTok{t\_max)\{}
+\NormalTok{    eps[t]  }\OtherTok{\textless{}{-}}\NormalTok{ y[t] }\SpecialCharTok{{-}}\NormalTok{ c }\SpecialCharTok{{-}}\NormalTok{ phi}\SpecialCharTok{*}\NormalTok{y[t}\DecValTok{{-}1}\NormalTok{] }\SpecialCharTok{{-}}\NormalTok{ theta}\SpecialCharTok{*}\NormalTok{eps[t}\DecValTok{{-}1}\NormalTok{]}
+\NormalTok{    sig2[t] }\OtherTok{\textless{}{-}}\NormalTok{ omega }\SpecialCharTok{+}\NormalTok{ alpha}\SpecialCharTok{*}\NormalTok{y[t}\DecValTok{{-}1}\NormalTok{]}\SpecialCharTok{\^{}}\DecValTok{2} \SpecialCharTok{+}\NormalTok{ beta}\SpecialCharTok{*}\NormalTok{sig2[t}\DecValTok{{-}1}\NormalTok{] }\SpecialCharTok{+}\NormalTok{ gamma}\SpecialCharTok{*}\NormalTok{y[t}\DecValTok{{-}1}\NormalTok{]}\SpecialCharTok{\^{}}\DecValTok{2}\SpecialCharTok{*}\NormalTok{(y[t}\DecValTok{{-}1}\NormalTok{]}\SpecialCharTok{\textless{}}\DecValTok{0}\NormalTok{)}
+\NormalTok{    z[t]    }\OtherTok{\textless{}{-}}\NormalTok{ eps[t]}\SpecialCharTok{/}\FunctionTok{sqrt}\NormalTok{(sig2[t])}
+\NormalTok{  \}}
+  \CommentTok{\# loglik}
+\NormalTok{  loglik }\OtherTok{\textless{}{-}}  \SpecialCharTok{{-}} \FunctionTok{sum}\NormalTok{(}\FunctionTok{log}\NormalTok{(sig2[}\DecValTok{2}\SpecialCharTok{:}\NormalTok{t\_max])) }\SpecialCharTok{{-}} \FunctionTok{sum}\NormalTok{(eps[}\DecValTok{2}\SpecialCharTok{:}\NormalTok{t\_max]}\SpecialCharTok{\^{}}\DecValTok{2}\SpecialCharTok{/}\NormalTok{sig2[}\DecValTok{2}\SpecialCharTok{:}\NormalTok{t\_max])  }\CommentTok{\# *0.5 + constant terms }
+  
+  \CommentTok{\# output}
+  \FunctionTok{return}\NormalTok{(}\FunctionTok{list}\NormalTok{(}\AttributeTok{sig2   =}\NormalTok{ sig2, }
+              \AttributeTok{eps    =}\NormalTok{ eps,}
+              \AttributeTok{z      =}\NormalTok{ z, }
+              \AttributeTok{loglik =}\NormalTok{ loglik))}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DocumentationTok{\#\# likelihood}
+\NormalTok{arma11tgarch11\_objective }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(y, params) \{}
+  \CommentTok{\#initializations}
+\NormalTok{  c      }\OtherTok{\textless{}{-}}\NormalTok{ params[}\DecValTok{1}\NormalTok{]}
+\NormalTok{  phi    }\OtherTok{\textless{}{-}}\NormalTok{ params[}\DecValTok{2}\NormalTok{]}
+\NormalTok{  theta  }\OtherTok{\textless{}{-}}\NormalTok{ params[}\DecValTok{3}\NormalTok{]}
+\NormalTok{  omega  }\OtherTok{\textless{}{-}}\NormalTok{ params[}\DecValTok{4}\NormalTok{]}
+\NormalTok{  alpha  }\OtherTok{\textless{}{-}}\NormalTok{ params[}\DecValTok{5}\NormalTok{]}
+\NormalTok{  beta   }\OtherTok{\textless{}{-}}\NormalTok{ params[}\DecValTok{6}\NormalTok{]}
+\NormalTok{  gamma  }\OtherTok{\textless{}{-}}\NormalTok{ params[}\DecValTok{7}\NormalTok{]}
+\NormalTok{  t\_max  }\OtherTok{\textless{}{-}} \FunctionTok{length}\NormalTok{(y)}
+\NormalTok{  res\_filter }\OtherTok{\textless{}{-}} \FunctionTok{arma11tgarch11\_filter}\NormalTok{(y, params)}
+\NormalTok{  sig2 }\OtherTok{\textless{}{-}}\NormalTok{ res\_filter}\SpecialCharTok{$}\NormalTok{sig2}
+\NormalTok{  eps }\OtherTok{\textless{}{-}}\NormalTok{ res\_filter}\SpecialCharTok{$}\NormalTok{eps}
+  
+  \CommentTok{\# if{-}else statement calculating negative loglik}
+  \CommentTok{\# if (all(is.finite(params)) \& omega\textgreater{}=0 \& alpha\textgreater{}0 \& beta\textgreater{}0 \& gamma\textgreater{}0 \& (alpha+beta+gamma/2)\textless{}1) \{}
+  \ControlFlowTok{if}\NormalTok{ (}\FunctionTok{all}\NormalTok{(}\FunctionTok{is.finite}\NormalTok{(params)) }\SpecialCharTok{\&}\NormalTok{ (alpha}\SpecialCharTok{+}\NormalTok{beta}\SpecialCharTok{+}\NormalTok{gamma}\SpecialCharTok{/}\DecValTok{2}\NormalTok{)}\SpecialCharTok{\textless{}}\DecValTok{1}\NormalTok{) \{}
+\NormalTok{    neg\_loglik }\OtherTok{\textless{}{-}} \SpecialCharTok{{-}}\NormalTok{res\_filter}\SpecialCharTok{$}\NormalTok{loglik}
+\NormalTok{  \} }\ControlFlowTok{else}\NormalTok{ \{}
+\NormalTok{    neg\_loglik }\OtherTok{\textless{}{-}} \ConstantTok{Inf}
+\NormalTok{  \}}
+  \FunctionTok{return}\NormalTok{(neg\_loglik)}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DocumentationTok{\#\# MLE}
+\NormalTok{arma11tgarch11\_mle }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(y, params) \{}
+  \CommentTok{\# nlminb function optimizing parameters }
+\NormalTok{  fit }\OtherTok{\textless{}{-}} \FunctionTok{nlminb}\NormalTok{(}\AttributeTok{start =}\NormalTok{ params, }\AttributeTok{objective =}\NormalTok{ arma11tgarch11\_objective, }
+                \AttributeTok{y =}\NormalTok{ y, }
+                \AttributeTok{lower =} \FunctionTok{c}\NormalTok{(}\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{, }\SpecialCharTok{{-}}\FloatTok{0.999}\NormalTok{, }\SpecialCharTok{{-}}\FloatTok{0.999}\NormalTok{, }\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{, }\FloatTok{0.01}\NormalTok{, }\FloatTok{0.01}\NormalTok{, }\FloatTok{0.001}\NormalTok{), }
+                \AttributeTok{upper =} \FunctionTok{c}\NormalTok{( }\DecValTok{1}\NormalTok{,  }\FloatTok{0.999}\NormalTok{,  }\FloatTok{0.999}\NormalTok{,  }\DecValTok{1}\NormalTok{, }\FloatTok{0.9}\NormalTok{, }\FloatTok{0.9}\NormalTok{, }\FloatTok{0.9}\NormalTok{))}
+
+  \DocumentationTok{\#\# output}
+  \FunctionTok{names}\NormalTok{(fit}\SpecialCharTok{$}\NormalTok{par) }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{"c"}\NormalTok{, }\StringTok{"phi"}\NormalTok{, }\StringTok{"theta"}\NormalTok{, }\StringTok{"omega"}\NormalTok{, }\StringTok{"alpha"}\NormalTok{, }\StringTok{"beta"}\NormalTok{, }\StringTok{"gamma"}\NormalTok{)}
+\NormalTok{  fit}\SpecialCharTok{$}\NormalTok{par}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{startparams }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{, }\FloatTok{0.9}\NormalTok{, }\DecValTok{0}\NormalTok{, }\FloatTok{0.1}\NormalTok{, }\FloatTok{0.1}\NormalTok{, }\FloatTok{0.8}\NormalTok{, }\FloatTok{0.01}\NormalTok{)}
+\NormalTok{mle }\OtherTok{\textless{}{-}} \FunctionTok{arma11tgarch11\_mle}\NormalTok{(y, startparams)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{tab }\OtherTok{\textless{}{-}} \FunctionTok{cbind}\NormalTok{(}\AttributeTok{MLE =}\NormalTok{ mle, }
+             \AttributeTok{true =} \FunctionTok{c}\NormalTok{(c, phi, theta, omega, alpha, beta, gamma))}
+\FunctionTok{row.names}\NormalTok{(tab) }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{"c"}\NormalTok{, }\StringTok{"phi"}\NormalTok{, }\StringTok{"theta"}\NormalTok{, }\StringTok{"omega"}\NormalTok{, }\StringTok{"alpha"}\NormalTok{, }\StringTok{"beta"}\NormalTok{, }\StringTok{"gamma"}\NormalTok{)}
+\FunctionTok{round}\NormalTok{(tab, }\DecValTok{3}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##          MLE  true
+## c      0.001  0.00
+## phi    0.831  0.85
+## theta -0.119 -0.10
+## omega  0.001  0.01
+## alpha  0.028  0.10
+## beta   0.736  0.85
+## gamma  0.009  0.05
+\end{verbatim}
+
+\hypertarget{modeling-the-sp-500-volatility}{%
+\section{Modeling the S\&P 500 volatility}\label{modeling-the-sp-500-volatility}}
+
+We now show an application of the ARMA(1,1)-TGARCH(1,1) model to the S\&P 500 historical data.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DocumentationTok{\#\# Load data}
+\NormalTok{sp500 }\OtherTok{\textless{}{-}} \FunctionTok{read.csv}\NormalTok{(}\StringTok{"../data/sp500.csv"}\NormalTok{)}
+\NormalTok{sp500 }\OtherTok{\textless{}{-}} \FunctionTok{ts}\NormalTok{(sp500}\SpecialCharTok{$}\NormalTok{adjusted\_close[}\FunctionTok{nrow}\NormalTok{(sp500)}\SpecialCharTok{:}\DecValTok{1}\NormalTok{], }\AttributeTok{start =} \FunctionTok{c}\NormalTok{(}\DecValTok{1999}\NormalTok{, }\DecValTok{11}\NormalTok{, }\DecValTok{1}\NormalTok{), }\AttributeTok{freq =} \DecValTok{365}\NormalTok{)}
+\NormalTok{d }\OtherTok{\textless{}{-}} \FunctionTok{diff}\NormalTok{(}\FunctionTok{log}\NormalTok{(sp500))}\SpecialCharTok{*}\DecValTok{252}
+\FunctionTok{plot.ts}\NormalTok{(d, }\AttributeTok{main =} \StringTok{"S\&P 500 annualized growth rates"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{_main_files/figure-latex/unnamed-chunk-82-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DocumentationTok{\#\# Compute MLE}
+\NormalTok{mle\_sp500 }\OtherTok{\textless{}{-}} \FunctionTok{arma11tgarch11\_mle}\NormalTok{(d, startparams)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{mle\_sp500}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##           c         phi       theta       omega       alpha        beta 
+##  0.03314379  0.49055508 -0.53153704  0.16230434  0.01000000  0.87320296 
+##       gamma 
+##  0.19467830
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DocumentationTok{\#\# plot fitted values}
+\NormalTok{filter\_sp500 }\OtherTok{\textless{}{-}} \FunctionTok{arma11tgarch11\_filter}\NormalTok{(d, mle\_sp500)}
+\NormalTok{eps  }\OtherTok{\textless{}{-}}\NormalTok{ filter\_sp500}\SpecialCharTok{$}\NormalTok{eps}
+\NormalTok{sig2 }\OtherTok{\textless{}{-}}\NormalTok{ filter\_sp500}\SpecialCharTok{$}\NormalTok{sig2}
+\NormalTok{z    }\OtherTok{\textless{}{-}}\NormalTok{ filter\_sp500}\SpecialCharTok{$}\NormalTok{z}
+
+\NormalTok{c      }\OtherTok{\textless{}{-}}\NormalTok{ mle\_sp500[}\DecValTok{1}\NormalTok{]}
+\NormalTok{phi    }\OtherTok{\textless{}{-}}\NormalTok{ mle\_sp500[}\DecValTok{2}\NormalTok{]}
+\NormalTok{theta  }\OtherTok{\textless{}{-}}\NormalTok{ mle\_sp500[}\DecValTok{3}\NormalTok{]}
+\NormalTok{omega  }\OtherTok{\textless{}{-}}\NormalTok{ mle\_sp500[}\DecValTok{4}\NormalTok{]}
+\NormalTok{alpha  }\OtherTok{\textless{}{-}}\NormalTok{ mle\_sp500[}\DecValTok{5}\NormalTok{]}
+\NormalTok{beta   }\OtherTok{\textless{}{-}}\NormalTok{ mle\_sp500[}\DecValTok{6}\NormalTok{]}
+\NormalTok{gamma  }\OtherTok{\textless{}{-}}\NormalTok{ mle\_sp500[}\DecValTok{7}\NormalTok{]}
+\NormalTok{t\_max  }\OtherTok{\textless{}{-}} \FunctionTok{length}\NormalTok{(d)}
+
+\NormalTok{fitted\_sp500 }\OtherTok{\textless{}{-}}\NormalTok{ c }\SpecialCharTok{+}\NormalTok{ phi}\SpecialCharTok{*}\NormalTok{d }\SpecialCharTok{+}\NormalTok{ theta}\SpecialCharTok{*}\NormalTok{eps}
+\NormalTok{upper\_sp500     }\OtherTok{\textless{}{-}}\NormalTok{ fitted\_sp500 }\SpecialCharTok{+} \FloatTok{1.96}\SpecialCharTok{*}\FunctionTok{sqrt}\NormalTok{(sig2)}
+\NormalTok{lower\_sp500     }\OtherTok{\textless{}{-}}\NormalTok{ fitted\_sp500 }\SpecialCharTok{{-}} \FloatTok{1.96}\SpecialCharTok{*}\FunctionTok{sqrt}\NormalTok{(sig2)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{plot.ts}\NormalTok{(d, }\AttributeTok{main =} \StringTok{"S\&P 500 annualized growth rates"}\NormalTok{)}
+\FunctionTok{lines}\NormalTok{(fitted\_sp500, }\AttributeTok{col =} \StringTok{"steelblue"}\NormalTok{)}
+\FunctionTok{lines}\NormalTok{(lower\_sp500, }\AttributeTok{col =} \StringTok{"tomato"}\NormalTok{)}
+\FunctionTok{lines}\NormalTok{(upper\_sp500, }\AttributeTok{col =} \StringTok{"tomato"}\NormalTok{)}
+\FunctionTok{text}\NormalTok{(}\AttributeTok{x =} \DecValTok{2009}\NormalTok{, }\AttributeTok{y =} \DecValTok{30}\NormalTok{,}
+     \AttributeTok{labels =} \FunctionTok{paste0}\NormalTok{(}\StringTok{"Observations outside CI: "}\NormalTok{, }
+                   \FunctionTok{round}\NormalTok{(}\FunctionTok{mean}\NormalTok{((d }\SpecialCharTok{\textgreater{}}\NormalTok{ upper\_sp500) }\SpecialCharTok{|}\NormalTok{ (d }\SpecialCharTok{\textless{}}\NormalTok{ lower\_sp500)),}\DecValTok{4}\NormalTok{)}\SpecialCharTok{*}\DecValTok{100}\NormalTok{, }\StringTok{"\%"}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{_main_files/figure-latex/unnamed-chunk-87-1.pdf}
+
+\hypertarget{exercises-3}{%
+\section{Exercises}\label{exercises-3}}
+
+\textbf{Exercise 1 (h-step ahead volatility forecast of the GARCH(1,1))}
+
+Consider the GARCH(1,1) model
+
+\[
+\begin{aligned}
+r_t &= \sigma^2_t z_t \\[1ex]
+\sigma^2_t &= \omega + \alpha r_{t-1}^2 + \beta \sigma^2_{t-1}
+\end{aligned}
+\]
+
+Show that
+
+\[
+\mathbb{E}[\sigma^2_{t+h} | r_t, \sigma_t] = 
+\begin{cases}
+\omega + \alpha r_{t}^2 + \beta \sigma^2_t & \qquad \text{if} \quad h=1 \\
+\omega \frac{1-(\alpha+\beta)^{h-1}}{1-\alpha-\beta} + (\alpha+\beta)^{h-1} \
+\mathbb{E}[\sigma^2_{t+1} | r_t, \sigma_t]  & \qquad \text{if} \quad h>1
+\end{cases}
+\]
+
+\textbf{Exercise 2 (Log-likelihood of the ARMA(p,q)-GARCH(r,s) model)}
+
+Consider the following specification of an ARMA model with conditionally-heteroskedastic innovations:
+
+\[
+\begin{aligned}
+y_t &= c + \phi_1 y_{t-1} + \dots + \phi_p y_{t-p} + \theta_1 \varepsilon_{t-1} + \dots + \theta_q \varepsilon_{t-q} + \varepsilon_t \\
+\varepsilon_t &= \sigma_t z_t \\
+\sigma^2_t &= \omega + \alpha_1 y_{t-1}^2 + \dots + \alpha_r y_{t-r}^2 + \beta_1 \sigma^2_{t-1} + \dots + \beta_s \sigma^2_{t-s}
+\end{aligned}
+\]
+
+Derive the log-likelihood of the model under the assumption that \(z_t \sim \mathcal{N}(0, 1)\). Provide also the filtering procedure used to estimate the latent variables \(\varepsilon_t\) and \(\sigma_t\).
+
+\textbf{Exercise 3 (Log-likelihood of the ARMA(1,1)-TGARCH(1,1) model)}
+
+Consider the following specification of an ARMA model with asymmetric conditionally-heteroskedastic innovations:
+
+\[
+\begin{aligned}
+y_t &= c + \phi y_{t-1} + \theta \varepsilon_{t-1} + \varepsilon_t \\
+\varepsilon_t &= \sigma_t z_t \\
+\sigma^2_t &= \omega + \alpha y_{t-1}^2 + \beta \sigma^2_{t-1} + \gamma y_{t-1}^2 \mathbb{1}_{y_{t-1}<0}
+\end{aligned}
+\]
+
+Derive the log-likelihood of the model under the assumption that \(z_t \sim \mathcal{N}(0, 1)\). Provide also the filtering procedure used to estimate the latent variables \(\varepsilon_t\) and \(\sigma_t\).
 
   \bibliography{book.bib,packages.bib}
 

@@ -36,6 +36,7 @@ z <- rnorm(t_max)
 sigma <- c(1, rep(NA, t_max))
 r     <- c(sigma[1]*z[1], rep(NA, t_max))
 for (t in 2:(t_max+1)) {
+  set.seed(t*212) # for reproducibility
   sigma[t] <- w + alpha*r[t-1] + beta*sigma[t-1]
   r[t]     <- sigma[t]*z[t]
 }
@@ -57,12 +58,12 @@ Estimation
 ## filter 
 garch11_filter <- function(data, params){
   # initializations
-  omega <- params[1]; 
-  alpha <- params[2]; 
-  beta <- params[3];
-  T <- length(data);
-  sig2 <- numeric(T); 
-  z <- numeric(T); 
+  omega <- params[1] 
+  alpha <- params[2] 
+  beta <- params[3]
+  T <- length(data)
+  sig2 <- numeric(T)
+  z <- numeric(T) 
   loglik <- 0
   sig2[1] <- var(data); z[1] <- data[1]/sqrt(sig2[1])
   # for loop calculating one-step-ahead
@@ -82,7 +83,9 @@ garch11_filter <- function(data, params){
 garch11_objective <- function(data, params) {
   
   #initializations
-  omega <- params[1]; alpha <- params[2]; beta <- params[3]
+  omega <- params[1] 
+  alpha <- params[2] 
+  beta <- params[3]
   T <- length(data)
   sig2 <- garch11_filter(data, params)$sig2
   
@@ -112,9 +115,19 @@ garch11_mle <- function(data, params) {
 mle <- garch11_mle(r, c(0, 0.1, 0.1))
 ```
 
-```{r}
-cbind(mle, c(w, alpha, beta))
+For comparison, we also estimate the model using the `garch` function in the package `tseries`.
+
+```{r message=FALSE, warning=FALSE, results='hide'}
+## estimate garch(1,1) using built-in function
+library(tseries)
+garch_tseries <- garch(r, c(1,1), verbose = FALSE)
 ```
+
+
+```{r}
+cbind(mle, coef(garch_tseries), c(w, alpha, beta)) |> round(3)
+```
+
 
 
 
@@ -187,6 +200,7 @@ where $\text{Var}(r^2_t - \sigma^2_t) = (\mu_4 - 1)\left( \sigma_4 - \left(\frac
 <br>
 
 **Exercise 3 (Log-likelihood of the GARCH(1,1))**
+
 Consider a Gaussian GARCH(1,1)
 
 $$
