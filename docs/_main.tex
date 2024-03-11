@@ -121,7 +121,7 @@
 
 \title{Financial Econometrics - Tutorials}
 \author{Alessandro Ciancetta}
-\date{Last update: February 29, 2024}
+\date{Last update: March 11, 2024}
 
 \begin{document}
 \maketitle
@@ -2280,12 +2280,12 @@ where expressions for \(\sigma_t(I_{t-1}; \theta), \ \varepsilon_t(I_{t-1}; \the
 \DocumentationTok{\#\# Simulate data from ARMA(1,1){-}TGARCH(1,1) process}
 \CommentTok{\# set parameters}
 \NormalTok{t\_max }\OtherTok{\textless{}{-}} \DecValTok{1000}
-\NormalTok{c }\OtherTok{\textless{}{-}} \DecValTok{0}
-\NormalTok{phi }\OtherTok{\textless{}{-}} \FloatTok{0.85}
+\NormalTok{c     }\OtherTok{\textless{}{-}} \DecValTok{0}
+\NormalTok{phi   }\OtherTok{\textless{}{-}} \FloatTok{0.85}
 \NormalTok{theta }\OtherTok{\textless{}{-}} \SpecialCharTok{{-}}\FloatTok{0.1}
 \NormalTok{omega }\OtherTok{\textless{}{-}} \FloatTok{0.01}
 \NormalTok{alpha }\OtherTok{\textless{}{-}} \FloatTok{0.1}
-\NormalTok{beta }\OtherTok{\textless{}{-}} \FloatTok{0.85}
+\NormalTok{beta  }\OtherTok{\textless{}{-}} \FloatTok{0.85}
 \NormalTok{gamma }\OtherTok{\textless{}{-}} \FloatTok{0.05}
 
 \CommentTok{\# simulate}
@@ -2560,6 +2560,80 @@ y_t &= c + \phi y_{t-1} + \theta \varepsilon_{t-1} + \varepsilon_t \\
 \]
 
 Derive the log-likelihood of the model under the assumption that \(z_t \sim \mathcal{N}(0, 1)\). Provide also the filtering procedure used to estimate the latent variables \(\varepsilon_t\) and \(\sigma_t\).
+
+\hypertarget{session08}{%
+\chapter{Value-at-Risk and correlation modelling}\label{session08}}
+
+\hypertarget{exercises-4}{%
+\section{Exercises}\label{exercises-4}}
+
+\textbf{Exercise 1 (Value-at-Risk using GARCH models)}
+
+Consider the problem of estimating the Value-at-Risk \(-\text{VaR}_t^p = Q_p(r_t | I_{t-1})\) using a GARCH model \(r_t = \sigma_t z_t\) and \(\sigma_t\) known given the information set \(I_{t-1}\).
+
+\begin{itemize}
+\item
+  Discuss how to estimate \(Q_p(r_t | I_{t-1})\) under the assumption that \(z_t \sim \mathcal{N}(0,1)\). How could you estimate the VaR without assuming the true distribution of \(z_t\)?
+\item
+  How would you evaluate the VaR forecasts out of sample? Discuss how to apply the unconditional coverage test and the dynamic quantile test in this context.
+\end{itemize}
+
+\textbf{Exercise 2 (Covariance matrix of factor ARCH model)}
+
+Consider the factor ARCH model
+
+\[
+\begin{aligned}
+r_{it} &= \lambda_i r_{mt} + \sigma_{it} z_{it}, &\quad z_{it} \sim \mathcal{D}(0,1) \\
+r_{it} &= \sigma_{mt} z_{mt}, &\quad z_{mt} \sim \mathcal{D}(0,1) 
+\end{aligned}
+\]
+
+where \(r_{mt}\) is the market return, \(\sigma_{mt}\) is the market volatility and \(\lambda_i\) is the loading of stock \(i\) on the market return. Assume that \(\text{cov}(z_{mt}, z_{it}) = 0\) (the common shock and the idiosyncratic shock are uncorrelated), \(\text{cov}(z_{it}, z_{jt}) = 0\) (the idiosyncratic shocks are uncorrelated) and \(\sigma_{mt}, \sigma_{it}\) are known given \(I_{t-1}\) (ARCH/GARCH dynamics).
+
+Derive the covariance matrix of the returns. In particular, show that:
+
+\begin{itemize}
+\tightlist
+\item
+  \(\text{Var}_{t-1}(r_{it}) = \lambda_i^2 \sigma^2_{mt} + \sigma_{it}^2\)
+\item
+  \(\text{cov}_{t-1}(r_{it}, r_{jt}) = \lambda_i \lambda_j \sigma_{mt}^2\)
+\end{itemize}
+
+\hypertarget{session09}{%
+\chapter{Additional exercises}\label{session09}}
+
+\hypertarget{exercises-5}{%
+\section{Exercises}\label{exercises-5}}
+
+\textbf{Exercise 1}
+
+Describe the behaviour of the ACF and PACF for ARMA models. How does the behaviour of the ACF/PACF help identifying an ARMA model?
+
+\textbf{Exercise 2}
+
+Show that the following AR(2) model is stationary:
+
+\[
+y_t = 0.6 y_{t-1} - 0.08 y_{t-2} + \varepsilon_t
+\]
+
+\textbf{Exercise 3}
+
+Show that the kurtosis of an ARCH(1,1) process is
+
+\[
+\mathbb{E}[\sigma_t^4] = \sigma^4(1+\alpha^2) - \alpha \mu_4 \sigma^4 \frac{1-\alpha^2}{1-\alpha^2 \mu_4}
+\]
+
+\textbf{Exercise 4}
+Consider the process
+\[
+y_t = \delta + \sum_{s=1}^t \varepsilon_s + x_t
+\]
+
+where \(\varepsilon_t\) is i.i.d. and \(x_t\) is a covariance-stationary process with \(\mathbb{E}[x_t] = 0\). Show that \(y_t\) is an \(I(1)\) process.
 
   \bibliography{book.bib,packages.bib}
 

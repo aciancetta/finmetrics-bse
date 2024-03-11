@@ -30,7 +30,7 @@
   
   
 <link rel="prev" href="session06.html"/>
-
+<link rel="next" href="session08.html"/>
 <script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
 <link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
@@ -179,6 +179,14 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li class="chapter" data-level="7.2" data-path="session07.html"><a href="session07.html#modeling-the-sp-500-volatility"><i class="fa fa-check"></i><b>7.2</b> Modeling the S&amp;P 500 volatility</a></li>
 <li class="chapter" data-level="7.3" data-path="session07.html"><a href="session07.html#exercises-3"><i class="fa fa-check"></i><b>7.3</b> Exercises</a></li>
 </ul></li>
+<li class="chapter" data-level="8" data-path="session08.html"><a href="session08.html"><i class="fa fa-check"></i><b>8</b> Value-at-Risk and correlation modelling</a>
+<ul>
+<li class="chapter" data-level="8.1" data-path="session08.html"><a href="session08.html#exercises-4"><i class="fa fa-check"></i><b>8.1</b> Exercises</a></li>
+</ul></li>
+<li class="chapter" data-level="9" data-path="session09.html"><a href="session09.html"><i class="fa fa-check"></i><b>9</b> Additional exercises</a>
+<ul>
+<li class="chapter" data-level="9.1" data-path="session09.html"><a href="session09.html#exercises-5"><i class="fa fa-check"></i><b>9.1</b> Exercises</a></li>
+</ul></li>
 <li class="divider"></li>
 <li><a href="https://github.com/aciancetta" target="blank">Alessandro Ciancetta</a></li>
 
@@ -219,12 +227,12 @@ y_t &amp;= c + \phi y_{t-1} + \theta \varepsilon_{t-1} + \varepsilon_t \\
 <div class="sourceCode" id="cb105"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb105-1"><a href="session07.html#cb105-1" tabindex="-1"></a><span class="do">## Simulate data from ARMA(1,1)-TGARCH(1,1) process</span></span>
 <span id="cb105-2"><a href="session07.html#cb105-2" tabindex="-1"></a><span class="co"># set parameters</span></span>
 <span id="cb105-3"><a href="session07.html#cb105-3" tabindex="-1"></a>t_max <span class="ot">&lt;-</span> <span class="dv">1000</span></span>
-<span id="cb105-4"><a href="session07.html#cb105-4" tabindex="-1"></a>c <span class="ot">&lt;-</span> <span class="dv">0</span></span>
-<span id="cb105-5"><a href="session07.html#cb105-5" tabindex="-1"></a>phi <span class="ot">&lt;-</span> <span class="fl">0.85</span></span>
+<span id="cb105-4"><a href="session07.html#cb105-4" tabindex="-1"></a>c     <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb105-5"><a href="session07.html#cb105-5" tabindex="-1"></a>phi   <span class="ot">&lt;-</span> <span class="fl">0.85</span></span>
 <span id="cb105-6"><a href="session07.html#cb105-6" tabindex="-1"></a>theta <span class="ot">&lt;-</span> <span class="sc">-</span><span class="fl">0.1</span></span>
 <span id="cb105-7"><a href="session07.html#cb105-7" tabindex="-1"></a>omega <span class="ot">&lt;-</span> <span class="fl">0.01</span></span>
 <span id="cb105-8"><a href="session07.html#cb105-8" tabindex="-1"></a>alpha <span class="ot">&lt;-</span> <span class="fl">0.1</span></span>
-<span id="cb105-9"><a href="session07.html#cb105-9" tabindex="-1"></a>beta <span class="ot">&lt;-</span> <span class="fl">0.85</span></span>
+<span id="cb105-9"><a href="session07.html#cb105-9" tabindex="-1"></a>beta  <span class="ot">&lt;-</span> <span class="fl">0.85</span></span>
 <span id="cb105-10"><a href="session07.html#cb105-10" tabindex="-1"></a>gamma <span class="ot">&lt;-</span> <span class="fl">0.05</span></span>
 <span id="cb105-11"><a href="session07.html#cb105-11" tabindex="-1"></a></span>
 <span id="cb105-12"><a href="session07.html#cb105-12" tabindex="-1"></a><span class="co"># simulate</span></span>
@@ -430,8 +438,8 @@ y_t &amp;= c + \phi y_{t-1} + \theta \varepsilon_{t-1} + \varepsilon_t \\
           </div>
         </div>
       </div>
-<a href="session06.html" class="navigation navigation-prev navigation-unique" aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
-
+<a href="session06.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="session08.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
 <script src="libs/gitbook-2.6.7/js/app.min.js"></script>

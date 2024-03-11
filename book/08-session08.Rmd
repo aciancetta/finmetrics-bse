@@ -1,0 +1,53 @@
+# Value-at-Risk and correlation modelling {#session08}
+
+
+## Exercises
+
+**Exercise 1 (Value-at-Risk using GARCH models)**
+
+Consider the problem of estimating the Value-at-Risk $-\text{VaR}_t^p = Q_p(r_t | I_{t-1})$ using a GARCH model $r_t = \sigma_t z_t$ and $\sigma_t$ known given the information set $I_{t-1}$.
+
+ * Discuss how to estimate $Q_p(r_t | I_{t-1})$ under the assumption that $z_t \sim \mathcal{N}(0,1)$. How could you estimate the VaR without assuming the true distribution of $z_t$?
+ 
+ * How would you evaluate the VaR forecasts out of sample? Discuss how to apply the unconditional coverage test and the dynamic quantile test in this context.
+ 
+
+<br>
+<br>
+
+
+
+**Exercise 2 (Covariance matrix of factor ARCH model)**
+
+Consider the factor ARCH model 
+
+$$
+\begin{aligned}
+r_{it} &= \lambda_i r_{mt} + \sigma_{it} z_{it}, &\quad z_{it} \sim \mathcal{D}(0,1) \\
+r_{it} &= \sigma_{mt} z_{mt}, &\quad z_{mt} \sim \mathcal{D}(0,1) 
+\end{aligned}
+$$
+
+where $r_{mt}$ is the market return, $\sigma_{mt}$ is the market volatility and $\lambda_i$ is the loading of stock $i$ on the market return. Assume that $\text{cov}(z_{mt}, z_{it}) = 0$ (the common shock and the idiosyncratic shock are uncorrelated), $\text{cov}(z_{it}, z_{jt}) = 0$ (the idiosyncratic shocks are uncorrelated) and $\sigma_{mt}, \sigma_{it}$ are known given $I_{t-1}$ (ARCH/GARCH dynamics).
+
+Derive the covariance matrix of the returns. In particular, show that:
+
+ * $\text{Var}_{t-1}(r_{it}) = \lambda_i^2 \sigma^2_{mt} + \sigma_{it}^2$ 
+ * $\text{cov}_{t-1}(r_{it}, r_{jt}) = \lambda_i \lambda_j \sigma_{mt}^2$ 
+
+
+<br>
+<br>
+
+
+
+
+
+
+
+
+
+
+<!-- `r if (knitr::is_html_output()) ' -->
+<!-- # References {-} -->
+<!-- '` -->
