@@ -7,3 +7,5 @@ rmd_files: ["index.Rmd", "01-session01.Rmd", "02-session02.Rmd",
 language:
   ui:
     chapter_name: "Session "
+
+

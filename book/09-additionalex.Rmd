@@ -38,6 +38,7 @@ $$
 
 
 **Exercise 4**
+
 Consider the process
 $$
 y_t = \delta + \sum_{s=1}^t \varepsilon_s + x_t
@@ -50,8 +51,30 @@ where $\varepsilon_t$ is i.i.d. and $x_t$ is a covariance-stationary process wit
 <br>
 
 
+**Exercise 5**
+
+Let $x_t$ be a covariance-stationary process. Show that the first difference $\Delta x_t$ is also covariance stationary.
 
 
+
+
+<br>
+<br>
+
+**Exercise 6**
+
+Derive the optimal $h$-step ahead forecast for the conditional mean using an AR(1) model.
+
+
+<br>
+<br>
+
+**Exercise 7**
+
+Derive the MA($\infty$) representation of an AR(1) model.
+
+<br>
+<br>
 
 <!-- `r if (knitr::is_html_output()) ' -->
 <!-- # References {-} -->
