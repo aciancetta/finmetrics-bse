@@ -1,7 +1,7 @@
 --- 
 title: "Financial Econometrics - Tutorials"
 author: "Alessandro Ciancetta"
-date: "Last update: March 14, 2024"
+date: "Last update: January 16, 2025"
 site: bookdown::bookdown_site
 documentclass: book
 bibliography: [book.bib, packages.bib]
@@ -20,6 +20,18 @@ TA materials for the Financial Econometrics course held by Prof. Christian Brown
 ```{r include = FALSE}
 ## to render the PDF for teaching
 # knitr::opts_chunk$set(results = 'hide', eval = FALSE)
+```
+
+```{r include = FALSE}
+## to add solutions
+# library(pdftools)
+# 
+# pdfs <- c("docs/_main.pdf",
+#   paste0("../session0", 4:9, "-exercises.pdf"),
+#   "../session10-exercises.pdf")
+# 
+# pdf_combine(pdfs, 
+#             output = "docs/_main_solutions.pdf")
 ```
 
 

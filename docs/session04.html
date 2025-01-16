@@ -55,7 +55,7 @@
 
 <style type="text/css">
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -65,7 +65,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
   { counter-reset: source-line 0; }
@@ -232,12 +232,12 @@ y_t = c + \phi y_{t-1} + \theta \varepsilon_{t-1} + \varepsilon_t, \quad \vareps
 <span id="cb76-14"><a href="session04.html#cb76-14" tabindex="-1"></a>  y[t] <span class="ot">&lt;-</span> const <span class="sc">+</span> phi<span class="sc">*</span>y[t<span class="dv">-1</span>] <span class="sc">+</span> theta<span class="sc">*</span>eps[t<span class="dv">-1</span>] <span class="sc">+</span> eps[t]</span>
 <span id="cb76-15"><a href="session04.html#cb76-15" tabindex="-1"></a>}</span></code></pre></div>
 <div class="sourceCode" id="cb77"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb77-1"><a href="session04.html#cb77-1" tabindex="-1"></a><span class="fu">plot.ts</span>(y)</span></code></pre></div>
-<p><img src="_main_files/figure-html/unnamed-chunk-56-1.png" width="672" /></p>
+<p><img src="_main_files/figure-html/unnamed-chunk-57-1.png" width="672" /></p>
 <div class="sourceCode" id="cb78"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb78-1"><a href="session04.html#cb78-1" tabindex="-1"></a><span class="do">## Autocorrelograms</span></span>
 <span id="cb78-2"><a href="session04.html#cb78-2" tabindex="-1"></a><span class="fu">acf</span>(y, <span class="at">lwd =</span> <span class="dv">3</span>)</span></code></pre></div>
-<p><img src="_main_files/figure-html/unnamed-chunk-57-1.png" width="672" /></p>
+<p><img src="_main_files/figure-html/unnamed-chunk-58-1.png" width="672" /></p>
 <div class="sourceCode" id="cb79"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb79-1"><a href="session04.html#cb79-1" tabindex="-1"></a><span class="fu">pacf</span>(y, <span class="at">lwd =</span> <span class="dv">3</span>)</span></code></pre></div>
-<p><img src="_main_files/figure-html/unnamed-chunk-57-2.png" width="672" /></p>
+<p><img src="_main_files/figure-html/unnamed-chunk-58-2.png" width="672" /></p>
 <p>We now turn to estimate the model by maximum likelihood. We can then compare the estimates with the true values of the parameters that we used to simulate the data. Notice that the distribution of observation <span class="math inline">\(y_t\)</span> given all the information set <span class="math inline">\(I_{t-1}\)</span> available up to time <span class="math inline">\(t-1\)</span> is</p>
 <p><span class="math display">\[
 y_t | I_{t-1} \sim \mathcal{N}(c + \phi y_{t-1} + \theta \varepsilon_{t-1}, \ \sigma^2_\varepsilon).

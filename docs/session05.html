@@ -55,7 +55,7 @@
 
 <style type="text/css">
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -65,7 +65,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
   { counter-reset: source-line 0; }
@@ -249,7 +249,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb90-4"><a href="session05.html#cb90-4" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">&#39;topright&#39;</span>,<span class="fu">c</span>(<span class="st">&#39;ACF&#39;</span>),<span class="at">col=</span><span class="fu">c</span>(<span class="st">&#39;darkorange2&#39;</span>),<span class="at">lwd=</span><span class="dv">3</span>)</span>
 <span id="cb90-5"><a href="session05.html#cb90-5" tabindex="-1"></a><span class="fu">pacf</span>( y , <span class="at">ylim=</span><span class="fu">c</span>(<span class="sc">-</span><span class="fl">0.2</span>,<span class="dv">1</span>) , <span class="at">lwd=</span><span class="dv">5</span> , <span class="at">xlim=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">25</span>) , <span class="at">col=</span><span class="st">&#39;darkorange2&#39;</span> , <span class="at">tck=</span><span class="fl">0.02</span>)</span>
 <span id="cb90-6"><a href="session05.html#cb90-6" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">&#39;topright&#39;</span>,<span class="fu">c</span>(<span class="st">&#39;PACF&#39;</span>),<span class="at">col=</span><span class="fu">c</span>(<span class="st">&#39;darkorange2&#39;</span>),<span class="at">lwd=</span><span class="dv">3</span>)</span></code></pre></div>
-<p><img src="_main_files/figure-html/unnamed-chunk-63-1.png" width="672" /></p>
+<p><img src="_main_files/figure-html/unnamed-chunk-64-1.png" width="672" /></p>
 <p><br></p>
 <div id="estimation" class="section level4 unnumbered hasAnchor">
 <h4>Estimation<a href="session05.html#estimation" class="anchor-section" aria-label="Anchor link to header"></a></h4>
@@ -318,7 +318,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb93-31"><a href="session05.html#cb93-31" tabindex="-1"></a><span class="fu">abline</span>( <span class="at">h=</span>arma11<span class="sc">$</span>coef[<span class="st">&#39;intercept&#39;</span>] , <span class="at">lwd=</span><span class="dv">2</span> )</span>
 <span id="cb93-32"><a href="session05.html#cb93-32" tabindex="-1"></a><span class="fu">lines</span>( dates[(N<span class="dv">-10</span>)<span class="sc">:</span>N] , arma11_mu[(N<span class="dv">-10</span>)<span class="sc">:</span>N] , <span class="at">t=</span><span class="st">&#39;l&#39;</span> , <span class="at">lwd=</span><span class="dv">2</span> , <span class="at">col=</span><span class="st">&#39;blue3&#39;</span> )</span>
 <span id="cb93-33"><a href="session05.html#cb93-33" tabindex="-1"></a><span class="fu">lines</span>( dates[(N<span class="sc">+</span><span class="dv">1</span>)<span class="sc">:</span>(N<span class="sc">+</span>H)] , <span class="fu">as.numeric</span>(arma11_pred<span class="sc">$</span>pred)  , <span class="at">t=</span><span class="st">&#39;b&#39;</span> , <span class="at">lwd=</span><span class="dv">2</span> , <span class="at">col=</span><span class="st">&#39;blue3&#39;</span> )</span></code></pre></div>
-<p><img src="_main_files/figure-html/unnamed-chunk-65-1.png" width="672" /></p>
+<p><img src="_main_files/figure-html/unnamed-chunk-66-1.png" width="672" /></p>
 <div class="sourceCode" id="cb94"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb94-1"><a href="session05.html#cb94-1" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>))</span>
 <span id="cb94-2"><a href="session05.html#cb94-2" tabindex="-1"></a></span>
 <span id="cb94-3"><a href="session05.html#cb94-3" tabindex="-1"></a><span class="fu">myplot</span>( dates[(N<span class="dv">-10</span>)<span class="sc">:</span>(N<span class="sc">+</span>H)] , <span class="fu">c</span>(y[(N<span class="dv">-10</span>)<span class="sc">:</span>N], y.out) , <span class="at">t=</span><span class="st">&#39;b&#39;</span>, <span class="at">main=</span><span class="fu">sprintf</span>(<span class="st">&#39;MA(2) RMSE %3.3f&#39;</span>,ma2_mse) , <span class="at">ylim=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">7</span>) , <span class="at">col=</span><span class="st">&#39;darkorange&#39;</span> ) </span>
@@ -332,7 +332,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb94-11"><a href="session05.html#cb94-11" tabindex="-1"></a><span class="fu">abline</span>( <span class="at">h=</span>ma1<span class="sc">$</span>coef[<span class="st">&#39;intercept&#39;</span>] , <span class="at">lwd=</span><span class="dv">2</span> )</span>
 <span id="cb94-12"><a href="session05.html#cb94-12" tabindex="-1"></a><span class="fu">lines</span>( dates[(N<span class="dv">-10</span>)<span class="sc">:</span>N] , ma1_mu[(N<span class="dv">-10</span>)<span class="sc">:</span>N] , <span class="at">t=</span><span class="st">&#39;l&#39;</span> , <span class="at">lwd=</span><span class="dv">2</span> , <span class="at">col=</span><span class="st">&#39;blue3&#39;</span> )</span>
 <span id="cb94-13"><a href="session05.html#cb94-13" tabindex="-1"></a><span class="fu">lines</span>( dates[(N<span class="sc">+</span><span class="dv">1</span>)<span class="sc">:</span>(N<span class="sc">+</span>H)] , <span class="fu">as.numeric</span>(ma1_pred<span class="sc">$</span>pred)  , <span class="at">t=</span><span class="st">&#39;b&#39;</span> , <span class="at">lwd=</span><span class="dv">2</span> , <span class="at">col=</span><span class="st">&#39;blue3&#39;</span> )</span></code></pre></div>
-<p><img src="_main_files/figure-html/unnamed-chunk-65-2.png" width="672" /></p>
+<p><img src="_main_files/figure-html/unnamed-chunk-66-2.png" width="672" /></p>
 </div>
 </div>
 <div id="exercises-1" class="section level2 hasAnchor" number="5.2">

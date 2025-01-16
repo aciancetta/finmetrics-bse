@@ -55,7 +55,7 @@
 
 <style type="text/css">
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -65,7 +65,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
   { counter-reset: source-line 0; }
@@ -244,7 +244,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb1-21"><a href="session01.html#cb1-21" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">v =</span> <span class="fu">c</span>(<span class="dv">100</span>, <span class="dv">250</span>, <span class="dv">400</span>), <span class="at">lty =</span> <span class="dv">2</span>)</span>
 <span id="cb1-22"><a href="session01.html#cb1-22" tabindex="-1"></a><span class="fu">axis</span>(<span class="dv">1</span>, <span class="at">at=</span><span class="fu">c</span>(<span class="dv">100</span>, <span class="dv">250</span>, <span class="dv">400</span>),</span>
 <span id="cb1-23"><a href="session01.html#cb1-23" tabindex="-1"></a>     <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">&quot;Changepoint 1&quot;</span>, <span class="st">&quot;Changepoint 2&quot;</span>, <span class="st">&quot;Changepoint 3&quot;</span>))</span></code></pre></div>
-<p><img src="_main_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+<p><img src="_main_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
 </div>
 <div id="ergodicity" class="section level3 unnumbered hasAnchor">
 <h3>Ergodicity<a href="session01.html#ergodicity" class="anchor-section" aria-label="Anchor link to header"></a></h3>
@@ -296,7 +296,7 @@ x_t &amp;= z_t + z_{t-1}
 <span id="cb3-6"><a href="session01.html#cb3-6" tabindex="-1"></a>  <span class="fu">points</span>(<span class="at">x =</span> <span class="dv">501</span>, <span class="fu">rnorm</span>(<span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">10</span>)<span class="sc">+</span><span class="fu">rnorm</span>(<span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">1</span>), <span class="at">col =</span> <span class="st">&quot;darkgreen&quot;</span>, <span class="at">pch =</span> <span class="dv">4</span>)</span>
 <span id="cb3-7"><a href="session01.html#cb3-7" tabindex="-1"></a>}</span>
 <span id="cb3-8"><a href="session01.html#cb3-8" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">h =</span> <span class="dv">0</span>, <span class="at">col =</span> <span class="st">&quot;black&quot;</span>, <span class="at">lwd =</span> <span class="dv">2</span>, <span class="at">lty =</span> <span class="dv">2</span>)</span></code></pre></div>
-<p><img src="_main_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
+<p><img src="_main_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
 <p>We now turn to process <span class="math inline">\(x_t\)</span>.</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="session01.html#cb4-1" tabindex="-1"></a><span class="do">## Simulate process x_t</span></span>
 <span id="cb4-2"><a href="session01.html#cb4-2" tabindex="-1"></a><span class="co"># initialize object to store result</span></span>
@@ -315,7 +315,7 @@ x_t &amp;= z_t + z_{t-1}
 <span id="cb5-4"><a href="session01.html#cb5-4" tabindex="-1"></a><span class="fu">lines</span>(x_list[,<span class="dv">2</span>], <span class="at">col =</span> <span class="st">&quot;steelblue&quot;</span>)</span>
 <span id="cb5-5"><a href="session01.html#cb5-5" tabindex="-1"></a><span class="fu">lines</span>(x_list[,<span class="dv">3</span>], <span class="at">col =</span> <span class="st">&quot;tomato&quot;</span>)</span>
 <span id="cb5-6"><a href="session01.html#cb5-6" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">h =</span> <span class="dv">0</span>, <span class="at">col =</span> <span class="st">&quot;black&quot;</span>, <span class="at">lwd =</span> <span class="dv">2</span>, <span class="at">lty =</span> <span class="dv">2</span>)</span></code></pre></div>
-<p><img src="_main_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
+<p><img src="_main_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
 </div>
 </div>
 <div id="asymptotic-results" class="section level2 hasAnchor" number="1.2">
@@ -349,7 +349,7 @@ x_t &amp;= z_t + z_{t-1}
 <span id="cb8-4"><a href="session01.html#cb8-4" tabindex="-1"></a>     <span class="at">xlab =</span> <span class="fu">expression</span>(Simulated <span class="sc">~</span> means <span class="sc">~</span> rescaled <span class="sc">~</span> by <span class="sc">~</span> <span class="fu">sqrt</span>(T)))</span>
 <span id="cb8-5"><a href="session01.html#cb8-5" tabindex="-1"></a><span class="fu">lines</span>(<span class="fu">density</span>(x_means<span class="sc">*</span><span class="fu">sqrt</span>(t_max)), <span class="at">lwd =</span> <span class="dv">4</span>, <span class="at">col =</span> <span class="st">&quot;tomato&quot;</span>)</span>
 <span id="cb8-6"><a href="session01.html#cb8-6" tabindex="-1"></a><span class="fu">lines</span>(<span class="fu">density</span>(<span class="fu">rnorm</span>(<span class="fl">1e6</span>, <span class="at">mean =</span> <span class="dv">0</span>, <span class="at">sd =</span> <span class="fu">sqrt</span>(x_theory_variance))), <span class="at">lwd =</span> <span class="dv">4</span>, <span class="at">col =</span> <span class="st">&quot;darkblue&quot;</span>)</span></code></pre></div>
-<p><img src="_main_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
+<p><img src="_main_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
 </div>
 <div id="empirical-moments-and-summary-statistics" class="section level2 hasAnchor" number="1.3">
 <h2><span class="header-section-number">1.3</span> Empirical moments and summary statistics<a href="session01.html#empirical-moments-and-summary-statistics" class="anchor-section" aria-label="Anchor link to header"></a></h2>
@@ -358,13 +358,13 @@ x_t &amp;= z_t + z_{t-1}
 <span id="cb9-2"><a href="session01.html#cb9-2" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">ts</span>(x, <span class="at">start =</span> <span class="fu">c</span>(<span class="dv">1947</span>, <span class="dv">1</span>), <span class="at">frequency =</span> <span class="dv">4</span>)</span>
 <span id="cb9-3"><a href="session01.html#cb9-3" tabindex="-1"></a>t_max <span class="ot">&lt;-</span> <span class="fu">length</span>(x)</span>
 <span id="cb9-4"><a href="session01.html#cb9-4" tabindex="-1"></a><span class="fu">plot.ts</span>(x, <span class="at">main =</span> <span class="st">&quot;U.S. GDP&quot;</span>, <span class="at">ylab =</span> <span class="st">&quot;Billions of dollars&quot;</span>)</span></code></pre></div>
-<p><img src="_main_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
+<p><img src="_main_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
 <p>Consider the annualized quarterly growth rates:</p>
 <div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="session01.html#cb10-1" tabindex="-1"></a><span class="co"># xgrowth &lt;- ( (x[2:t_max]/x[1:(t_max-1)])^4 - 1 )*100</span></span>
 <span id="cb10-2"><a href="session01.html#cb10-2" tabindex="-1"></a>xgrowth <span class="ot">&lt;-</span> <span class="dv">4</span><span class="sc">*</span><span class="fu">diff</span>(<span class="fu">log</span>(x))<span class="sc">*</span><span class="dv">100</span></span>
 <span id="cb10-3"><a href="session01.html#cb10-3" tabindex="-1"></a>xgrowth <span class="ot">&lt;-</span> <span class="fu">ts</span>(xgrowth, <span class="at">start =</span> <span class="fu">c</span>(<span class="dv">1947</span>, <span class="dv">2</span>), <span class="at">frequency =</span> <span class="dv">4</span>)</span>
 <span id="cb10-4"><a href="session01.html#cb10-4" tabindex="-1"></a><span class="fu">plot.ts</span>(xgrowth, <span class="at">main =</span> <span class="st">&quot;Annualized GDP growth&quot;</span>)</span></code></pre></div>
-<p><img src="_main_files/figure-html/unnamed-chunk-11-1.png" width="672" /></p>
+<p><img src="_main_files/figure-html/unnamed-chunk-12-1.png" width="672" /></p>
 <p>Below we compute some summary statistics for the time series of the U.S. GDP growth rates.</p>
 <div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="session01.html#cb11-1" tabindex="-1"></a><span class="do">## Example 4: empirical moments and summary statistics of the GDP growth</span></span>
 <span id="cb11-2"><a href="session01.html#cb11-2" tabindex="-1"></a><span class="fu">library</span>(moments)</span>
@@ -413,10 +413,10 @@ x_t &amp;= z_t + z_{t-1}
 <pre><code>## [1] 0.1118611</code></pre>
 <div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="session01.html#cb17-1" tabindex="-1"></a><span class="do">## using built-in function for the autocorrelogram</span></span>
 <span id="cb17-2"><a href="session01.html#cb17-2" tabindex="-1"></a><span class="fu">acf</span>(xgrowth, <span class="at">lag.max =</span> <span class="dv">16</span>)</span></code></pre></div>
-<p><img src="_main_files/figure-html/unnamed-chunk-15-1.png" width="672" /></p>
+<p><img src="_main_files/figure-html/unnamed-chunk-16-1.png" width="672" /></p>
 <div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="session01.html#cb18-1" tabindex="-1"></a><span class="do">## partial autocorrelation function</span></span>
 <span id="cb18-2"><a href="session01.html#cb18-2" tabindex="-1"></a><span class="fu">pacf</span>(xgrowth, <span class="at">lag.max =</span> <span class="dv">16</span>)</span></code></pre></div>
-<p><img src="_main_files/figure-html/unnamed-chunk-16-1.png" width="672" /></p>
+<p><img src="_main_files/figure-html/unnamed-chunk-17-1.png" width="672" /></p>
 </div>
 <div id="hypothesis-testing" class="section level2 hasAnchor" number="1.4">
 <h2><span class="header-section-number">1.4</span> Hypothesis testing<a href="session01.html#hypothesis-testing" class="anchor-section" aria-label="Anchor link to header"></a></h2>
@@ -505,7 +505,7 @@ x_t &amp;= z_t + z_{t-1}
 <span id="cb29-10"><a href="session01.html#cb29-10" tabindex="-1"></a>     <span class="at">labels=</span><span class="fu">c</span>(<span class="fu">paste0</span>(<span class="st">&quot;Type 1 error: &quot;</span>, <span class="fu">round</span>(type1error_unadjusted<span class="sc">*</span><span class="dv">100</span>, <span class="dv">1</span>), <span class="st">&quot;%&quot;</span>),</span>
 <span id="cb29-11"><a href="session01.html#cb29-11" tabindex="-1"></a>              <span class="fu">paste0</span>(<span class="st">&quot;Type 1 error adjusted: &quot;</span>, <span class="fu">round</span>(type1error<span class="sc">*</span><span class="dv">100</span>, <span class="dv">1</span>), <span class="st">&quot;%&quot;</span>)), </span>
 <span id="cb29-12"><a href="session01.html#cb29-12" tabindex="-1"></a>     <span class="at">col=</span><span class="fu">c</span>(<span class="st">&quot;tomato&quot;</span>, <span class="st">&quot;lightgreen&quot;</span>), <span class="at">pos =</span> <span class="dv">2</span>)</span></code></pre></div>
-<p><img src="_main_files/figure-html/unnamed-chunk-19-1.png" width="672" /></p>
+<p><img src="_main_files/figure-html/unnamed-chunk-20-1.png" width="672" /></p>
 <!-- # Hello bookdown  -->
 <!-- All chapters start with a first-level heading followed by your chapter title, like the line above. There should be only one first-level heading (`#`) per .Rmd file. -->
 <!-- ## A section -->

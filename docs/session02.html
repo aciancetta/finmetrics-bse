@@ -55,7 +55,7 @@
 
 <style type="text/css">
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -65,7 +65,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
   { counter-reset: source-line 0; }
@@ -359,7 +359,7 @@ y_t = \beta_0 + \beta_1 y_{t-1} + \beta_2 x_{1,t-1} + \beta_3 x_{2,t-1} + \beta_
 <span id="cb35-18"><a href="session02.html#cb35-18" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">v =</span> risk_pop, <span class="at">lwd =</span> <span class="dv">3</span>, <span class="at">lty =</span> <span class="dv">1</span>, <span class="at">col =</span> <span class="st">&quot;darkred&quot;</span>)</span>
 <span id="cb35-19"><a href="session02.html#cb35-19" tabindex="-1"></a><span class="fu">text</span>(<span class="at">x =</span> c_large<span class="sc">*</span><span class="fl">0.98</span>, <span class="at">y =</span> <span class="dv">120</span>, <span class="at">labels =</span> <span class="fu">paste0</span>(<span class="st">&quot;Estimation error</span><span class="sc">\n</span><span class="st">bound: &quot;</span>,</span>
 <span id="cb35-20"><a href="session02.html#cb35-20" tabindex="-1"></a>                                               <span class="fu">round</span>(c_large<span class="sc">*</span>N<span class="sc">/</span>t_large,<span class="dv">3</span>)))</span></code></pre></div>
-<p><img src="_main_files/figure-html/unnamed-chunk-26-1.png" width="672" /></p>
+<p><img src="_main_files/figure-html/unnamed-chunk-27-1.png" width="672" /></p>
 </div>
 <div id="application-forecasting-unemployment" class="section level2 hasAnchor" number="2.2">
 <h2><span class="header-section-number">2.2</span> Application: forecasting unemployment<a href="session02.html#application-forecasting-unemployment" class="anchor-section" aria-label="Anchor link to header"></a></h2>
@@ -444,7 +444,7 @@ To make sure that the series in the model are stationary, we transform the varia
 <span id="cb40-4"><a href="session02.html#cb40-4" tabindex="-1"></a><span class="fu">plot.ts</span>(<span class="fu">ts</span>(sp500, <span class="at">start =</span> <span class="fu">c</span>(<span class="dv">1980</span>, <span class="dv">1</span>), <span class="at">freq =</span> <span class="dv">12</span>), <span class="at">main =</span> <span class="st">&quot;S.P.500&quot;</span>, <span class="at">ylab =</span> <span class="st">&quot;Monthly % variation&quot;</span>)</span>
 <span id="cb40-5"><a href="session02.html#cb40-5" tabindex="-1"></a><span class="fu">plot.ts</span>(<span class="fu">ts</span>(house, <span class="at">start =</span> <span class="fu">c</span>(<span class="dv">1980</span>, <span class="dv">1</span>), <span class="at">freq =</span> <span class="dv">12</span>), <span class="at">main =</span> <span class="st">&quot;HOUST&quot;</span>, <span class="at">ylab =</span> <span class="st">&quot;log(housing starts)&quot;</span>)</span>
 <span id="cb40-6"><a href="session02.html#cb40-6" tabindex="-1"></a><span class="fu">plot.ts</span>(<span class="fu">ts</span>(sent, <span class="at">start =</span> <span class="fu">c</span>(<span class="dv">1980</span>, <span class="dv">1</span>), <span class="at">freq =</span> <span class="dv">12</span>), <span class="at">main =</span> <span class="st">&quot;UMCSENTx&quot;</span>, <span class="at">ylab =</span> <span class="st">&quot;Month-on-month change&quot;</span>)</span></code></pre></div>
-<p><img src="_main_files/figure-html/unnamed-chunk-31-1.png" width="672" /></p>
+<p><img src="_main_files/figure-html/unnamed-chunk-32-1.png" width="672" /></p>
 <p>We can have a look to the autocorrelation properties of the series.</p>
 <div class="sourceCode" id="cb41"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb41-1"><a href="session02.html#cb41-1" tabindex="-1"></a><span class="do">## ACF plot</span></span>
 <span id="cb41-2"><a href="session02.html#cb41-2" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">2</span>))</span>
@@ -452,7 +452,7 @@ To make sure that the series in the model are stationary, we transform the varia
 <span id="cb41-4"><a href="session02.html#cb41-4" tabindex="-1"></a><span class="fu">acf</span>(sp500,  <span class="at">ylim=</span><span class="fu">c</span>(<span class="sc">-</span><span class="fl">0.1</span>,<span class="dv">1</span>), <span class="at">lwd=</span><span class="dv">5</span>, <span class="at">xlim=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">25</span>), <span class="at">main=</span><span class="st">&#39;S.P.500&#39;</span>)</span>
 <span id="cb41-5"><a href="session02.html#cb41-5" tabindex="-1"></a><span class="fu">acf</span>(house,  <span class="at">ylim=</span><span class="fu">c</span>(<span class="sc">-</span><span class="fl">0.1</span>,<span class="dv">1</span>), <span class="at">lwd=</span><span class="dv">5</span>, <span class="at">xlim=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">25</span>), <span class="at">main=</span><span class="st">&#39;HOUST&#39;</span>)</span>
 <span id="cb41-6"><a href="session02.html#cb41-6" tabindex="-1"></a><span class="fu">acf</span>(sent,   <span class="at">ylim=</span><span class="fu">c</span>(<span class="sc">-</span><span class="fl">0.1</span>,<span class="dv">1</span>), <span class="at">lwd=</span><span class="dv">5</span>, <span class="at">xlim=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">25</span>), <span class="at">main=</span><span class="st">&#39;UMCSENTx&#39;</span>)</span></code></pre></div>
-<p><img src="_main_files/figure-html/unnamed-chunk-32-1.png" width="672" /></p>
+<p><img src="_main_files/figure-html/unnamed-chunk-33-1.png" width="672" /></p>
 <p>We now study some in-sample properties of the predictive regression:</p>
 <p><span class="math display">\[
 \begin{aligned}
@@ -522,10 +522,10 @@ To make sure that the series in the model are stationary, we transform the varia
 <div class="sourceCode" id="cb46"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb46-1"><a href="session02.html#cb46-1" tabindex="-1"></a><span class="co"># True VS. predicted values</span></span>
 <span id="cb46-2"><a href="session02.html#cb46-2" tabindex="-1"></a><span class="fu">plot.ts</span>(data_regression<span class="sc">$</span>unrate, <span class="at">ylim =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="fl">0.8</span>, <span class="fl">0.8</span>), <span class="at">col =</span> <span class="st">&quot;darkgrey&quot;</span>)</span>
 <span id="cb46-3"><a href="session02.html#cb46-3" tabindex="-1"></a><span class="fu">lines</span>(<span class="fu">predict</span>(pred_model), <span class="at">col =</span> <span class="st">&quot;darkred&quot;</span>)</span></code></pre></div>
-<p><img src="_main_files/figure-html/unnamed-chunk-33-1.png" width="672" /></p>
+<p><img src="_main_files/figure-html/unnamed-chunk-34-1.png" width="672" /></p>
 <div class="sourceCode" id="cb47"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb47-1"><a href="session02.html#cb47-1" tabindex="-1"></a><span class="co"># Analysis of residuals</span></span>
 <span id="cb47-2"><a href="session02.html#cb47-2" tabindex="-1"></a><span class="fu">acf</span>(pred_model<span class="sc">$</span>residuals, <span class="at">lwd =</span> <span class="dv">5</span>)</span></code></pre></div>
-<p><img src="_main_files/figure-html/unnamed-chunk-34-1.png" width="672" /></p>
+<p><img src="_main_files/figure-html/unnamed-chunk-35-1.png" width="672" /></p>
 <div class="sourceCode" id="cb48"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb48-1"><a href="session02.html#cb48-1" tabindex="-1"></a><span class="co"># Test for autocorrelation</span></span>
 <span id="cb48-2"><a href="session02.html#cb48-2" tabindex="-1"></a><span class="fu">Box.test</span>(pred_model<span class="sc">$</span>residuals, <span class="at">lag=</span><span class="dv">12</span>)</span></code></pre></div>
 <pre><code>## 
@@ -570,7 +570,7 @@ To make sure that the series in the model are stationary, we transform the varia
 <span id="cb51-7"><a href="session02.html#cb51-7" tabindex="-1"></a><span class="fu">grid</span>()</span>
 <span id="cb51-8"><a href="session02.html#cb51-8" tabindex="-1"></a><span class="fu">box</span>()</span>
 <span id="cb51-9"><a href="session02.html#cb51-9" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">h=</span><span class="dv">0</span>,<span class="at">lwd=</span><span class="dv">3</span>)</span></code></pre></div>
-<p><img src="_main_files/figure-html/unnamed-chunk-37-1.png" width="672" /></p>
+<p><img src="_main_files/figure-html/unnamed-chunk-38-1.png" width="672" /></p>
 <p>We now proceed to evaluate the forecasts of the model. To do so, we split the data into a training set (observations up to 1999:12) and a testing set (starting in 2000:01). We estimate the parameters of the model on the training data and then make predictions based on the value of the predictors and the estimated coefficients. We compare the forecasts against the sample mean using the MSE. The Diebold-Mariano test suggests that the regression method has a superior forecasting performance than the sample mean. However, this result depends on the specification of the regression model and the predictive ability of the model is still pretty poor.</p>
 <div class="sourceCode" id="cb52"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb52-1"><a href="session02.html#cb52-1" tabindex="-1"></a><span class="do">## Forecast evaluation</span></span>
 <span id="cb52-2"><a href="session02.html#cb52-2" tabindex="-1"></a><span class="co"># split training set (1980-2000) and testing set (2000-2024)</span></span>
@@ -629,7 +629,7 @@ To make sure that the series in the model are stationary, we transform the varia
 <span id="cb54-12"><a href="session02.html#cb54-12" tabindex="-1"></a><span class="fu">lines</span>(y_benchmark)</span>
 <span id="cb54-13"><a href="session02.html#cb54-13" tabindex="-1"></a><span class="fu">rect</span>(<span class="fl">2020.25</span>,<span class="sc">-</span><span class="dv">1</span>,<span class="fl">2020.75</span>,<span class="dv">1</span>,<span class="at">col =</span> <span class="fu">rgb</span>(<span class="fl">0.6</span>,<span class="fl">0.1</span>,<span class="fl">0.1</span>,<span class="dv">1</span><span class="sc">/</span><span class="dv">4</span>))</span>
 <span id="cb54-14"><a href="session02.html#cb54-14" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">&quot;bottomleft&quot;</span>, <span class="fu">c</span>(<span class="st">&quot;Forecast&quot;</span>, <span class="st">&quot;True&quot;</span>), <span class="at">col=</span><span class="fu">c</span>(<span class="st">&quot;darkred&quot;</span>, <span class="st">&quot;darkgrey&quot;</span>), <span class="at">lwd=</span><span class="dv">6</span>)</span></code></pre></div>
-<p><img src="_main_files/figure-html/unnamed-chunk-39-1.png" width="672" /></p>
+<p><img src="_main_files/figure-html/unnamed-chunk-40-1.png" width="672" /></p>
 <p>It is common to report the plot of the normalized cumulated squared errors to assess if one model has a superior forecasting ability over all the testing period:</p>
 <p><span class="math display">\[
 \text{Cumulated error}_t =  \frac{\sum_{\tau = t_w + 1}^t e_\tau^2}{\sum_{\tau = t_w + 1}^T \bar{e}_{\tau}^2}
@@ -651,7 +651,7 @@ To make sure that the series in the model are stationary, we transform the varia
 <span id="cb55-14"><a href="session02.html#cb55-14" tabindex="-1"></a><span class="fu">lines</span>(err2_model<span class="sc">/</span>err2_constant, <span class="at">col =</span> <span class="st">&quot;darkred&quot;</span>, <span class="at">lwd =</span> <span class="dv">2</span>)</span>
 <span id="cb55-15"><a href="session02.html#cb55-15" tabindex="-1"></a><span class="fu">rect</span>(<span class="fl">2020.25</span>,<span class="sc">-</span><span class="dv">1</span>,<span class="fl">2020.75</span>,<span class="fl">1.5</span>,<span class="at">col =</span> <span class="fu">rgb</span>(<span class="fl">0.6</span>,<span class="fl">0.1</span>,<span class="fl">0.1</span>,<span class="dv">1</span><span class="sc">/</span><span class="dv">4</span>))</span>
 <span id="cb55-16"><a href="session02.html#cb55-16" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">&quot;topleft&quot;</span>, <span class="fu">c</span>(<span class="st">&quot;Regression model&quot;</span>, <span class="st">&quot;Sample mean&quot;</span>), <span class="at">col=</span><span class="fu">c</span>(<span class="st">&quot;darkred&quot;</span>, <span class="st">&quot;black&quot;</span>), <span class="at">lwd=</span><span class="dv">6</span>)</span></code></pre></div>
-<p><img src="_main_files/figure-html/unnamed-chunk-40-1.png" width="672" /></p>
+<p><img src="_main_files/figure-html/unnamed-chunk-41-1.png" width="672" /></p>
 <div class="sourceCode" id="cb56"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb56-1"><a href="session02.html#cb56-1" tabindex="-1"></a><span class="do">## Diebold-Mariano test for predictive performance</span></span>
 <span id="cb56-2"><a href="session02.html#cb56-2" tabindex="-1"></a><span class="co"># one-sided test: </span></span>
 <span id="cb56-3"><a href="session02.html#cb56-3" tabindex="-1"></a><span class="co"># - H0: err_benchmark = err_model</span></span>

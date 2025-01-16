@@ -55,7 +55,7 @@
 
 <style type="text/css">
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -65,7 +65,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
   { counter-reset: source-line 0; }
@@ -244,9 +244,9 @@ r_t &amp;= \sigma^2_t z_t \\[1ex]
 <span id="cb95-14"><a href="session06.html#cb95-14" tabindex="-1"></a>}</span>
 <span id="cb95-15"><a href="session06.html#cb95-15" tabindex="-1"></a>r <span class="ot">&lt;-</span> r[<span class="dv">100</span><span class="sc">:</span><span class="dv">1000</span>]</span></code></pre></div>
 <div class="sourceCode" id="cb96"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb96-1"><a href="session06.html#cb96-1" tabindex="-1"></a><span class="fu">plot.ts</span>(r)</span></code></pre></div>
-<p><img src="_main_files/figure-html/unnamed-chunk-67-1.png" width="672" /></p>
+<p><img src="_main_files/figure-html/unnamed-chunk-68-1.png" width="672" /></p>
 <div class="sourceCode" id="cb97"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb97-1"><a href="session06.html#cb97-1" tabindex="-1"></a><span class="fu">plot.ts</span>(r<span class="sc">^</span><span class="dv">2</span>)</span></code></pre></div>
-<p><img src="_main_files/figure-html/unnamed-chunk-67-2.png" width="672" /></p>
+<p><img src="_main_files/figure-html/unnamed-chunk-68-2.png" width="672" /></p>
 <p>Estimation</p>
 <div class="sourceCode" id="cb98"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb98-1"><a href="session06.html#cb98-1" tabindex="-1"></a><span class="do">## filter </span></span>
 <span id="cb98-2"><a href="session06.html#cb98-2" tabindex="-1"></a>garch11_filter <span class="ot">&lt;-</span> <span class="cf">function</span>(data, params){</span>

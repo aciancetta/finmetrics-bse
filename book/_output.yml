@@ -10,12 +10,12 @@ bookdown::gitbook:
     edit: https://github.com/aciancetta/finmetrics/edit/BRANCH/%s
 
 # download: ["pdf", "epub"]
-bookdown::pdf_book:
-  extra_dependencies:
-    geometry: ["scale = 0.9"]
-  includes:
-    in_header: preamble.tex
-  latex_engine: xelatex
-  citation_package: natbib
-  keep_tex: yes
+# bookdown::pdf_book:
+#   extra_dependencies:
+#     geometry: ["scale = 0.9"]
+#   includes:
+#     in_header: preamble.tex
+#   latex_engine: xelatex
+#   citation_package: natbib
+#   keep_tex: yes
 # bookdown::epub_book: default
