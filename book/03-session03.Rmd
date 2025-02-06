@@ -312,6 +312,22 @@ legend("topleft", c("Sample mean", "PCR", "LASSO"),
 ```
 
 
+
+## Exercises
+
+**Exercise 1 (Random walk is non-stationary)**
+
+Consider the process $x_t = \sum_{i=1}^t z_i$, with $z_i \sim \mathcal{N}(0, 1)$.
+Show that $x_t$ is non-stationary.
+
+**Exercise 2 (Over-differencing)**
+Consider the process $x_t = \Delta \varepsilon_t = \varepsilon_t - \varepsilon_{t-1}$, with $\varepsilon_t \sim WN(0, \sigma^2)$. Show that $\text{Var}(x_t) = 2\sigma^2$ and $\text{Cov}(x_t, x_{t-1}) = -\sigma^2$.
+
+**Exercise 3 (Integrated processes)**
+Show that $y_t = a + bt + ct^2 + x_t$ with $x_t$ stationary is $I(2)$. Also, show that $z_t = e^t + x_t$ is not integrated at any order. 
+
+
+
 <!-- # Parts -->
 
 <!-- You can add parts to organize one or more book chapters together. Parts can be inserted at the top of an .Rmd file, before the first-level chapter heading in that same file.  -->

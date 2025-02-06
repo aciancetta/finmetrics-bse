@@ -291,7 +291,7 @@ acf(house,  ylim=c(-0.1,1), lwd=5, xlim=c(0,25), main='HOUST')
 acf(sent,   ylim=c(-0.1,1), lwd=5, xlim=c(0,25), main='UMCSENTx')
 ```
 
-We now study some in-sample properties of the predictive regression:
+We now study some in-sample properties of the regression:
 
 $$
 \begin{aligned}
@@ -300,10 +300,10 @@ $$
 \end{aligned}
 $$
 
-In particular, we compute the in-sample predictive fit of the model and we study the properties of the residuals.
+In particular, we compute the in-sample fit of the model and we study the properties of the residuals.
 
 ```{r}
-## Fit predictive regression
+## Fit regression
 # Create the dataframe for regression 
 data_regression <- data.frame(
   unrate     = unrate[2:t_max],

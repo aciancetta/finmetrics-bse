@@ -47,7 +47,7 @@ $$
 y_t | I_{t-1} \sim \mathcal{N}(c + \phi y_{t-1} + \theta \varepsilon_{t-1}, \ \sigma^2_\varepsilon).
 $$
 
-Let $  \eta = (c, \phi, \theta, \sigma^2_\varepsilon)$ denote the vector of parameters of the model. The *conditional* likelihood can be obtained as:
+Let $\eta = (c, \phi, \theta, \sigma^2_\varepsilon)$ denote the vector of parameters of the model. The *conditional* likelihood can be obtained as:
 
 $$
 L(\eta; y_1, \dots, y_T) = \prod_{t=2}^T \frac{1}{\sqrt{2\pi\sigma^2_{\varepsilon}}} \exp\left( -\frac{1}{2\sigma^2_\varepsilon} (y_t - c - \phi y_{t-1} - \theta \varepsilon_{t-1} )^2  \right) 
@@ -59,7 +59,7 @@ $$
 \ell(\eta ;  y_1, \dots, y_T)  =  - \frac{T-1}{2} \log(2\pi\sigma^2_\varepsilon) - \frac{1}{2\sigma^2_\varepsilon} \sum_{t=2}^T \hat\varepsilon_t^2
 $$
 
-The estimate of the innovations can be obtained using a filtering procedure: for a given value of the parameters $\eta = (c, \phi, \theta, \sigma^2_\varepsilon)$, we set $\hat\varepsilon_1$ equal to the deviation from the unconditional mean of the first observation, $\hat\varepsilon_1 = y_1 - \frac{c}{1-\phi}$, and then we compute $\hat\varepsilon_{t} = y_t - c - \phi y_{t-1} + \theta \hat\varepsilon_{t-1}$ recursively for $t = 2, \dots, T$. Then we can use the estimated sequence of innovations $\{\hat\varepsilon_t\}_{t=2}^T$ to evaluate the log-likelihood in $\eta$.
+The estimate of the innovations can be obtained using a filtering procedure: for a given value of the parameters $\eta = (c, \phi, \theta, \sigma^2_\varepsilon)$, we set $\hat\varepsilon_1$ equal to the deviation from the unconditional mean of the first observation, $\hat\varepsilon_1 = y_1 - \frac{c}{1-\phi}$, and then we compute $\hat\varepsilon_{t} = y_t - c - \phi y_{t-1} - \theta \hat\varepsilon_{t-1}$ recursively for $t = 2, \dots, T$. Then we can use the estimated sequence of innovations $\{\hat\varepsilon_t\}_{t=2}^T$ to evaluate the log-likelihood in $\eta$.
 
 
 ```{r}
