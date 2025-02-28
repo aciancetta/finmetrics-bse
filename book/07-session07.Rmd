@@ -10,7 +10,7 @@ $$
 \begin{aligned}
 y_t &= c + \phi y_{t-1} + \theta \varepsilon_{t-1} + \varepsilon_t \\
 \varepsilon_t &= \sigma_t z_t \\
-\sigma^2_t &= \omega + \alpha y_{t-1}^2 + \beta \sigma^2_{t-1} + \gamma y_{t-1}^2 \mathbb{1}_{y_{t-1}<0}
+\sigma^2_t &= \omega + \alpha \varepsilon_{t-1}^2 + \beta \sigma^2_{t-1} + \gamma \varepsilon_{t-1}^2 \mathbb{1}_{\varepsilon_{t-1}<0}
 \end{aligned}
 $$
 
@@ -42,8 +42,7 @@ sigma2 <- c(1, rep(NA, t_max))
 y     <- c(sigma2[1]*z[1], rep(NA, t_max))
 for (t in 2:(t_max+1)) {
   set.seed(t*212) # for reproducibility
-  # sigma2[t]  <- omega + alpha*y[t-1]^2 + beta*sigma2[t-1] + gamma*y[t-1]^2 + gamma*y[t-1]^2*(y[t-1]<0)
-  sigma2[t]  <- omega + alpha*y[t-1]^2 + beta*sigma2[t-1] + gamma*y[t-1]^2*(y[t-1]<0)
+  sigma2[t]  <- omega + alpha*epsilon[t-1]^2 + beta*sigma2[t-1] + gamma*epsilon[t-1]^2*(epsilon[t-1]<0)
   epsilon[t] <- sigma2[t]*z[t]
   y[t]       <- c + phi*y[t-1] + theta*epsilon[t-1] + epsilon[t]
 }
@@ -82,11 +81,11 @@ arma11tgarch11_filter <- function(y, params){
   # for loop calculating one-step-ahead
   for (t in 2:t_max){
     eps[t]  <- y[t] - c - phi*y[t-1] - theta*eps[t-1]
-    sig2[t] <- omega + alpha*y[t-1]^2 + beta*sig2[t-1] + gamma*y[t-1]^2*(y[t-1]<0)
+    sig2[t] <- omega + alpha*eps[t-1]^2 + beta*sig2[t-1] + gamma*eps[t-1]^2*(eps[t-1]<0)
     z[t]    <- eps[t]/sqrt(sig2[t])
   }
   # loglik
-  loglik <-  - sum(log(sig2[2:t_max])) - sum(eps[2:t_max]^2/sig2[2:t_max])  # *0.5 + constant terms 
+  loglik <-  - sum(log(sqrt(sig2[2:t_max]))) - sum(eps[2:t_max]^2/sig2[2:t_max])  # *0.5 + constant terms 
   
   # output
   return(list(sig2   = sig2, 
@@ -207,12 +206,13 @@ lower_sp500     <- fitted_sp500 - 1.96*sqrt(sig2)
 
 ```{r}
 plot.ts(d, main = "S&P 500 annualized growth rates")
+lines(lower_sp500, col = scales::alpha("tomato", 0.7))
+lines(upper_sp500, col = scales::alpha("tomato", 0.7))
 lines(fitted_sp500, col = "steelblue")
-lines(lower_sp500, col = "tomato")
-lines(upper_sp500, col = "tomato")
 text(x = 2009, y = 30,
      labels = paste0("Observations outside CI: ", 
-                   round(mean((d > upper_sp500) | (d < lower_sp500)),4)*100, "%"))
+                   round(mean((d > upper_sp500) | (d < lower_sp500)),4)*100, "%",
+                   "\n(very conservative)"))
 ```
 
 
@@ -252,7 +252,7 @@ $$
 \begin{aligned}
 y_t &= c + \phi_1 y_{t-1} + \dots + \phi_p y_{t-p} + \theta_1 \varepsilon_{t-1} + \dots + \theta_q \varepsilon_{t-q} + \varepsilon_t \\
 \varepsilon_t &= \sigma_t z_t \\
-\sigma^2_t &= \omega + \alpha_1 y_{t-1}^2 + \dots + \alpha_r y_{t-r}^2 + \beta_1 \sigma^2_{t-1} + \dots + \beta_s \sigma^2_{t-s}
+\sigma^2_t &= \omega + \alpha_1 \varepsilon_{t-1}^2 + \dots + \alpha_r \varepsilon_{t-r}^2 + \beta_1 \sigma^2_{t-1} + \dots + \beta_s \sigma^2_{t-s}
 \end{aligned}
 $$
 
@@ -270,7 +270,7 @@ $$
 \begin{aligned}
 y_t &= c + \phi y_{t-1} + \theta \varepsilon_{t-1} + \varepsilon_t \\
 \varepsilon_t &= \sigma_t z_t \\
-\sigma^2_t &= \omega + \alpha y_{t-1}^2 + \beta \sigma^2_{t-1} + \gamma y_{t-1}^2 \mathbb{1}_{y_{t-1}<0}
+\sigma^2_t &= \omega + \alpha \varepsilon_{t-1}^2 + \beta \sigma^2_{t-1} + \gamma \varepsilon_{t-1}^2 \mathbb{1}_{\varepsilon_{t-1}<0}
 \end{aligned}
 $$
 

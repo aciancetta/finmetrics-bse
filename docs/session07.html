@@ -217,7 +217,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 \begin{aligned}
 y_t &amp;= c + \phi y_{t-1} + \theta \varepsilon_{t-1} + \varepsilon_t \\
 \varepsilon_t &amp;= \sigma_t z_t \\
-\sigma^2_t &amp;= \omega + \alpha y_{t-1}^2 + \beta \sigma^2_{t-1} + \gamma y_{t-1}^2 \mathbb{1}_{y_{t-1}&lt;0}
+\sigma^2_t &amp;= \omega + \alpha \varepsilon_{t-1}^2 + \beta \sigma^2_{t-1} + \gamma \varepsilon_{t-1}^2 \mathbb{1}_{\varepsilon_{t-1}&lt;0}
 \end{aligned}
 \]</span></p>
 <p>Throughout this session, we consider <span class="math inline">\(z_t \sim \mathcal{N}(0,1)\)</span> and we estimate the model via maximum-likelihood. Let <span class="math inline">\(I_t = \{y_1, \dots, y_t, \varepsilon_1, \dots, \varepsilon_t, \sigma_1, \dots, \sigma_t\}\)</span>. The log-likelihood of the model is:</p>
@@ -244,12 +244,11 @@ y_t &amp;= c + \phi y_{t-1} + \theta \varepsilon_{t-1} + \varepsilon_t \\
 <span id="cb105-17"><a href="session07.html#cb105-17" tabindex="-1"></a>y     <span class="ot">&lt;-</span> <span class="fu">c</span>(sigma2[<span class="dv">1</span>]<span class="sc">*</span>z[<span class="dv">1</span>], <span class="fu">rep</span>(<span class="cn">NA</span>, t_max))</span>
 <span id="cb105-18"><a href="session07.html#cb105-18" tabindex="-1"></a><span class="cf">for</span> (t <span class="cf">in</span> <span class="dv">2</span><span class="sc">:</span>(t_max<span class="sc">+</span><span class="dv">1</span>)) {</span>
 <span id="cb105-19"><a href="session07.html#cb105-19" tabindex="-1"></a>  <span class="fu">set.seed</span>(t<span class="sc">*</span><span class="dv">212</span>) <span class="co"># for reproducibility</span></span>
-<span id="cb105-20"><a href="session07.html#cb105-20" tabindex="-1"></a>  <span class="co"># sigma2[t]  &lt;- omega + alpha*y[t-1]^2 + beta*sigma2[t-1] + gamma*y[t-1]^2 + gamma*y[t-1]^2*(y[t-1]&lt;0)</span></span>
-<span id="cb105-21"><a href="session07.html#cb105-21" tabindex="-1"></a>  sigma2[t]  <span class="ot">&lt;-</span> omega <span class="sc">+</span> alpha<span class="sc">*</span>y[t<span class="dv">-1</span>]<span class="sc">^</span><span class="dv">2</span> <span class="sc">+</span> beta<span class="sc">*</span>sigma2[t<span class="dv">-1</span>] <span class="sc">+</span> gamma<span class="sc">*</span>y[t<span class="dv">-1</span>]<span class="sc">^</span><span class="dv">2</span><span class="sc">*</span>(y[t<span class="dv">-1</span>]<span class="sc">&lt;</span><span class="dv">0</span>)</span>
-<span id="cb105-22"><a href="session07.html#cb105-22" tabindex="-1"></a>  epsilon[t] <span class="ot">&lt;-</span> sigma2[t]<span class="sc">*</span>z[t]</span>
-<span id="cb105-23"><a href="session07.html#cb105-23" tabindex="-1"></a>  y[t]       <span class="ot">&lt;-</span> c <span class="sc">+</span> phi<span class="sc">*</span>y[t<span class="dv">-1</span>] <span class="sc">+</span> theta<span class="sc">*</span>epsilon[t<span class="dv">-1</span>] <span class="sc">+</span> epsilon[t]</span>
-<span id="cb105-24"><a href="session07.html#cb105-24" tabindex="-1"></a>}</span>
-<span id="cb105-25"><a href="session07.html#cb105-25" tabindex="-1"></a>y <span class="ot">&lt;-</span> y[<span class="dv">50</span><span class="sc">:</span>t_max]</span></code></pre></div>
+<span id="cb105-20"><a href="session07.html#cb105-20" tabindex="-1"></a>  sigma2[t]  <span class="ot">&lt;-</span> omega <span class="sc">+</span> alpha<span class="sc">*</span>epsilon[t<span class="dv">-1</span>]<span class="sc">^</span><span class="dv">2</span> <span class="sc">+</span> beta<span class="sc">*</span>sigma2[t<span class="dv">-1</span>] <span class="sc">+</span> gamma<span class="sc">*</span>epsilon[t<span class="dv">-1</span>]<span class="sc">^</span><span class="dv">2</span><span class="sc">*</span>(epsilon[t<span class="dv">-1</span>]<span class="sc">&lt;</span><span class="dv">0</span>)</span>
+<span id="cb105-21"><a href="session07.html#cb105-21" tabindex="-1"></a>  epsilon[t] <span class="ot">&lt;-</span> sigma2[t]<span class="sc">*</span>z[t]</span>
+<span id="cb105-22"><a href="session07.html#cb105-22" tabindex="-1"></a>  y[t]       <span class="ot">&lt;-</span> c <span class="sc">+</span> phi<span class="sc">*</span>y[t<span class="dv">-1</span>] <span class="sc">+</span> theta<span class="sc">*</span>epsilon[t<span class="dv">-1</span>] <span class="sc">+</span> epsilon[t]</span>
+<span id="cb105-23"><a href="session07.html#cb105-23" tabindex="-1"></a>}</span>
+<span id="cb105-24"><a href="session07.html#cb105-24" tabindex="-1"></a>y <span class="ot">&lt;-</span> y[<span class="dv">50</span><span class="sc">:</span>t_max]</span></code></pre></div>
 <div class="sourceCode" id="cb106"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb106-1"><a href="session07.html#cb106-1" tabindex="-1"></a><span class="co"># plot simulated series</span></span>
 <span id="cb106-2"><a href="session07.html#cb106-2" tabindex="-1"></a><span class="fu">plot.ts</span>(y)</span></code></pre></div>
 <p><img src="_main_files/figure-html/unnamed-chunk-76-1.png" width="672" /></p>
@@ -277,11 +276,11 @@ y_t &amp;= c + \phi y_{t-1} + \theta \varepsilon_{t-1} + \varepsilon_t \\
 <span id="cb108-19"><a href="session07.html#cb108-19" tabindex="-1"></a>  <span class="co"># for loop calculating one-step-ahead</span></span>
 <span id="cb108-20"><a href="session07.html#cb108-20" tabindex="-1"></a>  <span class="cf">for</span> (t <span class="cf">in</span> <span class="dv">2</span><span class="sc">:</span>t_max){</span>
 <span id="cb108-21"><a href="session07.html#cb108-21" tabindex="-1"></a>    eps[t]  <span class="ot">&lt;-</span> y[t] <span class="sc">-</span> c <span class="sc">-</span> phi<span class="sc">*</span>y[t<span class="dv">-1</span>] <span class="sc">-</span> theta<span class="sc">*</span>eps[t<span class="dv">-1</span>]</span>
-<span id="cb108-22"><a href="session07.html#cb108-22" tabindex="-1"></a>    sig2[t] <span class="ot">&lt;-</span> omega <span class="sc">+</span> alpha<span class="sc">*</span>y[t<span class="dv">-1</span>]<span class="sc">^</span><span class="dv">2</span> <span class="sc">+</span> beta<span class="sc">*</span>sig2[t<span class="dv">-1</span>] <span class="sc">+</span> gamma<span class="sc">*</span>y[t<span class="dv">-1</span>]<span class="sc">^</span><span class="dv">2</span><span class="sc">*</span>(y[t<span class="dv">-1</span>]<span class="sc">&lt;</span><span class="dv">0</span>)</span>
+<span id="cb108-22"><a href="session07.html#cb108-22" tabindex="-1"></a>    sig2[t] <span class="ot">&lt;-</span> omega <span class="sc">+</span> alpha<span class="sc">*</span>eps[t<span class="dv">-1</span>]<span class="sc">^</span><span class="dv">2</span> <span class="sc">+</span> beta<span class="sc">*</span>sig2[t<span class="dv">-1</span>] <span class="sc">+</span> gamma<span class="sc">*</span>eps[t<span class="dv">-1</span>]<span class="sc">^</span><span class="dv">2</span><span class="sc">*</span>(eps[t<span class="dv">-1</span>]<span class="sc">&lt;</span><span class="dv">0</span>)</span>
 <span id="cb108-23"><a href="session07.html#cb108-23" tabindex="-1"></a>    z[t]    <span class="ot">&lt;-</span> eps[t]<span class="sc">/</span><span class="fu">sqrt</span>(sig2[t])</span>
 <span id="cb108-24"><a href="session07.html#cb108-24" tabindex="-1"></a>  }</span>
 <span id="cb108-25"><a href="session07.html#cb108-25" tabindex="-1"></a>  <span class="co"># loglik</span></span>
-<span id="cb108-26"><a href="session07.html#cb108-26" tabindex="-1"></a>  loglik <span class="ot">&lt;-</span>  <span class="sc">-</span> <span class="fu">sum</span>(<span class="fu">log</span>(sig2[<span class="dv">2</span><span class="sc">:</span>t_max])) <span class="sc">-</span> <span class="fu">sum</span>(eps[<span class="dv">2</span><span class="sc">:</span>t_max]<span class="sc">^</span><span class="dv">2</span><span class="sc">/</span>sig2[<span class="dv">2</span><span class="sc">:</span>t_max])  <span class="co"># *0.5 + constant terms </span></span>
+<span id="cb108-26"><a href="session07.html#cb108-26" tabindex="-1"></a>  loglik <span class="ot">&lt;-</span>  <span class="sc">-</span> <span class="fu">sum</span>(<span class="fu">log</span>(<span class="fu">sqrt</span>(sig2[<span class="dv">2</span><span class="sc">:</span>t_max]))) <span class="sc">-</span> <span class="fu">sum</span>(eps[<span class="dv">2</span><span class="sc">:</span>t_max]<span class="sc">^</span><span class="dv">2</span><span class="sc">/</span>sig2[<span class="dv">2</span><span class="sc">:</span>t_max])  <span class="co"># *0.5 + constant terms </span></span>
 <span id="cb108-27"><a href="session07.html#cb108-27" tabindex="-1"></a>  </span>
 <span id="cb108-28"><a href="session07.html#cb108-28" tabindex="-1"></a>  <span class="co"># output</span></span>
 <span id="cb108-29"><a href="session07.html#cb108-29" tabindex="-1"></a>  <span class="fu">return</span>(<span class="fu">list</span>(<span class="at">sig2   =</span> sig2, </span>
@@ -333,12 +332,12 @@ y_t &amp;= c + \phi y_{t-1} + \theta \varepsilon_{t-1} + \varepsilon_t \\
 <span id="cb112-4"><a href="session07.html#cb112-4" tabindex="-1"></a><span class="fu">round</span>(tab, <span class="dv">3</span>)</span></code></pre></div>
 <pre><code>##          MLE  true
 ## c      0.001  0.00
-## phi    0.831  0.85
-## theta -0.119 -0.10
-## omega  0.001  0.01
-## alpha  0.028  0.10
-## beta   0.736  0.85
-## gamma  0.009  0.05</code></pre>
+## phi    0.837  0.85
+## theta -0.121 -0.10
+## omega  0.010  0.01
+## alpha  0.010  0.10
+## beta   0.010  0.85
+## gamma  0.082  0.05</code></pre>
 </div>
 <div id="modeling-the-sp-500-volatility" class="section level2 hasAnchor" number="7.2">
 <h2><span class="header-section-number">7.2</span> Modeling the S&amp;P 500 volatility<a href="session07.html#modeling-the-sp-500-volatility" class="anchor-section" aria-label="Anchor link to header"></a></h2>
@@ -352,10 +351,10 @@ y_t &amp;= c + \phi y_{t-1} + \theta \varepsilon_{t-1} + \varepsilon_t \\
 <div class="sourceCode" id="cb115"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb115-1"><a href="session07.html#cb115-1" tabindex="-1"></a><span class="do">## Compute MLE</span></span>
 <span id="cb115-2"><a href="session07.html#cb115-2" tabindex="-1"></a>mle_sp500 <span class="ot">&lt;-</span> <span class="fu">arma11tgarch11_mle</span>(d, startparams)</span></code></pre></div>
 <div class="sourceCode" id="cb116"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb116-1"><a href="session07.html#cb116-1" tabindex="-1"></a>mle_sp500</span></code></pre></div>
-<pre><code>##           c         phi       theta       omega       alpha        beta 
-##  0.03314379  0.49055508 -0.53153704  0.16230434  0.01000000  0.87320296 
-##       gamma 
-##  0.19467830</code></pre>
+<pre><code>##             c           phi         theta         omega         alpha 
+##  0.0003244686  0.8959449229 -0.0037841937  0.1090527671  0.1442490502 
+##          beta         gamma 
+##  0.8394995899  0.0325027199</code></pre>
 <div class="sourceCode" id="cb118"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb118-1"><a href="session07.html#cb118-1" tabindex="-1"></a><span class="do">## plot fitted values</span></span>
 <span id="cb118-2"><a href="session07.html#cb118-2" tabindex="-1"></a>filter_sp500 <span class="ot">&lt;-</span> <span class="fu">arma11tgarch11_filter</span>(d, mle_sp500)</span>
 <span id="cb118-3"><a href="session07.html#cb118-3" tabindex="-1"></a>eps  <span class="ot">&lt;-</span> filter_sp500<span class="sc">$</span>eps</span>
@@ -375,12 +374,13 @@ y_t &amp;= c + \phi y_{t-1} + \theta \varepsilon_{t-1} + \varepsilon_t \\
 <span id="cb118-17"><a href="session07.html#cb118-17" tabindex="-1"></a>upper_sp500     <span class="ot">&lt;-</span> fitted_sp500 <span class="sc">+</span> <span class="fl">1.96</span><span class="sc">*</span><span class="fu">sqrt</span>(sig2)</span>
 <span id="cb118-18"><a href="session07.html#cb118-18" tabindex="-1"></a>lower_sp500     <span class="ot">&lt;-</span> fitted_sp500 <span class="sc">-</span> <span class="fl">1.96</span><span class="sc">*</span><span class="fu">sqrt</span>(sig2)</span></code></pre></div>
 <div class="sourceCode" id="cb119"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb119-1"><a href="session07.html#cb119-1" tabindex="-1"></a><span class="fu">plot.ts</span>(d, <span class="at">main =</span> <span class="st">&quot;S&amp;P 500 annualized growth rates&quot;</span>)</span>
-<span id="cb119-2"><a href="session07.html#cb119-2" tabindex="-1"></a><span class="fu">lines</span>(fitted_sp500, <span class="at">col =</span> <span class="st">&quot;steelblue&quot;</span>)</span>
-<span id="cb119-3"><a href="session07.html#cb119-3" tabindex="-1"></a><span class="fu">lines</span>(lower_sp500, <span class="at">col =</span> <span class="st">&quot;tomato&quot;</span>)</span>
-<span id="cb119-4"><a href="session07.html#cb119-4" tabindex="-1"></a><span class="fu">lines</span>(upper_sp500, <span class="at">col =</span> <span class="st">&quot;tomato&quot;</span>)</span>
+<span id="cb119-2"><a href="session07.html#cb119-2" tabindex="-1"></a><span class="fu">lines</span>(lower_sp500, <span class="at">col =</span> scales<span class="sc">::</span><span class="fu">alpha</span>(<span class="st">&quot;tomato&quot;</span>, <span class="fl">0.7</span>))</span>
+<span id="cb119-3"><a href="session07.html#cb119-3" tabindex="-1"></a><span class="fu">lines</span>(upper_sp500, <span class="at">col =</span> scales<span class="sc">::</span><span class="fu">alpha</span>(<span class="st">&quot;tomato&quot;</span>, <span class="fl">0.7</span>))</span>
+<span id="cb119-4"><a href="session07.html#cb119-4" tabindex="-1"></a><span class="fu">lines</span>(fitted_sp500, <span class="at">col =</span> <span class="st">&quot;steelblue&quot;</span>)</span>
 <span id="cb119-5"><a href="session07.html#cb119-5" tabindex="-1"></a><span class="fu">text</span>(<span class="at">x =</span> <span class="dv">2009</span>, <span class="at">y =</span> <span class="dv">30</span>,</span>
 <span id="cb119-6"><a href="session07.html#cb119-6" tabindex="-1"></a>     <span class="at">labels =</span> <span class="fu">paste0</span>(<span class="st">&quot;Observations outside CI: &quot;</span>, </span>
-<span id="cb119-7"><a href="session07.html#cb119-7" tabindex="-1"></a>                   <span class="fu">round</span>(<span class="fu">mean</span>((d <span class="sc">&gt;</span> upper_sp500) <span class="sc">|</span> (d <span class="sc">&lt;</span> lower_sp500)),<span class="dv">4</span>)<span class="sc">*</span><span class="dv">100</span>, <span class="st">&quot;%&quot;</span>))</span></code></pre></div>
+<span id="cb119-7"><a href="session07.html#cb119-7" tabindex="-1"></a>                   <span class="fu">round</span>(<span class="fu">mean</span>((d <span class="sc">&gt;</span> upper_sp500) <span class="sc">|</span> (d <span class="sc">&lt;</span> lower_sp500)),<span class="dv">4</span>)<span class="sc">*</span><span class="dv">100</span>, <span class="st">&quot;%&quot;</span>,</span>
+<span id="cb119-8"><a href="session07.html#cb119-8" tabindex="-1"></a>                   <span class="st">&quot;</span><span class="sc">\n</span><span class="st">(very conservative)&quot;</span>))</span></code></pre></div>
 <p><img src="_main_files/figure-html/unnamed-chunk-88-1.png" width="672" /></p>
 </div>
 <div id="exercises-4" class="section level2 hasAnchor" number="7.3">
@@ -410,7 +410,7 @@ r_t &amp;= \sigma^2_t z_t \\[1ex]
 \begin{aligned}
 y_t &amp;= c + \phi_1 y_{t-1} + \dots + \phi_p y_{t-p} + \theta_1 \varepsilon_{t-1} + \dots + \theta_q \varepsilon_{t-q} + \varepsilon_t \\
 \varepsilon_t &amp;= \sigma_t z_t \\
-\sigma^2_t &amp;= \omega + \alpha_1 y_{t-1}^2 + \dots + \alpha_r y_{t-r}^2 + \beta_1 \sigma^2_{t-1} + \dots + \beta_s \sigma^2_{t-s}
+\sigma^2_t &amp;= \omega + \alpha_1 \varepsilon_{t-1}^2 + \dots + \alpha_r \varepsilon_{t-r}^2 + \beta_1 \sigma^2_{t-1} + \dots + \beta_s \sigma^2_{t-s}
 \end{aligned}
 \]</span></p>
 <p>Derive the log-likelihood of the model under the assumption that <span class="math inline">\(z_t \sim \mathcal{N}(0, 1)\)</span>. Provide also the filtering procedure used to estimate the latent variables <span class="math inline">\(\varepsilon_t\)</span> and <span class="math inline">\(\sigma_t\)</span>.</p>
@@ -422,7 +422,7 @@ y_t &amp;= c + \phi_1 y_{t-1} + \dots + \phi_p y_{t-p} + \theta_1 \varepsilon_{t
 \begin{aligned}
 y_t &amp;= c + \phi y_{t-1} + \theta \varepsilon_{t-1} + \varepsilon_t \\
 \varepsilon_t &amp;= \sigma_t z_t \\
-\sigma^2_t &amp;= \omega + \alpha y_{t-1}^2 + \beta \sigma^2_{t-1} + \gamma y_{t-1}^2 \mathbb{1}_{y_{t-1}&lt;0}
+\sigma^2_t &amp;= \omega + \alpha \varepsilon_{t-1}^2 + \beta \sigma^2_{t-1} + \gamma \varepsilon_{t-1}^2 \mathbb{1}_{\varepsilon_{t-1}&lt;0}
 \end{aligned}
 \]</span></p>
 <p>Derive the log-likelihood of the model under the assumption that <span class="math inline">\(z_t \sim \mathcal{N}(0, 1)\)</span>. Provide also the filtering procedure used to estimate the latent variables <span class="math inline">\(\varepsilon_t\)</span> and <span class="math inline">\(\sigma_t\)</span>.</p>
